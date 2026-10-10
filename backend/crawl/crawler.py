@@ -37,6 +37,9 @@ class CrawlConfig:
     max_depth: int = 2
     time_budget_seconds: float = 60.0
     max_pdf_pages: int = 30
+    # A home page with less visible text is re-rendered once in a browser (if enabled).
+    # 0 = off; from_env() takes the value from data/check_hints.yaml.
+    homepage_min_chars: int = 0
     fetch: FetchConfig = field(default_factory=FetchConfig)
 
     @classmethod
@@ -48,6 +51,7 @@ class CrawlConfig:
             time_budget_seconds=float(os.getenv("CRAWLER_TIME_BUDGET_SECONDS")
                                       or d.time_budget_seconds),
             max_pdf_pages=int(os.getenv("CRAWLER_MAX_PDF_PAGES") or d.max_pdf_pages),
+            homepage_min_chars=_homepage_min_chars(),
             fetch=FetchConfig.from_env())
 
 
@@ -76,6 +80,11 @@ class CrawlResult:
     def unique_pages(self) -> int:
         """Pages read, counting each normalized URL once (gates possible_gap)."""
         return len({normalize_url(p.url) for p in self.pages})
+
+
+def _homepage_min_chars() -> int:
+    from backend.checks.llm_checks import homepage_min_chars  # data/check_hints.yaml
+    return homepage_min_chars()
 
 
 def normalize_url(url: str) -> str:
@@ -131,10 +140,15 @@ class Crawler:
         fcfg = self.cfg.fetch
 
         cached = self._cached(bank_id, start_url, run_id)
-        if cached and cached[1].get("method") == "httpx" and \
+        if cached and cached[1].get("method") in ("httpx", "browser-home") and \
                 len(cached[0].text) >= fcfg.min_text_chars:
             self.progress("home page from the store (fetched earlier)")
-            self._crawl_httpx(res, cached[0], cached[1], deadline, run_id, from_store=True)
+            page, meta = cached
+            if meta.get("method") == "httpx":
+                res.pages.append(page)
+                page, meta = self._rerender_short_home(res, page, meta, run_id)
+                res.pages.remove(page)
+            self._crawl_httpx(res, page, meta, deadline, run_id, from_store=True)
             return res
         self.progress("fetching home page")
         home = self.fetcher.get(start_url)
@@ -174,6 +188,7 @@ class Crawler:
             res.status = "other"
             res.reason = f"home page is not a readable HTML page ({home.content_type or 'unknown'})"
             return res
+        page, meta = self._rerender_short_home(res, page, meta, run_id)
         self._crawl_httpx(res, page, meta, deadline, run_id)
         return res
 
@@ -306,6 +321,41 @@ class Crawler:
         if self.store is not None:
             self.store.put(page, meta, request_url=r.url)
         return page, meta
+
+    def _rerender_short_home(self, res: CrawlResult, page: Page, meta: dict,
+                             run_id: str | None) -> tuple[Page, dict]:
+        """A home page with little visible text (dynamic content?) is rendered once in a
+        browser; the rendering replaces it only if it has more text. Never bypasses a block:
+        robots.txt is checked again for the final URL."""
+        n = len(page.text)
+        if n >= self.cfg.homepage_min_chars or not self.cfg.fetch.browser_fallback:
+            return page, meta
+        self.progress(f"home page has only {n} characters of text: rendering it in a browser")
+        tl = lambda h: len(visible_text(h))  # noqa: E731
+        try:
+            with self._browser_factory() as browser:
+                rr = browser.render(page.url, self.cfg.fetch.browser_timeout_seconds, text_len=tl)
+        except Exception as e:  # Playwright missing or crashed: keep the httpx page
+            res.notes.append(f"browser re-render of the short home page failed: {type(e).__name__}")
+            return page, meta
+        if not rr.ok or self.fetcher.allowed(rr.final_url) is not True:
+            res.notes.append("browser re-render of the short home page gave no usable page")
+            return page, meta
+        text = visible_text(rr.html)
+        if len(text) <= n:
+            res.notes.append(f"browser re-render of the short home page: no more text ({len(text)} chars)")
+            return page, meta
+        lk = links(rr.html, page.url)
+        new = page.model_copy(update={"text": text, "language": detect_language(text) or "other",
+                                      "title": page_title(rr.html) or page.title,
+                                      "links": lk, "readable": True})
+        new_meta = {"method": "browser-home", "links": [list(x) for x in lk],
+                    "lang": language_links(rr.html, page.url)}
+        res.pages[res.pages.index(page)] = new
+        if self.store is not None:
+            self.store.put(new, new_meta, request_url=page.url)
+        res.notes.append(f"home page re-rendered in a browser: {n} -> {len(text)} characters")
+        return new, new_meta
 
     # --- browser crawl (JavaScript-only sites) ---
 

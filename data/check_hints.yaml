@@ -21,6 +21,13 @@
 # title: short English name shown in the UI (not a legal text).
 # location: homepage -> LLM path sends the home page first; evidence only on an inner page is
 #   not_checkable (audit B2). Deterministic rules express the same with where: homepage.
+settings:
+  # Homepage-scoped rules (where: homepage or any): a homepage with less visible text than
+  # this is probably dynamic content or a block page, so no possible_gap is reported from it
+  # (not_checkable "homepage text too short"). The crawler re-renders such a homepage once in
+  # a browser first when BROWSER_FALLBACK is on.
+  homepage_min_chars: 1500
+
 requirements:
   req:cbu_reg_3030:main:7:      # Uzbek (state language) version of the website
     title: "Uzbek-language version"

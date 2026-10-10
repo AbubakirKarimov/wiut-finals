@@ -110,6 +110,20 @@ def _env_int(name: str, default: int) -> int:
     return int(os.getenv(name) or default)
 
 
+def hint_setting(name: str, default, path: Path | None = None):
+    """Top-level `settings:` value of data/check_hints.yaml (default when missing)."""
+    path = path or HINTS_PATH
+    if not path.exists():
+        return default
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    value = (data.get("settings") or {}).get(name)
+    return default if value is None else value
+
+
+def homepage_min_chars() -> int:
+    return int(hint_setting("homepage_min_chars", 1500))
+
+
 def _hint_entry(req: Requirement, path: Path | None = None) -> dict:
     path = path or HINTS_PATH
     if not path.exists():

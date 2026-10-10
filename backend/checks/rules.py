@@ -191,9 +191,20 @@ def check_phone(pages: list[Page], rule: dict, sections: list[str]) -> CheckOutc
 RULES = {"link": check_link, "phone": check_phone}
 
 
-def run_rule(rule: dict, pages: list[Page], sections: list[str]) -> CheckOutcome:
+def run_rule(rule: dict, pages: list[Page], sections: list[str],
+             homepage_min_chars: int = 1500) -> CheckOutcome:
     fn = RULES.get(rule.get("kind", ""))
     if fn is None:
         return CheckOutcome("not_checkable", reason=f"unknown rule {rule.get('kind')!r} in "
                                                     "data/check_hints.yaml")
-    return fn(pages, rule, sections)
+    out = fn(pages, rule, sections)
+    # A homepage-scoped absence on a thin homepage is not evidence of absence.
+    if out.status == "possible_gap" and rule.get("where", "any") in ("homepage", "any"):
+        home = next((p for p in pages if p.readable), None)
+        n = len(normalize_ws(home.text)) if home else 0
+        if n < homepage_min_chars:
+            return CheckOutcome("not_checkable", page=home,
+                                reason=f"homepage text too short ({n} chars), likely dynamic "
+                                       f"content or blocked (threshold {homepage_min_chars}, "
+                                       f"data/check_hints.yaml): {out.reason}")
+    return out

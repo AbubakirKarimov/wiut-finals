@@ -83,7 +83,7 @@ def test_51_negative_no_number_is_code_gap():
 
 def test_51_year_is_not_a_short_number():
     p = Page(bank_id="b", url="https://x.uz/", language="uz_latn", source_type="html",
-             text="Bank 1994 yilda tashkil etilgan. " * 20)
+             text="Bank 1994 yilda tashkil etilgan. " * 60)
     out, _, _ = check("51", [p, *filler("https://x.uz", 6)])
     assert out.status == "possible_gap"
 
@@ -166,7 +166,7 @@ def test_14_negative_and_road_map_is_not_a_site_map():
     out, _, _ = check("14", home("anor_uz_home"))
     assert out.status == "possible_gap"
     p = Page(bank_id="b", url="https://x.uz/", language="uz_latn", source_type="html",
-             text="Yo'l xaritasi " * 30, links=[("https://x.uz/roadmap", "Yo'l xaritasi")])
+             text="Yo'l xaritasi " * 120, links=[("https://x.uz/roadmap", "Yo'l xaritasi")])
     out, _, _ = check("14", [p, *filler("https://x.uz", 6)])
     assert out.status == "possible_gap"
 
@@ -179,3 +179,55 @@ def test_runner_marks_rule_findings_as_code():
                     [req(c) for c in ("14", "17", "18^1", "49", "51")], None)
     assert {f.decided_by for f in fs} == {"code"}
     assert all(f.status == "ok" for f in fs), [(f.requirement_id, f.reason) for f in fs]
+
+
+# --- short homepage: no possible_gap from a thin homepage ---
+
+def thin_home(chars: int, links=()) -> Page:
+    text = ("Bosh sahifa " * 200)[:chars - 1] + "."
+    return Page(bank_id="b", url="https://x.uz/", language="uz_latn", source_type="html",
+                text=text, links=list(links) or [("https://x.uz/news", "Yangiliklar")])
+
+
+@pytest.mark.parametrize("clause", ["14", "17", "49", "51"])
+def test_short_homepage_never_gives_a_gap(clause):
+    out, _, _ = check(clause, [thin_home(900), *filler("https://x.uz", 6)])
+    assert out.status == "not_checkable"
+    assert out.reason.startswith("homepage text too short (900 chars), likely dynamic content "
+                                 "or blocked")
+
+
+def test_short_homepage_any_page_rule_18_1():
+    loans = filler("https://x.uz", 1, "uz/kreditlar")
+    out, _, _ = check("18^1", [thin_home(900), *loans, *filler("https://x.uz", 6)])
+    assert out.status == "not_checkable" and "homepage text too short" in out.reason
+
+
+def test_long_enough_homepage_still_gives_a_gap():
+    out, _, _ = check("14", [thin_home(1600), *filler("https://x.uz", 6)])
+    assert out.status == "possible_gap"
+
+
+def test_short_homepage_keeps_verified_evidence():
+    """Evidence actually found on a thin homepage is still ok (only absence is suspect)."""
+    home = thin_home(900, [("https://x.uz/sitemap", "Sayt xaritasi")])
+    home.text = "Sayt xaritasi " + home.text
+    out, _, _ = check("14", [home, *filler("https://x.uz", 6)])
+    assert out.status == "ok"
+
+
+def test_short_homepage_does_not_affect_section_rule_40_4():
+    dep = Page(bank_id="b", url="https://x.uz/uz/omonatlar", language="uz_latn",
+               source_type="html", text="Omonat foiz stavkasi 20 foiz. " * 20,
+               links=[("https://x.uz/uz/omonat/1", "Jamg'arma omonati")])
+    out, _, _ = check("40^4", [thin_home(300), *filler("https://x.uz", 5), dep])
+    assert out.status == "possible_gap"
+
+
+def test_threshold_comes_from_check_hints(tmp_path, monkeypatch):
+    h = tmp_path / "hints.yaml"
+    h.write_text(REAL_HINTS.read_text(encoding="utf-8").replace(
+        "homepage_min_chars: 1500", "homepage_min_chars: 500"), encoding="utf-8")
+    monkeypatch.setattr(llm_checks, "HINTS_PATH", h)
+    out, _, _ = check("14", [thin_home(900), *filler("https://x.uz", 6)])
+    assert out.status == "possible_gap"

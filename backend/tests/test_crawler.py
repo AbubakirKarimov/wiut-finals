@@ -173,3 +173,60 @@ def test_section_pages_fetched_first_within_page_cap():
     assert set(paths[2:5]) == {"/uz/kredit/avto", "/uz/private/deposit/", "/uz/about/documents/"}
     assert paths[5] == "/uz/kredit/ipoteka"
     assert not any("/news/" in p for p in paths)
+
+
+class FakeBrowser:
+    def __init__(self, html, calls):
+        self.html, self.calls = html, calls
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        pass
+
+    def render(self, url, timeout_seconds=None, text_len=None):
+        from backend.crawl.fetch import RenderResult
+        self.calls.append(url)
+        return RenderResult(ok=self.html is not None, html=self.html or "", status=200,
+                            final_url=url, attempts=1)
+
+
+def short_home_site(req):
+    if req.url.path == "/robots.txt":
+        return httpx.Response(404)
+    body = f"<html><body><p>{UZ}</p><a href='/uz/omonat'>Omonat</a></body></html>"
+    return httpx.Response(200, headers={"content-type": "text/html"}, content=body.encode())
+
+
+def short_home_crawler(html, calls, browser=True, min_chars=5000):
+    fcfg = FetchConfig(user_agent=UA, min_delay_seconds=0, min_text_chars=100,
+                       browser_fallback=browser)
+    return Crawler(CrawlConfig(fetch=fcfg, max_pages=3, homepage_min_chars=min_chars),
+                   fetcher=Fetcher(fcfg, transport=httpx.MockTransport(short_home_site)),
+                   browser_factory=lambda: FakeBrowser(html, calls))
+
+
+def test_short_home_page_is_rendered_once_in_a_browser():
+    calls = []
+    rich = ("<html><body><p>" + UZ * 4 + "</p><a href='/uz/murojaat'>Murojaat yuborish</a>"
+            "</body></html>")
+    res = short_home_crawler(rich, calls).crawl("b", "https://bank.uz/uz/")
+    assert calls == ["https://bank.uz/uz/"]                       # once, the home page only
+    assert len(res.pages[0].text) > len(UZ) * 3
+    assert ("https://bank.uz/uz/murojaat", "Murojaat yuborish") in res.pages[0].links
+    assert any("re-rendered in a browser" in n for n in res.notes)
+
+
+def test_short_home_page_kept_when_browser_gives_nothing_more():
+    calls = []
+    res = short_home_crawler(None, calls).crawl("b", "https://bank.uz/uz/")
+    assert calls == ["https://bank.uz/uz/"] and res.pages[0].text.startswith("Bank xizmatlari")
+    assert any("no usable page" in n for n in res.notes)
+
+
+def test_short_home_page_not_rendered_when_fallback_off_or_long_enough():
+    calls = []
+    short_home_crawler("<p>x</p>", calls, browser=False).crawl("b", "https://bank.uz/uz/")
+    short_home_crawler("<p>x</p>", calls, min_chars=100).crawl("b", "https://bank.uz/uz/")
+    assert calls == []

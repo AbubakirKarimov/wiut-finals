@@ -10,7 +10,7 @@ from typing import Callable
 
 from backend.checks.evidence import verify_quote
 from backend.checks.llm_checks import (TIMEOUT_REASON, check_presence, hint_rule, hint_sections,
-                                       translate)
+                                       homepage_min_chars, translate)
 from backend.checks.rules import run_rule
 from backend.checks.types import CheckOutcome
 from backend.checks.uz_version import check_uz_version
@@ -32,7 +32,7 @@ def run_one(req: Requirement, crawl: CrawlResult, llm: LLMProvider | None) -> Ch
     if req.check_type in ("required_document", "key_info"):
         rule = hint_rule(req)
         if rule:  # deterministic: no LLM call
-            return run_rule(rule, crawl.pages, hint_sections(req))
+            return run_rule(rule, crawl.pages, hint_sections(req), homepage_min_chars())
         return check_presence(req, crawl.pages, llm)
     return CheckOutcome("not_checkable", reason=f"unknown check type {req.check_type}")
 
