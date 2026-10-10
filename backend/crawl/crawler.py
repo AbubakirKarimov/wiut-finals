@@ -72,6 +72,11 @@ class CrawlResult:
     def urls_read(self) -> list[str]:
         return [p.url for p in self.pages]
 
+    @property
+    def unique_pages(self) -> int:
+        """Pages read, counting each normalized URL once (gates possible_gap)."""
+        return len({normalize_url(p.url) for p in self.pages})
+
 
 def normalize_url(url: str) -> str:
     p = urlsplit(url)
@@ -355,6 +360,10 @@ class Crawler:
         return res
 
     def _store_html(self, res: CrawlResult, url: str, html: str, run_id: str | None) -> None:
+        if normalize_url(url) in {normalize_url(p.url) for p in res.pages}:
+            # A link that renders to a page already read (e.g. a single-page app's home).
+            res.notes.append(f"browser: {url} already read, not counted twice")
+            return
         text = visible_text(html)
         page = Page(bank_id=res.bank_id, url=url, source_type="html", text=text,
                     language=detect_language(text) or "other", readable=bool(text),

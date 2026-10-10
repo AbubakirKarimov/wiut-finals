@@ -46,7 +46,7 @@ def finalize(out: CheckOutcome, crawl: CrawlResult, req: Requirement | None = No
                                 reason="evidence quote not found verbatim in the page text; "
                                        f"original outcome {out.status}: {out.reason}")
     if out.status == "possible_gap":
-        n, need = len(crawl.pages), min_pages_for_gap()
+        n, need = crawl.unique_pages, min_pages_for_gap()
         if n < need:
             return CheckOutcome("not_checkable", page=out.page, quote=out.quote,
                                 llm_used=out.llm_used, context=out.context,
@@ -102,7 +102,7 @@ def run_checks(run_id: str, crawl: CrawlResult, requirements: list[Requirement],
             # Translation only after the original quote has been verified.
             evidence_quote_en=translate(quote, llm) if quote else None,
             context_quote=out.context if context_ok else None,
-            pages_read=len(crawl.pages), urls_read=crawl.urls_read)
+            pages_read=crawl.unique_pages, urls_read=crawl.urls_read)
         findings.append(f)
         if on_finding:
             on_finding(f)

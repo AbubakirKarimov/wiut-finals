@@ -150,8 +150,6 @@ class SameUrlBrowser:
                             final_url="https://spa.uz/main/home", attempts=1)
 
 
-@pytest.mark.xfail(strict=True, reason="audit bug: in browser mode a link that renders to "
-                   "an already-read URL is stored again, inflating pages_read")
 def test_browser_crawl_does_not_count_a_page_twice():
     html = ("<html><body><p>" + FILLER * 3 + "</p>"
             "<a href='/main/individual/home'>Bosh sahifa</a></body></html>")
@@ -166,7 +164,20 @@ def test_browser_crawl_does_not_count_a_page_twice():
                 fetcher=Fetcher(f, transport=httpx.MockTransport(handler)),
                 browser_factory=lambda: SameUrlBrowser(html))
     res = c.crawl("b", "https://spa.uz/main/home")
-    assert len(res.urls_read) == len(set(res.urls_read))
+    assert len(res.urls_read) == len(set(res.urls_read)) == res.unique_pages == 1
+    assert any("not counted twice" in n for n in res.notes)
+
+
+def test_gap_gate_counts_unique_urls(tmp_db):
+    """Duplicate page rows (e.g. from an older crawl) must not reach the 5-page gate."""
+    p = Page(bank_id="b", url="https://b.uz/ru/", language="ru", text="Главная. " * 30,
+             source_type="html")
+    c = crawl([p, p.model_copy(), p.model_copy(update={"url": "https://b.uz/ru"}),
+               p.model_copy(update={"url": "https://b.uz/ru/a"}),
+               p.model_copy(update={"url": "https://b.uz/ru/b"})])
+    [f] = run_checks("r", c, [req("uz_version")], None)
+    assert f.status == "not_checkable" and "only 4 page(s) read" in f.reason
+    assert f.pages_read == 4
 
 
 # --- B7: a possible_gap needs a page of the relevant section ---
