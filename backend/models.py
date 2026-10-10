@@ -37,6 +37,8 @@ class Page(BaseModel):
     source_type: SourceType
     fetched_at: datetime = Field(default_factory=utcnow)
     readable: bool = True
+    title: str = ""
+    run_id: str | None = None
 
 
 class Finding(BaseModel):
@@ -51,6 +53,12 @@ class Finding(BaseModel):
     evidence_quote_en: str | None = None
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     created_at: datetime = Field(default_factory=utcnow)
+    run_id: str | None = None
+    # How much of the site was read before deciding (stored for every finding).
+    pages_read: int | None = None
+    urls_read: list[str] = Field(default_factory=list)
+    # Why the status was chosen (e.g. "needs browser", "quote not found verbatim").
+    reason: str | None = None
 
 
 class Decision(BaseModel):
@@ -65,6 +73,27 @@ class Job(BaseModel):
     id: str
     url: str
     status: JobStatus = "queued"
-    result_ref: str | None = None
+    result_ref: str | None = None  # run id once the crawl has started
     error: str | None = None
     created_at: datetime = Field(default_factory=utcnow)
+    progress: str = ""
+
+
+RunStatus = Literal["running", "done", "error"]
+
+
+class Run(BaseModel):
+    """One crawl + check of one site (from POST /check or scripts/crawl_all.py)."""
+    id: str
+    bank_id: str
+    start_url: str
+    source: Literal["job", "batch"] = "job"
+    status: RunStatus = "running"
+    crawl_status: str | None = None  # ok | blocked | unreachable | needs_browser | ...
+    crawl_reason: str | None = None
+    pages_read: int = 0
+    fetch_errors: list[str] = Field(default_factory=list)
+    has_language_switcher: bool | None = None
+    started_at: datetime = Field(default_factory=utcnow)
+    finished_at: datetime | None = None
+    error: str | None = None

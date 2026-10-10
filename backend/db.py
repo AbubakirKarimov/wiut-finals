@@ -5,13 +5,14 @@ import json
 import os
 import sqlite3
 from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import datetime
 from pathlib import Path
 from typing import Iterator
 
 from dotenv import load_dotenv
 
-from backend.models import Decision, Finding, Job, Page, Requirement, utcnow
+from backend.models import Decision, Finding, Job, Page, Requirement, Run, utcnow
 
 load_dotenv()
 
@@ -80,6 +81,22 @@ CREATE TABLE IF NOT EXISTS llm_calls (
     error TEXT,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS runs (
+    id TEXT PRIMARY KEY,
+    bank_id TEXT NOT NULL,
+    start_url TEXT NOT NULL,
+    source TEXT NOT NULL,
+    status TEXT NOT NULL,
+    crawl_status TEXT,
+    crawl_reason TEXT,
+    pages_read INTEGER NOT NULL DEFAULT 0,
+    fetch_errors TEXT NOT NULL DEFAULT '[]',
+    has_language_switcher INTEGER,
+    started_at TEXT NOT NULL,
+    finished_at TEXT,
+    error TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_runs_bank ON runs(bank_id);
 CREATE TABLE IF NOT EXISTS llm_cache (
     key TEXT PRIMARY KEY,
     provider TEXT NOT NULL,
@@ -112,9 +129,27 @@ def init_db(path: Path | str | None = None) -> None:
     with connect(target) as conn:
         conn.executescript(SCHEMA)
         # Migrations for databases created by earlier versions of the schema.
-        cols = {r["name"] for r in conn.execute("PRAGMA table_info(llm_calls)")}
-        if "cache_key" not in cols:
-            conn.execute("ALTER TABLE llm_calls ADD COLUMN cache_key TEXT")
+        for table, column, decl in MIGRATIONS:
+            cols = {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}
+            if column not in cols:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+
+
+MIGRATIONS = [
+    ("llm_calls", "cache_key", "TEXT"),
+    ("llm_calls", "run_id", "TEXT"),
+    ("pages", "title", "TEXT NOT NULL DEFAULT ''"),
+    ("pages", "run_id", "TEXT"),
+    ("findings", "run_id", "TEXT"),
+    ("findings", "pages_read", "INTEGER"),
+    ("findings", "urls_read", "TEXT NOT NULL DEFAULT '[]'"),
+    ("findings", "reason", "TEXT"),
+    ("jobs", "progress", "TEXT NOT NULL DEFAULT ''"),
+]
+
+# Run id of the check currently executing in this thread/context; stamped on llm_calls so
+# tokens and cost can be attributed per check.
+current_run_id: ContextVar[str | None] = ContextVar("current_run_id", default=None)
 
 
 def _ts(value: datetime) -> str:
@@ -138,43 +173,66 @@ def list_requirements(conn: sqlite3.Connection, approved_only: bool = False) -> 
 
 # --- pages (crawl cache) ---
 
+def _insert(conn: sqlite3.Connection, table: str, row: dict) -> None:
+    cols = ", ".join(row)
+    marks = ", ".join("?" for _ in row)
+    conn.execute(f"INSERT OR REPLACE INTO {table} ({cols}) VALUES ({marks})",
+                 tuple(row.values()))
+
+
 def upsert_page(conn: sqlite3.Connection, page: Page) -> None:
-    conn.execute(
-        "INSERT OR REPLACE INTO pages VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (page.bank_id, page.url, page.language, page.text, page.source_type,
-         _ts(page.fetched_at), int(page.readable)),
-    )
+    _insert(conn, "pages", {
+        "bank_id": page.bank_id, "url": page.url, "language": page.language,
+        "text": page.text, "source_type": page.source_type,
+        "fetched_at": _ts(page.fetched_at), "readable": int(page.readable),
+        "title": page.title, "run_id": page.run_id})
 
 
-def list_pages(conn: sqlite3.Connection, bank_id: str) -> list[Page]:
-    rows = conn.execute("SELECT * FROM pages WHERE bank_id = ? ORDER BY url", (bank_id,))
+def list_pages(conn: sqlite3.Connection, bank_id: str, run_id: str | None = None) -> list[Page]:
+    if run_id:
+        rows = conn.execute("SELECT * FROM pages WHERE bank_id = ? AND run_id = ? ORDER BY url",
+                            (bank_id, run_id))
+    else:
+        rows = conn.execute("SELECT * FROM pages WHERE bank_id = ? ORDER BY url", (bank_id,))
     return [Page(**{**dict(r), "readable": bool(r["readable"])}) for r in rows]
 
 
 # --- findings ---
 
 def upsert_finding(conn: sqlite3.Connection, finding: Finding) -> None:
-    conn.execute(
-        "INSERT OR REPLACE INTO findings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (finding.id, finding.bank_id, finding.requirement_id, finding.status,
-         finding.evidence_url, finding.evidence_quote, finding.evidence_quote_en,
-         finding.confidence,
-         _ts(finding.created_at)),
-    )
+    _insert(conn, "findings", {
+        "id": finding.id, "bank_id": finding.bank_id,
+        "requirement_id": finding.requirement_id, "status": finding.status,
+        "evidence_url": finding.evidence_url, "evidence_quote": finding.evidence_quote,
+        "evidence_quote_en": finding.evidence_quote_en, "confidence": finding.confidence,
+        "created_at": _ts(finding.created_at), "run_id": finding.run_id,
+        "pages_read": finding.pages_read,
+        "urls_read": json.dumps(finding.urls_read, ensure_ascii=False),
+        "reason": finding.reason})
+
+
+def _finding(row: sqlite3.Row) -> Finding:
+    d = dict(row)
+    d["urls_read"] = json.loads(d.get("urls_read") or "[]")
+    return Finding(**d)
 
 
 def get_finding(conn: sqlite3.Connection, finding_id: str) -> Finding | None:
     row = conn.execute("SELECT * FROM findings WHERE id = ?", (finding_id,)).fetchone()
-    return Finding(**dict(row)) if row else None
+    return _finding(row) if row else None
 
 
-def list_findings(conn: sqlite3.Connection, bank_id: str | None = None) -> list[Finding]:
-    if bank_id is None:
-        rows = conn.execute("SELECT * FROM findings ORDER BY created_at")
-    else:
-        rows = conn.execute(
-            "SELECT * FROM findings WHERE bank_id = ? ORDER BY created_at", (bank_id,))
-    return [Finding(**dict(r)) for r in rows]
+def list_findings(conn: sqlite3.Connection, bank_id: str | None = None,
+                  run_id: str | None = None) -> list[Finding]:
+    where, args = [], []
+    if bank_id is not None:
+        where.append("bank_id = ?")
+        args.append(bank_id)
+    if run_id is not None:
+        where.append("run_id = ?")
+        args.append(run_id)
+    sql = "SELECT * FROM findings" + (" WHERE " + " AND ".join(where) if where else "")
+    return [_finding(r) for r in conn.execute(sql + " ORDER BY created_at", args)]
 
 
 # --- decisions ---
@@ -198,10 +256,46 @@ def list_decisions(conn: sqlite3.Connection) -> list[Decision]:
 # --- jobs ---
 
 def upsert_job(conn: sqlite3.Connection, job: Job) -> None:
-    conn.execute(
-        "INSERT OR REPLACE INTO jobs VALUES (?, ?, ?, ?, ?, ?)",
-        (job.id, job.url, job.status, job.result_ref, job.error, _ts(job.created_at)),
-    )
+    _insert(conn, "jobs", {
+        "id": job.id, "url": job.url, "status": job.status, "result_ref": job.result_ref,
+        "error": job.error, "created_at": _ts(job.created_at), "progress": job.progress})
+
+
+# --- runs ---
+
+def upsert_run(conn: sqlite3.Connection, run: Run) -> None:
+    _insert(conn, "runs", {
+        "id": run.id, "bank_id": run.bank_id, "start_url": run.start_url,
+        "source": run.source, "status": run.status, "crawl_status": run.crawl_status,
+        "crawl_reason": run.crawl_reason, "pages_read": run.pages_read,
+        "fetch_errors": json.dumps(run.fetch_errors, ensure_ascii=False),
+        "has_language_switcher": (None if run.has_language_switcher is None
+                                  else int(run.has_language_switcher)),
+        "started_at": _ts(run.started_at),
+        "finished_at": _ts(run.finished_at) if run.finished_at else None,
+        "error": run.error})
+
+
+def _run(row: sqlite3.Row) -> Run:
+    d = dict(row)
+    d["fetch_errors"] = json.loads(d["fetch_errors"] or "[]")
+    if d["has_language_switcher"] is not None:
+        d["has_language_switcher"] = bool(d["has_language_switcher"])
+    return Run(**d)
+
+
+def get_run(conn: sqlite3.Connection, run_id: str) -> Run | None:
+    row = conn.execute("SELECT * FROM runs WHERE id = ?", (run_id,)).fetchone()
+    return _run(row) if row else None
+
+
+def list_runs(conn: sqlite3.Connection, bank_id: str | None = None) -> list[Run]:
+    if bank_id is None:
+        rows = conn.execute("SELECT * FROM runs ORDER BY started_at DESC")
+    else:
+        rows = conn.execute("SELECT * FROM runs WHERE bank_id = ? ORDER BY started_at DESC",
+                            (bank_id,))
+    return [_run(r) for r in rows]
 
 
 def get_job(conn: sqlite3.Connection, job_id: str) -> Job | None:
@@ -235,7 +329,8 @@ def log_llm_call(conn: sqlite3.Connection, *, provider: str, model: str,
                  cache_key: str | None = None) -> None:
     conn.execute(
         "INSERT INTO llm_calls (provider, model, input_tokens, output_tokens, duration_ms, "
-        "ok, cache_hit, cache_key, error, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "ok, cache_hit, cache_key, error, created_at, run_id) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (provider, model, input_tokens, output_tokens, duration_ms, int(ok), int(cache_hit),
-         cache_key, error, _ts(utcnow())),
+         cache_key, error, _ts(utcnow()), current_run_id.get()),
     )

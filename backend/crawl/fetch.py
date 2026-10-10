@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MAX_REDIRECTS = 5
+ROBOTS_UNREADABLE = "robots.txt could not be read"
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -179,8 +180,7 @@ class Fetcher:
                 if not ok:
                     res.robots_blocked = True
                     res.final_url = current
-                    res.error = ("robots.txt disallows" if ok is False
-                                 else "robots.txt could not be read")
+                    res.error = "robots.txt disallows" if ok is False else ROBOTS_UNREADABLE
                     return res
                 self.throttle.wait(current)
                 with self.client.stream("GET", current) as r:
