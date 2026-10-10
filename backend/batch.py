@@ -50,6 +50,15 @@ def _fmt(v) -> str:
     return str(v)
 
 
+def _cell(row: dict, key: str) -> str:
+    v = row[key]
+    if key == "duration_s" and isinstance(v, (int, float)):
+        return f"{v:.1f}"
+    if key == "cost_usd" and isinstance(v, (int, float)):
+        return f"{v:.4f}"
+    return _fmt(v)
+
+
 COLUMNS = [("bank_id", "bank"), ("crawl", "crawl"), ("pages", "pages"), ("errors", "errors"),
            ("ok", "ok"), ("possible_gap", "gap"), ("not_checkable", "n/c"),
            ("duration_s", "secs"), ("api_calls", "calls"), ("cache_hits", "cached"),
@@ -70,7 +79,7 @@ def totals(rows: list[dict]) -> dict:
 
 
 def text_table(rows: list[dict]) -> str:
-    data = [[_fmt(r[k]) for k, _ in COLUMNS] for r in rows + [totals(rows)]]
+    data = [[_cell(r, k) for k, _ in COLUMNS] for r in rows + [totals(rows)]]
     head = [h for _, h in COLUMNS]
     widths = [max(len(x) for x in col) for col in zip(head, *data)]
     lines = ["  ".join(h.ljust(w) for h, w in zip(head, widths))]
@@ -82,7 +91,7 @@ def markdown_table(rows: list[dict]) -> str:
     out = ["| " + " | ".join(h for _, h in COLUMNS) + " |",
            "|" + "---|" * len(COLUMNS)]
     for r in rows + [totals(rows)]:
-        out.append("| " + " | ".join(_fmt(r[k]) for k, _ in COLUMNS) + " |")
+        out.append("| " + " | ".join(_cell(r, k) for k, _ in COLUMNS) + " |")
     reasons = [f"- {r['bank_id']}: {r['reason']}" for r in rows if r["reason"]]
     if reasons:
         out += ["", "Crawl notes:", *reasons]

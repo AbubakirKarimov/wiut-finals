@@ -1,6 +1,7 @@
 """Crawl and check every bank with a website_url in data/banks.yaml (stored as batch runs).
 
     .venv/bin/python scripts/crawl_all.py [bank_id ...]
+    .venv/bin/python scripts/crawl_all.py --summary    # table of the latest stored runs only
 
 Respects robots.txt, 1 request/second per host and the LLM pacing settings in .env; prints
 progress for every page and check. Banks whose site cannot be read (blocked, unreachable,
@@ -24,11 +25,24 @@ from backend.pipeline import check_site, llm_from_env, sync_requirements_yaml  #
 SUMMARY_PATH = ROOT / "data" / "precomputed" / "batch_summary.md"
 
 
+def latest_batch_runs() -> list[str]:
+    with db.connect() as conn:
+        latest: dict[str, str] = {}
+        for r in db.list_runs(conn):  # newest first
+            if r.source == "batch" and r.status == "done":
+                latest.setdefault(r.bank_id, r.id)
+    order = [b.id for b in load_banks()]
+    return [latest[b] for b in order if b in latest]
+
+
 def main(only: list[str]) -> int:
     db.init_db()
     sync_requirements_yaml()
-    banks = [b for b in crawlable_banks() if not only or b.id in only]
     without_url = [b.id for b in load_banks() if not b.website_url]
+    if only == ["--summary"]:  # rebuild the table from the latest stored batch runs
+        report(latest_batch_runs(), without_url)
+        return 0
+    banks = [b for b in crawlable_banks() if not only or b.id in only]
     if not banks:
         print("no banks with a website_url match", file=sys.stderr)
         return 2
@@ -43,7 +57,11 @@ def main(only: list[str]) -> int:
             print(f"  error: {type(e).__name__}: {e}", file=sys.stderr)
             continue
         print(f"  done: crawl={run.crawl_status} pages={run.pages_read}", file=sys.stderr)
+    report(run_ids, without_url)
+    return 0
 
+
+def report(run_ids: list[str], without_url: list[str]) -> None:
     with db.connect() as conn:
         rows = summarize(conn, run_ids)
     llm = llm_from_env()
@@ -61,7 +79,6 @@ def main(only: list[str]) -> int:
         f"- Not run (no website_url): {', '.join(without_url) or 'none'}\n\n"
         + markdown_table(rows) + "\n", encoding="utf-8")
     print(f"summary: {SUMMARY_PATH.relative_to(ROOT)}")
-    return 0
 
 
 if __name__ == "__main__":
