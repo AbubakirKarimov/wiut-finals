@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-10T19:58:13+00:00",
+ "generated_at": "2026-10-10T20:20:59+00:00",
  "summary": {
   "findings": 54,
   "decided_by": {
@@ -191,9 +191,9 @@
    "old_status": "not_checkable",
    "new_status": "not_checkable",
    "decided_by": "code",
-   "evidence_url": "https://www.anorbank.uz/deposit/",
+   "evidence_url": "https://www.anorbank.uz/uz/deposit/",
    "quote": null,
-   "reason": "Code: \"вклады гарантированы\" appears in the text of https://www.anorbank.uz/deposit/ but not as a link the crawler could read (a button or script?); check manually.",
+   "reason": "relevant section not reached: only the section index was read, no product page (read 15 pages; section pages read: https://www.anorbank.uz/uz/deposit/ (index); https://www.anorbank.uz/deposit/ (index))",
    "pages_found": 15,
    "pages_listed": 15
   },
@@ -299,9 +299,9 @@
    "old_status": "not_checkable",
    "new_status": "not_checkable",
    "decided_by": "code",
-   "evidence_url": "https://garantbank.uz/ru/vklady",
+   "evidence_url": "https://garantbank.uz/ru/vklad-orzu-sari",
    "quote": null,
-   "reason": "Code: \"вклады гарантированы\" appears in the text of https://garantbank.uz/ru/vklady but not as a link the crawler could read (a button or script?); check manually.",
+   "reason": "Code: \"вклады гарантированы\" appears in the text of https://garantbank.uz/ru/vklad-orzu-sari but not as a link the crawler could read (a button or script?); check manually.",
    "pages_found": 15,
    "pages_listed": 15
   },
@@ -623,7 +623,7 @@
    "old_status": "possible_gap",
    "new_status": "possible_gap",
    "decided_by": "code",
-   "evidence_url": "https://universalbank.uz/deposit",
+   "evidence_url": "https://universalbank.uz/deposit/poydevor",
    "quote": null,
    "reason": "No evidence found on 15 pages read. Code checked links matching omonatlaringiz kafolatlangan, omonat kafolat, omonatlarni kafolatlash, омонатларингиз кафолатланган, омонат кафолат, вклады гарантированы, гарантирования вкладов, гарантия вкладов, deposits guaranteed, deposit guarantee or linking to fg",
    "pages_found": 15,

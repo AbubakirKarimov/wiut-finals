@@ -1,6 +1,6 @@
 {
  "format": 1,
- "exported_at": "2026-10-10T19:57:57.580315+00:00",
+ "exported_at": "2026-10-10T20:20:43.205514+00:00",
  "note": "No page text. Quotes are verified verbatim against the page text at check time; evidence_quote_en is a machine translation.",
  "runs": [
   {
@@ -140,26 +140,6 @@
     },
     {
      "label": "pre-computed on 2026-10-10 19:34 UTC",
-     "requirement_id": "req:cbu_reg_3030:main:40^4",
-     "status": "not_checkable",
-     "reason": "relevant section not reached (read 4 pages): no section page",
-     "evidence_url": null,
-     "evidence_quote": null,
-     "evidence_quote_en": null,
-     "context_quote": null,
-     "decided_by": "code",
-     "pages_read": 4,
-     "urls_read": [
-      "https://agrobank.uz/uz/person",
-      "https://agrobank.uz/uz/about/bank",
-      "https://agrobank.uz/uz/bank-tarifi",
-      "https://agrobank.uz/uz/saytdan-foydalanish-shartlari-va-qoidalari"
-     ],
-     "created_at": "2026-10-10T19:34:31.416726+00:00",
-     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
-    },
-    {
-     "label": "pre-computed on 2026-10-10 19:34 UTC",
      "requirement_id": "req:cbu_reg_3030:main:49",
      "status": "ok",
      "reason": "Code: link \"Murojaat jo'natish\" (https://agrobank.uz/uz/contacts/appeal) found on https://agrobank.uz/uz/person (homepage page); anchor text quoted from the page.",
@@ -196,6 +176,26 @@
       "https://agrobank.uz/uz/saytdan-foydalanish-shartlari-va-qoidalari"
      ],
      "created_at": "2026-10-10T19:34:34.349690+00:00",
+     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
+    },
+    {
+     "label": "pre-computed on 2026-10-10 19:34 UTC",
+     "requirement_id": "req:cbu_reg_3030:main:40^4",
+     "status": "not_checkable",
+     "reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): relevant section not reached (read 4 pages): no section page",
+     "evidence_url": null,
+     "evidence_quote": null,
+     "evidence_quote_en": null,
+     "context_quote": null,
+     "decided_by": "code",
+     "pages_read": 4,
+     "urls_read": [
+      "https://agrobank.uz/uz/person",
+      "https://agrobank.uz/uz/about/bank",
+      "https://agrobank.uz/uz/bank-tarifi",
+      "https://agrobank.uz/uz/saytdan-foydalanish-shartlari-va-qoidalari"
+     ],
+     "created_at": "2026-10-10T20:20:29.958539+00:00",
      "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
     }
    ]
@@ -467,8 +467,8 @@
      "label": "pre-computed on 2026-10-10 19:34 UTC",
      "requirement_id": "req:cbu_reg_3030:main:40^4",
      "status": "not_checkable",
-     "reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): Code: \"вклады гарантированы\" appears in the text of https://www.anorbank.uz/deposit/ but not as a link the crawler could read (a button or script?); check manually.",
-     "evidence_url": "https://www.anorbank.uz/deposit/",
+     "reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): relevant section not reached: only the section index was read, no product page (read 15 pages; section pages read: https://www.anorbank.uz/uz/deposit/ (index); https://www.anorbank.uz/deposit/ (index))",
+     "evidence_url": "https://www.anorbank.uz/uz/deposit/",
      "evidence_quote": null,
      "evidence_quote_en": null,
      "context_quote": null,
@@ -491,7 +491,7 @@
       "https://www.anorbank.uz/credits/",
       "https://www.anorbank.uz/about/documents/"
      ],
-     "created_at": "2026-10-10T19:57:49.137696+00:00",
+     "created_at": "2026-10-10T20:20:30.098064+00:00",
      "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
     }
    ]
@@ -763,8 +763,8 @@
      "label": "pre-computed on 2026-10-10 19:37 UTC",
      "requirement_id": "req:cbu_reg_3030:main:40^4",
      "status": "not_checkable",
-     "reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): Code: \"вклады гарантированы\" appears in the text of https://garantbank.uz/ru/vklady but not as a link the crawler could read (a button or script?); check manually.",
-     "evidence_url": "https://garantbank.uz/ru/vklady",
+     "reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): Code: \"вклады гарантированы\" appears in the text of https://garantbank.uz/ru/vklad-orzu-sari but not as a link the crawler could read (a button or script?); check manually.",
+     "evidence_url": "https://garantbank.uz/ru/vklad-orzu-sari",
      "evidence_quote": null,
      "evidence_quote_en": null,
      "context_quote": null,
@@ -787,7 +787,7 @@
       "https://garantbank.uz/ru/vklad-orzu-sari",
       "https://garantbank.uz/ru/publichnaya-oferta-biznes"
      ],
-     "created_at": "2026-10-10T19:57:49.384632+00:00",
+     "created_at": "2026-10-10T20:20:30.409703+00:00",
      "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
     }
    ]
@@ -971,33 +971,6 @@
     },
     {
      "label": "pre-computed on 2026-10-10 19:36 UTC",
-     "requirement_id": "req:cbu_reg_3030:main:40^4",
-     "status": "not_checkable",
-     "reason": "relevant section not reached (read 11 pages): no section page",
-     "evidence_url": null,
-     "evidence_quote": null,
-     "evidence_quote_en": null,
-     "context_quote": null,
-     "decided_by": "code",
-     "pages_read": 11,
-     "urls_read": [
-      "https://hayotbank.uz/main/individual/home",
-      "https://hayotbank.uz/main/individual/credit",
-      "https://hayotbank.uz/main/individual/tariff",
-      "https://hayotbank.uz/main/about/docs",
-      "https://hayotbank.uz/main/business/tariff",
-      "https://hayotbank.uz/contact",
-      "https://hayotbank.uz/main/about/contacting-bank",
-      "https://hayotbank.uz/main/about/history",
-      "https://hayotbank.uz/main/individual/card",
-      "https://hayotbank.uz/main/about/press-center/view/113",
-      "https://hayotbank.uz/main/about/press-center/view/111"
-     ],
-     "created_at": "2026-10-10T19:36:05.158842+00:00",
-     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
-    },
-    {
-     "label": "pre-computed on 2026-10-10 19:36 UTC",
      "requirement_id": "req:cbu_reg_3030:main:49",
      "status": "ok",
      "reason": "Code: link \"Bankka murojaat qilish\" (https://hayotbank.uz/main/about/contacting-bank) found on https://hayotbank.uz/main/individual/home (homepage page); anchor text quoted from the page.",
@@ -1048,6 +1021,33 @@
       "https://hayotbank.uz/main/about/press-center/view/111"
      ],
      "created_at": "2026-10-10T19:36:14.346916+00:00",
+     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
+    },
+    {
+     "label": "pre-computed on 2026-10-10 19:36 UTC",
+     "requirement_id": "req:cbu_reg_3030:main:40^4",
+     "status": "not_checkable",
+     "reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): relevant section not reached (read 11 pages): no section page",
+     "evidence_url": null,
+     "evidence_quote": null,
+     "evidence_quote_en": null,
+     "context_quote": null,
+     "decided_by": "code",
+     "pages_read": 11,
+     "urls_read": [
+      "https://hayotbank.uz/main/individual/home",
+      "https://hayotbank.uz/main/individual/credit",
+      "https://hayotbank.uz/main/individual/tariff",
+      "https://hayotbank.uz/main/about/docs",
+      "https://hayotbank.uz/main/business/tariff",
+      "https://hayotbank.uz/contact",
+      "https://hayotbank.uz/main/about/contacting-bank",
+      "https://hayotbank.uz/main/about/history",
+      "https://hayotbank.uz/main/individual/card",
+      "https://hayotbank.uz/main/about/press-center/view/113",
+      "https://hayotbank.uz/main/about/press-center/view/111"
+     ],
+     "created_at": "2026-10-10T20:20:30.112332+00:00",
      "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
     }
    ]
@@ -1319,7 +1319,7 @@
      "label": "pre-computed on 2026-10-10 19:33 UTC",
      "requirement_id": "req:cbu_reg_3030:main:40^4",
      "status": "ok",
-     "reason": "re-checked 2026-10-10 (10 page(s) re-fetched for missing link data): Code: link \"Omonatlaringiz kafolatlangan\" (https://fgd.uz/uz) found on https://mkbank.uz/uz/private/deposit/ (section page); anchor text quoted from the page.",
+     "reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): Code: link \"Omonatlaringiz kafolatlangan\" (https://fgd.uz/uz) found on https://mkbank.uz/uz/private/deposit/ (section page); anchor text quoted from the page.",
      "evidence_url": "https://mkbank.uz/uz/private/deposit/",
      "evidence_quote": "Omonatlaringiz kafolatlangan",
      "evidence_quote_en": "Your deposits are guaranteed",
@@ -1343,7 +1343,7 @@
       "https://mkbank.uz/en/about/regulations/",
       "https://mkbank.uz/uz/corporate/deposits/"
      ],
-     "created_at": "2026-10-10T19:57:48.972954+00:00",
+     "created_at": "2026-10-10T20:20:29.944734+00:00",
      "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
     }
    ]
@@ -1551,37 +1551,6 @@
     },
     {
      "label": "pre-computed on 2026-10-10 19:36 UTC",
-     "requirement_id": "req:cbu_reg_3030:main:40^4",
-     "status": "possible_gap",
-     "reason": "No evidence found on 15 pages read. Code checked links matching omonatlaringiz kafolatlangan, omonat kafolat, omonatlarni kafolatlash, омонатларингиз кафолатланган, омонат кафолат, вклады гарантированы, гарантирования вкладов, гарантия вкладов, deposits guaranteed, deposit guarantee or linking to fgd.uz on 5 page(s) (https://universalbank.uz/deposit, https://universalbank.uz/ru/deposit, https://universalbank.uz/deposit/poydevor, ...): nothing matched.",
-     "evidence_url": "https://universalbank.uz/deposit",
-     "evidence_quote": null,
-     "evidence_quote_en": null,
-     "context_quote": null,
-     "decided_by": "code",
-     "pages_read": 15,
-     "urls_read": [
-      "https://universalbank.uz/",
-      "https://universalbank.uz/uz/",
-      "https://universalbank.uz/ru/",
-      "https://universalbank.uz/ru",
-      "https://universalbank.uz/deposit",
-      "https://universalbank.uz/credit",
-      "https://universalbank.uz/juristic/tariflar",
-      "https://universalbank.uz/juristic/kreditlar",
-      "https://universalbank.uz/ru/deposit",
-      "https://universalbank.uz/ru/credit",
-      "https://universalbank.uz/deposit/poydevor",
-      "https://universalbank.uz/deposit/premium",
-      "https://universalbank.uz/credit/ipoteka-ikkilamchi-bozor-uchun",
-      "https://universalbank.uz/deposit/prime",
-      "https://universalbank.uz/credit/iste'mol-krediti"
-     ],
-     "created_at": "2026-10-10T19:36:25.605367+00:00",
-     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
-    },
-    {
-     "label": "pre-computed on 2026-10-10 19:36 UTC",
      "requirement_id": "req:cbu_reg_3030:main:49",
      "status": "not_checkable",
      "reason": "Code: \"murojaat\" appears in the text of https://universalbank.uz/ but not as a link the crawler could read (a button or script?); check manually.",
@@ -1640,6 +1609,37 @@
       "https://universalbank.uz/credit/iste'mol-krediti"
      ],
      "created_at": "2026-10-10T19:36:26.748989+00:00",
+     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
+    },
+    {
+     "label": "pre-computed on 2026-10-10 19:36 UTC",
+     "requirement_id": "req:cbu_reg_3030:main:40^4",
+     "status": "possible_gap",
+     "reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): No evidence found on 15 pages read. Code checked links matching omonatlaringiz kafolatlangan, omonat kafolat, omonatlarni kafolatlash, омонатларингиз кафолатланган, омонат кафолат, вклады гарантированы, гарантирования вкладов, гарантия вкладов, deposits guaranteed, deposit guarantee or linking to fgd.uz on all 5 section page(s) read: https://universalbank.uz/deposit (index); https://universalbank.uz/ru/deposit (index); https://universalbank.uz/deposit/poydevor (product); https://universalbank.uz/deposit/premium (product); https://universalbank.uz/deposit/prime (product). Nothing matched.",
+     "evidence_url": "https://universalbank.uz/deposit/poydevor",
+     "evidence_quote": null,
+     "evidence_quote_en": null,
+     "context_quote": null,
+     "decided_by": "code",
+     "pages_read": 15,
+     "urls_read": [
+      "https://universalbank.uz/",
+      "https://universalbank.uz/uz/",
+      "https://universalbank.uz/ru/",
+      "https://universalbank.uz/ru",
+      "https://universalbank.uz/deposit",
+      "https://universalbank.uz/credit",
+      "https://universalbank.uz/juristic/tariflar",
+      "https://universalbank.uz/juristic/kreditlar",
+      "https://universalbank.uz/ru/deposit",
+      "https://universalbank.uz/ru/credit",
+      "https://universalbank.uz/deposit/poydevor",
+      "https://universalbank.uz/deposit/premium",
+      "https://universalbank.uz/credit/ipoteka-ikkilamchi-bozor-uchun",
+      "https://universalbank.uz/deposit/prime",
+      "https://universalbank.uz/credit/iste'mol-krediti"
+     ],
+     "created_at": "2026-10-10T20:20:30.154093+00:00",
      "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
     }
    ]
