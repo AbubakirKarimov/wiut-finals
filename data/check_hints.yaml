@@ -1,0 +1,26 @@
+# Human-reviewable search hints per approved requirement (read by backend/checks/llm_checks.py).
+#
+# keywords: when present, used INSTEAD of the keywords the LLM proposes. Matching is by word
+#   stems (first 5 letters), Latin/Cyrillic and apostrophe variants unified, words of a keyword
+#   in any order within a short window (backend/checks/evidence.py).
+#   The two entries below are the LLM's cached keyword lists with spelling errors fixed
+#   (audit bug B1): "gipergavola" -> "giperhavola", "кфолатланган" -> "кафолатланган",
+#   "шикайот" -> "шикоят", "алока" -> "алоқа". For 40^4 the link text quoted in the
+#   regulation itself ("Омонатларингиз кафолатланган") was added. Review before relying on it.
+requirements:
+  req:cbu_reg_3030:main:40^4:
+    keywords:
+      uz_latn: ["omonatlaringiz kafolatlangan", "omonat kafolat", "kafolatlangan omonat",
+                "deposit kafolati", "guaranteed omonat", "omonatlar kafolati", "giperhavola"]
+      uz_cyrl: ["омонатларингиз кафолатланган", "омонат кафолат", "кафолатланган омонат",
+                "депозит кафолати", "гарантия омонат", "омонатлар кафолати", "гиперҳавола"]
+      ru: ["ваши вклады гарантированы", "гарантия вкладов", "депозит гарантирован",
+           "гарантированный вклад", "ссылка гарантии", "страница гарантии", "депозитная гарантия"]
+      en: ["deposit guarantee", "guaranteed deposits", "deposit guarantee link",
+           "guarantee hyperlink", "deposit protection", "guarantee page"]
+  req:cbu_reg_3030:main:49:
+    keywords:
+      uz_latn: [shikoyat, murojaat, aloqa, telefon, onlayn, form]
+      uz_cyrl: [шикоят, мурожаат, алоқа, телефон, онлайн, форм]
+      ru: [жалоба, обращение, контакт, телефон, онлайн, форма]
+      en: [complaint, feedback, contact, support, online, form]

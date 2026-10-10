@@ -9,6 +9,8 @@ be removed together with the fix.
 import httpx
 import pytest
 
+from backend.checks import llm_checks
+from backend.checks.evidence import keyword_hits
 from backend.checks.runner import finalize, run_checks, run_one
 from backend.crawl.crawler import CrawlConfig, Crawler, CrawlResult
 from backend.crawl.fetch import FetchConfig, Fetcher, RenderResult
@@ -68,8 +70,6 @@ def test_quote_planted_inside_injected_instruction_is_not_accepted(tmp_db):
 
 # --- keyword candidate selection misses natural wording ---
 
-@pytest.mark.xfail(strict=True, reason="audit bug: multi-word LLM keywords are matched as "
-                   "exact phrases, so the literal required text is never sent to the LLM")
 def test_required_link_text_reaches_the_llm(tmp_db):
     llm = ScriptedLLM(tmp_db, presence={"present": True, "quote": "Omonatlaringiz kafolatlangan",
                                         "explanation": ""},
@@ -78,6 +78,36 @@ def test_required_link_text_reaches_the_llm(tmp_db):
     out = finalize(run_one(req(), crawl(pages_with("Omonatlaringiz kafolatlangan")), llm),
                    crawl(pages_with("Omonatlaringiz kafolatlangan")))
     assert out.status == "ok"
+
+
+def test_required_link_text_is_no_gap_with_reviewed_hints(tmp_db, monkeypatch):
+    """main:40^4 with the keywords of data/check_hints.yaml (fixed B1)."""
+    monkeypatch.setattr(llm_checks, "HINTS_PATH", llm_checks.Path(llm_checks.__file__)
+                        .resolve().parents[2] / "data" / "check_hints.yaml")
+    llm = ScriptedLLM(tmp_db, presence={"present": True, "quote": "Omonatlaringiz kafolatlangan",
+                                        "explanation": ""})
+    c = crawl(pages_with("Omonatlaringiz kafolatlangan"))
+    out = finalize(run_one(req(rid="req:cbu_reg_3030:main:40^4"), c, llm), c)
+    assert out.status == "ok" and out.page.url == "https://b.uz/omonatlar"
+
+
+@pytest.mark.parametrize("keyword,text", [
+    ("омонат кафолат", "Omonatlaringiz kafolatlangan"),                # Cyrillic kw, Latin page
+    ("kafolatlangan omonat", "Омонатларингиз кафолатланган"),          # word order, script
+    ("shartlarini o'zgartirish", "Shartlarini oʻzgartirish tartibi"),  # apostrophe
+    ("кредит реструктуризация", "Реструктуризация кредитов, порядок"),  # stems, case
+])
+def test_keyword_matching_by_stems_across_scripts(keyword, text):
+    score, offs = keyword_hits(Page(bank_id="b", url="https://b.uz/x", language="uz_latn",
+                                    text="Bosh sahifa. " + text, source_type="html"), [keyword])
+    assert score == 1 and offs == [len("Bosh sahifa. ")]
+
+
+def test_keyword_words_far_apart_do_not_match():
+    text = "omonat " + "boshqa so'z " * 20 + "kafolat"
+    score, _ = keyword_hits(Page(bank_id="b", url="https://b.uz/x", language="uz_latn",
+                                 text=text, source_type="html"), ["omonat kafolat"])
+    assert score == 0
 
 
 # --- location requirements (homepage) are not enforced ---

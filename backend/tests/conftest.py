@@ -1,5 +1,6 @@
 import pytest
 
+from backend.checks import llm_checks
 from backend.db import init_db
 
 
@@ -10,5 +11,6 @@ def tmp_db(tmp_path, monkeypatch):
     # Never load the team's real data files into a test database.
     monkeypatch.setenv("REQUIREMENTS_PATH", str(tmp_path / "no-requirements.yaml"))
     monkeypatch.setenv("PRECOMPUTED_PATH", str(tmp_path / "no-precomputed.json"))
+    monkeypatch.setattr(llm_checks, "HINTS_PATH", tmp_path / "no-check-hints.yaml")
     init_db(path)
     return path
