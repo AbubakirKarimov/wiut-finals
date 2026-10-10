@@ -165,3 +165,51 @@ def test_browser_crawl_does_not_count_a_page_twice():
                 browser_factory=lambda: SameUrlBrowser(html))
     res = c.crawl("b", "https://spa.uz/main/home")
     assert len(res.urls_read) == len(set(res.urls_read))
+
+
+# --- B7: a possible_gap needs a page of the relevant section ---
+
+def _hints(tmp_path, monkeypatch, body):
+    h = tmp_path / "hints.yaml"
+    h.write_text("requirements:\n  req:t:\n" + body, encoding="utf-8")
+    monkeypatch.setattr(llm_checks, "HINTS_PATH", h)
+
+
+ABSENT = {"present": False, "quote": "", "explanation": "not there"}
+KW = {"uz_latn": ["omonat kafolat"], "uz_cyrl": [], "ru": [], "en": []}
+
+
+def test_gap_without_section_page_is_not_checkable(tmp_db, tmp_path, monkeypatch):
+    _hints(tmp_path, monkeypatch, "    sections: [deposit]\n")
+    pages = [Page(bank_id="b", url=f"https://b.uz/uz/news/{i}", language="uz_latn",
+                  text=FILLER, source_type="html") for i in range(8)]
+    [f] = run_checks("r", crawl(pages), [req()], ScriptedLLM(tmp_db, presence=ABSENT,
+                                                            keywords=KW))
+    assert f.status == "not_checkable"
+    assert f.reason.startswith("relevant section not reached (read 8 pages)")
+
+
+def test_gap_allowed_when_section_page_was_read(tmp_db, tmp_path, monkeypatch):
+    _hints(tmp_path, monkeypatch, "    sections: [deposit]\n")
+    pages = pages_with("Jamg'arma omonati shartlari.", n=8,
+                       first_url="https://b.uz/uz/private/deposit/")
+    [f] = run_checks("r", crawl(pages), [req()], ScriptedLLM(tmp_db, presence=ABSENT,
+                                                            keywords=KW))
+    assert f.status == "possible_gap"
+
+
+def test_section_recognised_by_page_title_and_cyrillic_path(tmp_db, tmp_path, monkeypatch):
+    from backend.crawl.sections import page_in_section
+    assert page_in_section("https://b.uz/ru/vklady/", "", ["deposit"])
+    assert page_in_section("https://b.uz/uz/p/123", "Омонатлар", ["deposit"])
+    assert page_in_section("https://b.uz/uz/", "", ["homepage"])
+    assert not page_in_section("https://b.uz/uz/news/1", "Yangiliklar", ["deposit", "homepage"])
+
+
+def test_ok_is_not_affected_by_the_section_gate(tmp_db, tmp_path, monkeypatch):
+    _hints(tmp_path, monkeypatch, "    sections: [deposit]\n")
+    llm = ScriptedLLM(tmp_db, presence={"present": True, "explanation": "",
+                                        "quote": "Omonatlaringiz kafolatlangan"}, keywords=KW)
+    pages = pages_with("Omonatlaringiz kafolatlangan", first_url="https://b.uz/uz/bosh")
+    [f] = run_checks("r", crawl(pages), [req()], llm)
+    assert f.status == "ok"

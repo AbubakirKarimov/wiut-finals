@@ -356,7 +356,7 @@ def strip_terms(text: str, terms: list[str]) -> str:
 
 
 def run_check(req, crawl, llm):
-    o = finalize(run_one(req, crawl, llm), crawl)
+    o = finalize(run_one(req, crawl, llm), crawl, req)
     return {"status": o.status, "quote": o.quote, "url": o.page.url if o.page else None,
             "reason": (o.reason or "")[:300]}
 

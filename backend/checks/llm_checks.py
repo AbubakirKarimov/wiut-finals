@@ -85,12 +85,21 @@ def _env_int(name: str, default: int) -> int:
     return int(os.getenv(name) or default)
 
 
-def hint_keywords(req: Requirement, path: Path | None = None) -> list[str] | None:
+def _hint_entry(req: Requirement, path: Path | None = None) -> dict:
     path = path or HINTS_PATH
     if not path.exists():
-        return None
+        return {}
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    entry = (data.get("requirements") or {}).get(req.id)
+    return (data.get("requirements") or {}).get(req.id) or {}
+
+
+def hint_sections(req: Requirement, path: Path | None = None) -> list[str]:
+    """Site sections where evidence for the requirement is expected (data/check_hints.yaml)."""
+    return [s for s in (_hint_entry(req, path).get("sections") or []) if s]
+
+
+def hint_keywords(req: Requirement, path: Path | None = None) -> list[str] | None:
+    entry = _hint_entry(req, path)
     if not entry:
         return None
     kws = entry.get("keywords") or {}

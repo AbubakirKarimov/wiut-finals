@@ -7,8 +7,24 @@
 #   (audit bug B1): "gipergavola" -> "giperhavola", "кфолатланган" -> "кафолатланган",
 #   "шикайот" -> "шикоят", "алока" -> "алоқа". For 40^4 the link text quoted in the
 #   regulation itself ("Омонатларингиз кафолатланган") was added. Review before relying on it.
+#
+# sections: where the evidence is expected (names from backend/crawl/sections.py, plus
+#   "homepage" = site root or a language root). A possible_gap is reported only if at least
+#   one page of these sections was read; otherwise not_checkable "relevant section not
+#   reached" (audit bug B7, approved). No entry = no section requirement.
 requirements:
-  req:cbu_reg_3030:main:40^4:
+  req:cbu_reg_3030:main:14:     # section describing the site structure (site map)
+    sections: [homepage]
+  req:cbu_reg_3030:main:17:     # homepage link to information about the bank and its services
+    sections: [homepage]
+  req:cbu_reg_3030:main:18^1:   # loan full-cost calculator for natural persons
+    sections: [loan]
+  req:cbu_reg_3030:main:28^1:   # procedure for applications to change loan terms
+    sections: [loan, document, restructuring]
+  req:cbu_reg_3030:main:37^5:   # procedure for releasing or replacing collateral
+    sections: [loan, document]
+  req:cbu_reg_3030:main:40^4:   # "Your deposits are guaranteed" link on the deposit page
+    sections: [deposit]
     keywords:
       uz_latn: ["omonatlaringiz kafolatlangan", "omonat kafolat", "kafolatlangan omonat",
                 "deposit kafolati", "guaranteed omonat", "omonatlar kafolati", "giperhavola"]
@@ -18,9 +34,12 @@ requirements:
            "гарантированный вклад", "ссылка гарантии", "страница гарантии", "депозитная гарантия"]
       en: ["deposit guarantee", "guaranteed deposits", "deposit guarantee link",
            "guarantee hyperlink", "deposit protection", "guarantee page"]
-  req:cbu_reg_3030:main:49:
+  req:cbu_reg_3030:main:49:     # complaint page linked from the homepage or top navigation
+    sections: [homepage, complaint]
     keywords:
       uz_latn: [shikoyat, murojaat, aloqa, telefon, onlayn, form]
       uz_cyrl: [шикоят, мурожаат, алоқа, телефон, онлайн, форм]
       ru: [жалоба, обращение, контакт, телефон, онлайн, форма]
       en: [complaint, feedback, contact, support, online, form]
+  req:cbu_reg_3030:main:51:     # call-centre numbers on the homepage
+    sections: [homepage]

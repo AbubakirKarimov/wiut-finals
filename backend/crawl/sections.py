@@ -60,7 +60,9 @@ def is_homepage(url: str, home_url: str | None = None) -> bool:
                                 or re.fullmatch(r"index\.\w+", parts[0]) is not None)
 
 
-def page_in_section(url: str, title: str, sections: list[str]) -> bool:
-    if "homepage" in sections and is_homepage(url):
+def page_in_section(url: str, title: str, sections: list[str],
+                    home_url: str | None = None) -> bool:
+    """Does a page belong to one of `sections` (SECTION_STEMS names or "homepage")?"""
+    if "homepage" in sections and is_homepage(url, home_url):
         return True
     return bool(set(sections_of(urlsplit(url).path, title)) & set(sections))

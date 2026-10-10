@@ -9,10 +9,11 @@ import time
 from typing import Callable
 
 from backend.checks.evidence import verify_quote
-from backend.checks.llm_checks import TIMEOUT_REASON, check_presence, translate
+from backend.checks.llm_checks import TIMEOUT_REASON, check_presence, hint_sections, translate
 from backend.checks.types import CheckOutcome
 from backend.checks.uz_version import check_uz_version
 from backend.crawl.crawler import CrawlResult
+from backend.crawl.sections import page_in_section
 from backend.llm.provider import LLMProvider
 from backend.models import Finding, Requirement
 
@@ -31,7 +32,8 @@ def run_one(req: Requirement, crawl: CrawlResult, llm: LLMProvider | None) -> Ch
     return CheckOutcome("not_checkable", reason=f"unknown check type {req.check_type}")
 
 
-def finalize(out: CheckOutcome, crawl: CrawlResult) -> CheckOutcome:
+def finalize(out: CheckOutcome, crawl: CrawlResult, req: Requirement | None = None
+             ) -> CheckOutcome:
     """Enforce the evidence and gating rules on a raw outcome."""
     if out.status in ("ok", "possible_gap"):
         if out.page is None or not verify_quote(out.quote, out.page.text):
@@ -50,6 +52,16 @@ def finalize(out: CheckOutcome, crawl: CrawlResult) -> CheckOutcome:
                                 llm_used=out.llm_used,
                                 reason=f"site had {len(crawl.fetch_errors)} fetch error(s), "
                                        f"e.g. {crawl.fetch_errors[0]}: {out.reason}")
+        # A gap needs at least one page of the section where the evidence would be.
+        sections = hint_sections(req) if req is not None else []
+        home = crawl.pages[0].url if crawl.pages else None
+        if sections and not any(p.readable and page_in_section(p.url, p.title, sections, home)
+                                for p in crawl.pages):
+            return CheckOutcome("not_checkable", page=out.page, quote=out.quote,
+                                llm_used=out.llm_used,
+                                reason=f"relevant section not reached (read {n} pages); no page "
+                                       f"of section {' / '.join(sections)} was read: "
+                                       f"{out.reason}")
     return out
 
 
@@ -73,7 +85,7 @@ def run_checks(run_id: str, crawl: CrawlResult, requirements: list[Requirement],
             out = CheckOutcome("not_checkable",
                                reason=f"{TIMEOUT_REASON}: run time cap reached before this check")
         else:
-            out = finalize(run_one(req, crawl, llm), crawl)
+            out = finalize(run_one(req, crawl, llm), crawl, req)
         quote_ok = out.page is not None and verify_quote(out.quote, out.page.text)
         quote = out.quote if quote_ok else None
         f = Finding(
