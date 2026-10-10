@@ -18,6 +18,10 @@ def summarize(conn, run_ids: list[str]) -> list[dict]:
         for r in conn.execute("SELECT status, COUNT(*) AS n FROM findings WHERE run_id = ? "
                               "GROUP BY status", (rid,)):
             counts[r["status"]] = r["n"]
+        by = {"code": 0, "llm_assisted": 0, "not_recorded": 0}
+        for r in conn.execute("SELECT decided_by, COUNT(*) AS n FROM findings WHERE run_id = ? "
+                              "GROUP BY decided_by", (rid,)):
+            by[r["decided_by"] or "not_recorded"] += r["n"]
         calls = [dict(r) for r in conn.execute(
             "SELECT provider, model, input_tokens, output_tokens, cache_hit, ok FROM llm_calls "
             "WHERE run_id = ?", (rid,))]
@@ -34,7 +38,9 @@ def summarize(conn, run_ids: list[str]) -> list[dict]:
             or "no data",
             "reason": run["crawl_reason"] or run["error"] or "",
             "pages": run["pages_read"], "errors": len(json.loads(run["fetch_errors"] or "[]")),
-            **counts, "duration_s": duration, "tokens": tokens, "api_calls": len(api),
+            **counts, "by_code": by["code"], "by_llm": by["llm_assisted"],
+            "checks": sum(counts.values()),
+            "duration_s": duration, "tokens": tokens, "api_calls": len(api),
             "cache_hits": len(calls) - len(api),
             "rate_limited": sum(1 for c in api if not c["ok"]),
             "cost_usd": cost_of(calls) if calls else 0.0,
@@ -51,6 +57,9 @@ def _fmt(v) -> str:
 
 
 def _cell(row: dict, key: str) -> str:
+    if key == "cost_per_check":
+        c, n = row["cost_usd"], row["checks"]
+        return f"{c / n:.6f}" if isinstance(c, (int, float)) and n else _fmt(c if n else None)
     v = row[key]
     if key == "duration_s" and isinstance(v, (int, float)):
         return f"{v:.1f}"
@@ -61,14 +70,16 @@ def _cell(row: dict, key: str) -> str:
 
 COLUMNS = [("bank_id", "bank"), ("crawl", "crawl"), ("pages", "pages"), ("errors", "errors"),
            ("ok", "ok"), ("possible_gap", "gap"), ("not_checkable", "n/c"),
+           ("by_code", "by code"), ("by_llm", "LLM-assisted"),
            ("duration_s", "secs"), ("api_calls", "calls"), ("cache_hits", "cached"),
-           ("rate_limited", "429/err"), ("tokens", "tokens"), ("cost_usd", "cost $")]
+           ("rate_limited", "429/err"), ("tokens", "tokens"), ("cost_usd", "cost $"),
+           ("cost_per_check", "$/check")]
 
 
 def totals(rows: list[dict]) -> dict:
     t = {"bank_id": "TOTAL", "crawl": f"{sum(r['crawl'] == 'ok' for r in rows)} ok"}
     for k in ("pages", "errors", "ok", "possible_gap", "not_checkable", "api_calls",
-              "cache_hits", "rate_limited", "tokens"):
+              "cache_hits", "rate_limited", "tokens", "by_code", "by_llm", "checks"):
         t[k] = sum(r[k] for r in rows)
     durs = [r["duration_s"] for r in rows if r["duration_s"] is not None]
     t["duration_s"] = sum(durs) if durs else None

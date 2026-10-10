@@ -49,7 +49,10 @@ def export(path: Path | None = None, db_path=None) -> dict:
             findings = []
             for f in db.list_findings(conn, run_id=run.id):
                 llm_check = check_types.get(f.requirement_id) != "uz_version"
+                done = run.finished_at.strftime("%Y-%m-%d %H:%M UTC") if run.finished_at \
+                    else "no data"
                 findings.append({
+                    "label": f"pre-computed on {done}",
                     "requirement_id": f.requirement_id, "status": f.status,
                     "reason": f.reason, "evidence_url": f.evidence_url,
                     "evidence_quote": f.evidence_quote,

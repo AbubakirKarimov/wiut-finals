@@ -43,6 +43,7 @@ def main(only: list[str]) -> int:
         report(latest_batch_runs(), without_url)
         return 0
     banks = [b for b in crawlable_banks() if not only or b.id in only]
+    not_selected = [b.id for b in crawlable_banks() if b not in banks]
     if not banks:
         print("no banks with a website_url match", file=sys.stderr)
         return 2
@@ -57,11 +58,11 @@ def main(only: list[str]) -> int:
             print(f"  error: {type(e).__name__}: {e}", file=sys.stderr)
             continue
         print(f"  done: crawl={run.crawl_status} pages={run.pages_read}", file=sys.stderr)
-    report(run_ids, without_url)
+    report(run_ids, without_url, not_selected)
     return 0
 
 
-def report(run_ids: list[str], without_url: list[str]) -> None:
+def report(run_ids: list[str], without_url: list[str], not_selected: list[str] = ()) -> None:
     with db.connect() as conn:
         rows = summarize(conn, run_ids)
     llm = llm_from_env()
@@ -76,7 +77,10 @@ def report(run_ids: list[str], without_url: list[str]) -> None:
         f"# Batch run summary\n\n- Finished: "
         f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n- Model: {model}\n"
         f"- Cost: token logs x LLM_PRICE_* from .env\n"
-        f"- Not run (no website_url): {', '.join(without_url) or 'none'}\n\n"
+        f"- Not run (no website_url): {', '.join(without_url) or 'none'}\n"
+        f"- Not selected for this run (have a website_url): {', '.join(not_selected) or 'none'}\n"
+        f"- Columns: by code / LLM-assisted = who decided each finding's status; $/check = "
+        f"cost / requirement checks\n\n"
         + markdown_table(rows) + "\n", encoding="utf-8")
     print(f"summary: {SUMMARY_PATH.relative_to(ROOT)}")
 
