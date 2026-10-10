@@ -60,7 +60,8 @@ def check_site(url: str, *, bank_id: str | None = None, source: str = "job",
                crawl_cfg: CrawlConfig | None = None, crawler: Crawler | None = None,
                llm: LLMProvider | None | str = "env", db_path=None,
                progress: Callable[[str], None] | None = None,
-               on_run: Callable[[str], None] | None = None) -> Run:
+               on_run: Callable[[str], None] | None = None,
+               on_crawl: Callable[[object], None] | None = None) -> Run:
     progress = progress or (lambda m: None)
     run = Run(id=uuid.uuid4().hex[:12], bank_id=bank_id or bank_id_for(url), start_url=url,
               source=source)
@@ -80,6 +81,8 @@ def check_site(url: str, *, bank_id: str | None = None, source: str = "job",
 
     try:
         crawl = crawler.crawl(run.bank_id, url, run_id=run.id)
+        if on_crawl:
+            on_crawl(crawl)
         run.crawl_status, run.crawl_reason = crawl.status, crawl.reason or None
         run.pages_read, run.fetch_errors = len(crawl.pages), crawl.fetch_errors
         run.has_language_switcher = crawl.has_language_switcher

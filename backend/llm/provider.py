@@ -135,6 +135,8 @@ class LLMProvider(ABC):
         self.deadline: float | None = None
         # Not before this time.monotonic() (set from Retry-After); used by FallbackProvider.
         self.cooldown_until = 0.0
+        # Separate cache entries (e.g. for a consistency re-run that must not reuse answers).
+        self.cache_namespace = ""
 
     def _emit(self, msg: str) -> None:
         if self.on_event:
@@ -212,7 +214,8 @@ class LLMProvider(ABC):
     def complete_json(self, prompt: str, schema: type[BaseModel]) -> dict:
         db.init_db(self.db_path)
         schema_json = _schema_dict(schema)
-        key = db.llm_cache_key(self.name, self.model, prompt, schema_json)
+        key = db.llm_cache_key(self.name, self.model, prompt, schema_json,
+                               self.cache_namespace)
         started = time.perf_counter()
         with db.connect(self.db_path) as conn:
             cached = db.llm_cache_get(conn, key)
@@ -256,7 +259,7 @@ class OpenAICompatibleProvider(LLMProvider):
                  timeout: float = 60.0, json_mode: bool = True,
                  db_path: Path | str | None = None, transport: httpx.BaseTransport | None = None,
                  limits: RateLimits | None = None, max_output_tokens: int | None = None,
-                 reasoning_effort: str | None = None):
+                 reasoning_effort: str | None = None, seed: int | None = None):
         super().__init__(db_path, limits)
         missing = [n for n, v in (("base_url", base_url), ("api_key", api_key),
                                   ("model", model)) if not v]
@@ -270,6 +273,7 @@ class OpenAICompatibleProvider(LLMProvider):
         self.timeout = timeout
         self.max_output_tokens = max_output_tokens
         self.reasoning_effort = reasoning_effort
+        self.seed = seed
         self._client = httpx.Client(timeout=timeout, transport=transport)
 
     def __repr__(self) -> str:  # never expose the key
@@ -289,6 +293,8 @@ class OpenAICompatibleProvider(LLMProvider):
             body["response_format"] = {"type": "json_object"}
         if self.max_output_tokens:
             body["max_tokens"] = self.max_output_tokens
+        if self.seed is not None:
+            body["seed"] = self.seed  # best-effort determinism where the provider supports it
         if self.reasoning_effort:
             # Only for models that accept it (set per slot in .env, e.g. gpt-oss on Groq).
             body["reasoning_effort"] = self.reasoning_effort
@@ -347,6 +353,7 @@ class FallbackProvider(LLMProvider):
         order = ready + [p for p in self.providers if p not in ready]
         for i, p in enumerate(order):
             p.on_event, p.deadline = self.on_event, self.deadline
+            p.cache_namespace = self.cache_namespace
             if i > 0:
                 self._emit(f"switching to fallback model {p.model}")
             try:
@@ -406,8 +413,10 @@ def _call_options(prefix: str) -> dict:
     max_out = (os.getenv(f"{prefix}MAX_OUTPUT_TOKENS") or os.getenv("LLM_MAX_OUTPUT_TOKENS")
                or "").strip()
     effort = (os.getenv(f"{prefix}REASONING_EFFORT") or "").strip()
+    seed = (os.getenv(f"{prefix}SEED") or os.getenv("LLM_SEED") or "").strip()
     return {"max_output_tokens": int(max_out) if max_out else None,
-            "reasoning_effort": effort or None}
+            "reasoning_effort": effort or None,
+            "seed": int(seed) if seed else None}
 
 
 def _env_slots() -> list[str]:

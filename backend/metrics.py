@@ -3,6 +3,7 @@ team's labels (data/labels/labels.csv). Missing inputs are reported as "no data"
 never estimated."""
 
 import csv
+import json
 import math
 import sqlite3
 from datetime import datetime
@@ -63,6 +64,30 @@ def analyst_confirmation(conn: sqlite3.Connection) -> dict:
             "decided": len(latest)}
 
 
+def consistency(conn: sqlite3.Connection) -> dict:
+    """Latest consistency measurement per bank (python -m backend.consistency)."""
+    rows = [dict(r) for r in conn.execute("SELECT * FROM consistency ORDER BY created_at")]
+    latest = {}
+    for r in rows:
+        latest[r["bank_id"]] = r
+    measured = [r for r in latest.values() if r["status_agreement"] is not None]
+    if not measured:
+        return {"value": NO_DATA, "detail": "run python -m backend.consistency <bank_id>"}
+    n_req = sum(r["n_requirements"] for r in measured)
+    agree = sum(r["status_agreement"] * r["n_requirements"] for r in measured) / n_req
+    quote = sum((r["quote_agreement"] or 0) * r["n_requirements"] for r in measured) / n_req
+    return {"value": round(agree, 3), "quote_agreement": round(quote, 3),
+            "requirements": n_req, "banks": len(measured),
+            "runs_per_bank": sorted({len(json.loads(r["run_ids"])) for r in measured}),
+            "models": sorted({m for r in measured for m in json.loads(r["models"])}),
+            "measured_at": max(r["created_at"] for r in measured),
+            "per_bank": [{"bank_id": r["bank_id"], "status_agreement": r["status_agreement"],
+                          "quote_agreement": r["quote_agreement"],
+                          "requirements": r["n_requirements"], "created_at": r["created_at"],
+                          "per_requirement": json.loads(r["per_requirement"])}
+                         for r in measured]}
+
+
 def _seconds(start: str, end: str) -> float:
     return (datetime.fromisoformat(end) - datetime.fromisoformat(start)).total_seconds()
 
@@ -109,5 +134,6 @@ def compute(conn: sqlite3.Connection, labels_path: Path = LABELS_PATH) -> dict:
                 "total_cost_usd": cost if per_run else (0.0 if n else NO_DATA)},
         "precision_possible_gap_vs_labels": label_precision(conn, labels_path),
         "analyst_confirmation_rate": analyst_confirmation(conn),
+        "consistency": consistency(conn),
         "findings_by_status": status_counts,
     }

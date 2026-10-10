@@ -106,7 +106,8 @@ def banks() -> list[dict]:
     with db.connect() as conn:
         latest = {}
         for r in db.list_runs(conn):
-            latest.setdefault(r.bank_id, r)
+            if r.source != "consistency":
+                latest.setdefault(r.bank_id, r)
         counts: dict[tuple[str, str], int] = {}
         for r in conn.execute("SELECT run_id, status, COUNT(*) AS n FROM findings "
                               "GROUP BY run_id, status"):
@@ -194,9 +195,12 @@ def findings(bank_id: str | None = None, run_id: str | None = None,
         where.append("f.run_id = ?")
         args.append(run_id)
     elif latest:
+        # Consistency repeat runs are measurements, not the bank's current result.
         where.append("f.run_id IN (SELECT id FROM runs r1 WHERE r1.status = 'done' AND "
+                     "r1.source != 'consistency' AND "
                      "r1.finished_at = (SELECT MAX(r2.finished_at) FROM runs r2 "
-                     "WHERE r2.bank_id = r1.bank_id AND r2.status = 'done'))")
+                     "WHERE r2.bank_id = r1.bank_id AND r2.status = 'done' "
+                     "AND r2.source != 'consistency'))")
     if status:
         where.append("f.status = ?")
         args.append(status)

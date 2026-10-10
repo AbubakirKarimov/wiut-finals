@@ -107,3 +107,22 @@ def test_env_options_per_slot(monkeypatch, tmp_db):
     assert a.reasoning_effort == "low" and b.reasoning_effort is None
     assert a.max_output_tokens == 700 == b.max_output_tokens
     assert a.limits.max_wait_seconds == 30 and b.limits.max_wait_seconds == 60
+
+
+def test_seed_and_cache_namespace(tmp_db):
+    bodies = []
+
+    def handler(req):
+        bodies.append(json.loads(req.content))
+        return httpx.Response(200, json={"choices": [{"message": {"content": OK}}],
+                                         "usage": {"prompt_tokens": 5, "completion_tokens": 2}})
+
+    p = llm.OpenAICompatibleProvider("https://api.example/v1", "k", "m", db_path=tmp_db,
+                                     transport=httpx.MockTransport(handler), limits=limits(),
+                                     seed=7)
+    p.complete_json("prompt", Answer)
+    p.complete_json("prompt", Answer)                 # cache hit: no new request
+    assert len(bodies) == 1 and bodies[0]["seed"] == 7 and bodies[0]["temperature"] == 0
+    p.cache_namespace = "consistency-x"
+    p.complete_json("prompt", Answer)                 # other namespace: fresh call
+    assert len(bodies) == 2

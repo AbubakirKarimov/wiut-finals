@@ -100,6 +100,19 @@ e2e suite is run locally.
 .venv/bin/python scripts/crawl_all.py [bank_id ...]          # crawl + check banks.yaml (batch runs)
 ```
 
+### Consistency metric
+
+```bash
+.venv/bin/python -m backend.consistency mkbank --runs 2
+```
+
+Run 1 is a normal check. Runs 2..N replay exactly the same pages and call the LLM again
+under a fresh cache namespace (no cached answers), at temperature 0 and with `LLM_SEED` if
+set. The command prints, per requirement, the statuses of each run and the share of run
+pairs that agree on the status and on the evidence quote; `/metrics` and the Audit & Metrics
+screen show the latest result per bank. Consistency runs never replace a bank's current
+findings.
+
 ### API
 
 | Method | Path | Notes |

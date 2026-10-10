@@ -26,6 +26,7 @@ function Metrics({ m }) {
   const p = m.precision_possible_gap_vs_labels;
   const a = m.analyst_confirmation_rate;
   const cost = m.llm.avg_cost_usd_per_check;
+  const c = m.consistency;
   return (
     <div className="stats" data-testid="metrics">
       <Stat label="Checks completed" value={m.checks_completed} />
@@ -39,6 +40,10 @@ function Metrics({ m }) {
             note={p.detail || (p.predicted_gaps != null ? `${p.true_positives}/${p.predicted_gaps} flagged gaps labelled as gaps` : "")} />
       <Stat label="Analyst confirmation rate" value={pct(a.value)}
             note={`${a.decided} possible gap(s) decided`} />
+      <Stat label="Consistency (repeat runs agree on status)" value={pct(c.value)}
+            note={c.requirements
+              ? `${c.requirements} requirement(s) on ${c.banks} bank(s), same pages, fresh LLM answers; evidence quotes identical ${pct(c.quote_agreement)}`
+              : c.detail} />
       <Stat label="Findings by status"
             value={`${m.findings_by_status.possible_gap} / ${m.findings_by_status.not_checkable} / ${m.findings_by_status.ok}`}
             note="possible gap / not checkable / ok" />

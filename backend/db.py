@@ -97,6 +97,17 @@ CREATE TABLE IF NOT EXISTS runs (
     error TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_runs_bank ON runs(bank_id);
+CREATE TABLE IF NOT EXISTS consistency (
+    id TEXT PRIMARY KEY,
+    bank_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    run_ids TEXT NOT NULL,
+    n_requirements INTEGER NOT NULL,
+    status_agreement REAL,
+    quote_agreement REAL,
+    per_requirement TEXT NOT NULL,
+    models TEXT NOT NULL DEFAULT '[]'
+);
 CREATE TABLE IF NOT EXISTS llm_cache (
     key TEXT PRIMARY KEY,
     provider TEXT NOT NULL,
@@ -333,8 +344,12 @@ def get_job(conn: sqlite3.Connection, job_id: str) -> Job | None:
 
 # --- LLM call log and response cache ---
 
-def llm_cache_key(provider: str, model: str, prompt: str, schema: dict) -> str:
-    payload = json.dumps([provider, model, prompt, schema], sort_keys=True, ensure_ascii=False)
+def llm_cache_key(provider: str, model: str, prompt: str, schema: dict,
+                  namespace: str = "") -> str:
+    """namespace="" keeps the normal shared cache; another namespace (e.g. a consistency
+    re-run) gets its own entries, so its answers come from fresh API calls."""
+    parts = [provider, model, prompt, schema] + ([namespace] if namespace else [])
+    payload = json.dumps(parts, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 

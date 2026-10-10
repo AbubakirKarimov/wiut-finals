@@ -87,7 +87,9 @@ class Run(BaseModel):
     id: str
     bank_id: str
     start_url: str
-    source: Literal["job", "batch"] = "job"
+    # job = POST /check; batch = scripts/crawl_all.py; precomputed = loaded from
+    # data/precomputed/findings.json; consistency = repeat run for the consistency metric
+    source: Literal["job", "batch", "precomputed", "consistency"] = "job"
     status: RunStatus = "running"
     crawl_status: str | None = None  # ok | blocked | unreachable | needs_browser | ...
     crawl_reason: str | None = None
