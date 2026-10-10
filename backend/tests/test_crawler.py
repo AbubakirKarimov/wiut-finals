@@ -108,7 +108,9 @@ def test_js_shell_without_browser_is_needs_browser():
         return httpx.Response(200, html="<div id=root></div>")
 
     res = crawler(handler, browser=False).crawl("b", "https://spa.uz/")
-    assert res.status == "needs_browser" and "needs browser" in res.reason
+    assert res.status == "needs_browser"
+    assert res.reason.startswith("page needs JavaScript rendering; not available on this "
+                                 "hosted demo")
     assert res.pages == []
 
 

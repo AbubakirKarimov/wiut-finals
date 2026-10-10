@@ -93,3 +93,36 @@ def test_every_start_rebuilds_state_from_the_files(hosted_demo):
     with TestClient(main.app) as c:            # restart 2: live decision gone, team kept
         assert [(d["analyst"], d["source"]) for d in c.get("/decisions").json()] == \
             [("Team", "team")]
+
+
+def test_javascript_only_site_is_not_checkable_on_the_hosted_demo(tmp_db, monkeypatch):
+    """BROWSER_FALLBACK=0 + a home page that is an empty JavaScript shell: every approved
+    requirement is not_checkable with a clear reason; never a possible gap."""
+    import httpx
+
+    from backend import db
+    from backend.checks import llm_checks
+    from backend.crawl.crawler import CrawlConfig, Crawler
+    from backend.crawl.fetch import FetchConfig, Fetcher
+    from backend.pipeline import check_site, sync_requirements_yaml
+
+    monkeypatch.setattr(llm_checks, "HINTS_PATH", REAL_PRECOMPUTED.parents[0] / "check_hints.yaml")
+    assert sync_requirements_yaml(REAL_PRECOMPUTED.parents[0] / "requirements.yaml") == 9
+
+    def spa(req):
+        if req.url.path == "/robots.txt":
+            return httpx.Response(404)
+        return httpx.Response(200, html="<html><body><div id='root'></div>"
+                                        "<script src='/app.js'></script></body></html>")
+
+    f = FetchConfig(user_agent="ComplianceRadar/0.1", min_delay_seconds=0,
+                    browser_fallback=False)
+    crawler = Crawler(CrawlConfig(fetch=f), fetcher=Fetcher(f, transport=httpx.MockTransport(spa)))
+    run = check_site("https://spa-bank.example/", crawler=crawler, llm=None)
+    assert run.crawl_status == "needs_browser"
+    with db.connect() as conn:
+        fs = db.list_findings(conn, run_id=run.id)
+    assert len(fs) == 9
+    assert {x.status for x in fs} == {"not_checkable"}
+    assert all(x.reason.startswith("page needs JavaScript rendering; not available on this "
+                                   "hosted demo") for x in fs)

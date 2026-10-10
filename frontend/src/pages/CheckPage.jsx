@@ -11,7 +11,7 @@ const CRAWL_TEXT = {
   blocked: "The site blocked our crawler. Bot protection is never bypassed, so nothing could be checked.",
   unreachable: "The site could not be reached (DNS, timeout or connection error).",
   robots_disallowed: "The site's robots.txt does not allow our crawler, so it was not read.",
-  needs_browser: "The site shows almost no text without JavaScript and the browser fallback is off here.",
+  needs_browser: "This page needs JavaScript rendering, which is not available on this hosted demo. Nothing was judged: all checks are not checkable.",
   js_shell_failed: "The site stayed nearly empty even in a browser.",
   other: "The site returned an unexpected response.",
 };

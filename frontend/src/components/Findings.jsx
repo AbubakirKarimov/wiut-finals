@@ -15,7 +15,7 @@ const REASONS = [
   [/LLM timeout|rate limit|quota/i, "LLM quota exhausted or timed out – try again later"],
   [/bot protection|blocked/i, "Site blocked crawling (protection not bypassed)"],
   [/robots/i, "robots.txt does not allow crawling"],
-  [/needs browser|browser could not|js_shell/i, "Site needs a browser (JavaScript-only)"],
+  [/JavaScript rendering|needs browser|browser could not|js_shell/i, "Page needs JavaScript rendering – not available on this hosted demo"],
   [/unreachable|timed out|connection/i, "Site unreachable"],
   [/only \d+ page\(s\) read/i, "Too few pages read to judge"],
   [/fetch error/i, "Some pages failed to load"],

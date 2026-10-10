@@ -178,8 +178,9 @@ class Crawler:
         if cls == "js_shell":
             if not fcfg.browser_fallback:
                 res.status = "needs_browser"
-                res.reason = ("needs browser: the home page has almost no text without "
-                              "JavaScript and BROWSER_FALLBACK=0")
+                res.reason = ("page needs JavaScript rendering; not available on this hosted "
+                              "demo (the home page has almost no text without JavaScript and "
+                              "BROWSER_FALLBACK=0)")
                 return res
             return self._crawl_with_browser(res, home.final_url, deadline, run_id)
 
