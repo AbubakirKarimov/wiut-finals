@@ -1,0 +1,29 @@
+# Registry of source legal documents (lex.uz).
+# status: verified only after the title and number on the lex.uz page match the expectation.
+# Do not guess doc IDs: leave lex_uz_doc_id / url empty until confirmed.
+
+sources:
+  - id: cbu_reg_3030
+    title_original: "О минимальных требованиях к деятельности коммерческих банков при осуществлении взаимоотношений с потребителями банковских услуг"
+    title_en: "On minimum requirements for commercial banks' activities in relations with consumers of banking services"
+    lex_uz_doc_id: "3593543"
+    url: "https://lex.uz/ru/docs/3593543"
+    expected_regulation_number: "3030"
+    status: unverified
+    language: ru
+    # Checked 2026-10-10 against data/raw/lex/3593543.html (fetched once, HTTP 200):
+    # the page is NOT Regulation No. 3030. It is Presidential Resolution PP-3620 of
+    # 23.03.2018 "О дополнительных мерах по повышению доступности банковских услуг".
+    # Its clause 6 "в" (block id 3594409) instructs the CBU to develop and approve this
+    # Regulation; the page contains no link to it and no "3030". Correct doc id: unknown.
+    verification_note: "Doc 3593543 is PP-3620 (23.03.2018), not Regulation 3030; correct lex.uz doc id unknown."
+
+  - id: law_state_language
+    title_original: "О государственном языке"
+    title_en: "On the State Language"
+    lex_uz_doc_id: ""
+    url: ""
+    expected_regulation_number: ""
+    status: unverified
+    language: ru
+    verification_note: "lex.uz doc id not provided yet."
