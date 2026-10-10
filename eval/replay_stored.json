@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-10T19:38:20+00:00",
+ "generated_at": "2026-10-10T19:58:13+00:00",
  "summary": {
   "findings": 54,
   "decided_by": {
@@ -7,8 +7,8 @@
    "llm_assisted": 6
   },
   "by_status": {
-   "ok": 30,
-   "not_checkable": 13,
+   "ok": 31,
+   "not_checkable": 12,
    "possible_gap": 11
   },
   "banks": 6,
@@ -512,12 +512,12 @@
   {
    "bank_id": "mkbank",
    "requirement_id": "req:cbu_reg_3030:main:40^4",
-   "old_status": "not_checkable",
-   "new_status": "not_checkable",
+   "old_status": "ok",
+   "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://mkbank.uz/uz/private/deposit/",
-   "quote": null,
-   "reason": "Code: \"omonatlaringiz kafolatlangan\" appears in the text of https://mkbank.uz/uz/private/deposit/ but not as a link the crawler could read (a button or script?); check manually.",
+   "quote": "Omonatlaringiz kafolatlangan",
+   "reason": "Code: link \"Omonatlaringiz kafolatlangan\" (https://fgd.uz/uz) found on https://mkbank.uz/uz/private/deposit/ (section page); anchor text quoted from the page.",
    "pages_found": 15,
    "pages_listed": 15
   },

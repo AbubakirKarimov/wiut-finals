@@ -1,6 +1,6 @@
 {
  "format": 1,
- "exported_at": "2026-10-10T19:38:03.859794+00:00",
+ "exported_at": "2026-10-10T19:57:57.580315+00:00",
  "note": "No page text. Quotes are verified verbatim against the page text at check time; evidence_quote_en is a machine translation.",
  "runs": [
   {
@@ -403,37 +403,6 @@
     },
     {
      "label": "pre-computed on 2026-10-10 19:34 UTC",
-     "requirement_id": "req:cbu_reg_3030:main:40^4",
-     "status": "not_checkable",
-     "reason": "Code: \"вклады гарантированы\" appears in the text of https://www.anorbank.uz/deposit/ but not as a link the crawler could read (a button or script?); check manually.",
-     "evidence_url": "https://www.anorbank.uz/deposit/",
-     "evidence_quote": null,
-     "evidence_quote_en": null,
-     "context_quote": null,
-     "decided_by": "code",
-     "pages_read": 15,
-     "urls_read": [
-      "https://www.anorbank.uz/uz/",
-      "https://www.anorbank.uz/uz/about/",
-      "https://www.anorbank.uz/",
-      "https://www.anorbank.uz/en/",
-      "https://www.anorbank.uz/about/",
-      "https://www.anorbank.uz/en/about/",
-      "https://www.anorbank.uz/en/business/",
-      "https://www.anorbank.uz/uz/deposit/",
-      "https://www.anorbank.uz/uz/credits/",
-      "https://www.anorbank.uz/uz/about/documents/",
-      "https://www.anorbank.uz/uz/about/consumer-protection/normativ-huquqiy-hujjatlar/",
-      "https://www.anorbank.uz/en/about/consumer-protection/normativ-huquqiy-hujjatlar/",
-      "https://www.anorbank.uz/deposit/",
-      "https://www.anorbank.uz/credits/",
-      "https://www.anorbank.uz/about/documents/"
-     ],
-     "created_at": "2026-10-10T19:34:45.551986+00:00",
-     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
-    },
-    {
-     "label": "pre-computed on 2026-10-10 19:34 UTC",
      "requirement_id": "req:cbu_reg_3030:main:49",
      "status": "ok",
      "reason": "Code: link \"Fuqarolar murojaatlari\" (https://www.anorbank.uz/uz/about/poryadok-priema-grazhdan/) found on https://www.anorbank.uz/uz/ (homepage page); anchor text quoted from the page.",
@@ -492,6 +461,37 @@
       "https://www.anorbank.uz/about/documents/"
      ],
      "created_at": "2026-10-10T19:34:47.147867+00:00",
+     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
+    },
+    {
+     "label": "pre-computed on 2026-10-10 19:34 UTC",
+     "requirement_id": "req:cbu_reg_3030:main:40^4",
+     "status": "not_checkable",
+     "reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): Code: \"вклады гарантированы\" appears in the text of https://www.anorbank.uz/deposit/ but not as a link the crawler could read (a button or script?); check manually.",
+     "evidence_url": "https://www.anorbank.uz/deposit/",
+     "evidence_quote": null,
+     "evidence_quote_en": null,
+     "context_quote": null,
+     "decided_by": "code",
+     "pages_read": 15,
+     "urls_read": [
+      "https://www.anorbank.uz/uz/",
+      "https://www.anorbank.uz/uz/about/",
+      "https://www.anorbank.uz/",
+      "https://www.anorbank.uz/en/",
+      "https://www.anorbank.uz/about/",
+      "https://www.anorbank.uz/en/about/",
+      "https://www.anorbank.uz/en/business/",
+      "https://www.anorbank.uz/uz/deposit/",
+      "https://www.anorbank.uz/uz/credits/",
+      "https://www.anorbank.uz/uz/about/documents/",
+      "https://www.anorbank.uz/uz/about/consumer-protection/normativ-huquqiy-hujjatlar/",
+      "https://www.anorbank.uz/en/about/consumer-protection/normativ-huquqiy-hujjatlar/",
+      "https://www.anorbank.uz/deposit/",
+      "https://www.anorbank.uz/credits/",
+      "https://www.anorbank.uz/about/documents/"
+     ],
+     "created_at": "2026-10-10T19:57:49.137696+00:00",
      "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
     }
    ]
@@ -699,37 +699,6 @@
     },
     {
      "label": "pre-computed on 2026-10-10 19:37 UTC",
-     "requirement_id": "req:cbu_reg_3030:main:40^4",
-     "status": "not_checkable",
-     "reason": "Code: \"вклады гарантированы\" appears in the text of https://garantbank.uz/ru/vklady but not as a link the crawler could read (a button or script?); check manually.",
-     "evidence_url": "https://garantbank.uz/ru/vklady",
-     "evidence_quote": null,
-     "evidence_quote_en": null,
-     "context_quote": null,
-     "decided_by": "code",
-     "pages_read": 15,
-     "urls_read": [
-      "https://garantbank.uz/ru",
-      "https://garantbank.uz/ru/korporativnym-klientam",
-      "https://garantbank.uz/uz",
-      "https://garantbank.uz/en",
-      "https://garantbank.uz/uz/korporativnym-klientam",
-      "https://garantbank.uz/en/korporativnym-klientam",
-      "https://garantbank.uz/en/press-center",
-      "https://garantbank.uz/ru/kredity",
-      "https://garantbank.uz/en/Loan%20Products",
-      "https://garantbank.uz/ru/vklady",
-      "https://garantbank.uz/ru/oferta",
-      "https://garantbank.uz/ru/tarify-rko",
-      "https://garantbank.uz/ru/ipotechnyj-kredit-makon",
-      "https://garantbank.uz/ru/vklad-orzu-sari",
-      "https://garantbank.uz/ru/publichnaya-oferta-biznes"
-     ],
-     "created_at": "2026-10-10T19:36:54.694151+00:00",
-     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
-    },
-    {
-     "label": "pre-computed on 2026-10-10 19:37 UTC",
      "requirement_id": "req:cbu_reg_3030:main:49",
      "status": "ok",
      "reason": "Code: link \"Обращения\" (https://garantbank.uz/ru//virtualnaya-priemnaya) found on https://garantbank.uz/ru (homepage page); anchor text quoted from the page.",
@@ -788,6 +757,37 @@
       "https://garantbank.uz/ru/publichnaya-oferta-biznes"
      ],
      "created_at": "2026-10-10T19:37:54.621187+00:00",
+     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
+    },
+    {
+     "label": "pre-computed on 2026-10-10 19:37 UTC",
+     "requirement_id": "req:cbu_reg_3030:main:40^4",
+     "status": "not_checkable",
+     "reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): Code: \"вклады гарантированы\" appears in the text of https://garantbank.uz/ru/vklady but not as a link the crawler could read (a button or script?); check manually.",
+     "evidence_url": "https://garantbank.uz/ru/vklady",
+     "evidence_quote": null,
+     "evidence_quote_en": null,
+     "context_quote": null,
+     "decided_by": "code",
+     "pages_read": 15,
+     "urls_read": [
+      "https://garantbank.uz/ru",
+      "https://garantbank.uz/ru/korporativnym-klientam",
+      "https://garantbank.uz/uz",
+      "https://garantbank.uz/en",
+      "https://garantbank.uz/uz/korporativnym-klientam",
+      "https://garantbank.uz/en/korporativnym-klientam",
+      "https://garantbank.uz/en/press-center",
+      "https://garantbank.uz/ru/kredity",
+      "https://garantbank.uz/en/Loan%20Products",
+      "https://garantbank.uz/ru/vklady",
+      "https://garantbank.uz/ru/oferta",
+      "https://garantbank.uz/ru/tarify-rko",
+      "https://garantbank.uz/ru/ipotechnyj-kredit-makon",
+      "https://garantbank.uz/ru/vklad-orzu-sari",
+      "https://garantbank.uz/ru/publichnaya-oferta-biznes"
+     ],
+     "created_at": "2026-10-10T19:57:49.384632+00:00",
      "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
     }
    ]
@@ -1255,37 +1255,6 @@
     },
     {
      "label": "pre-computed on 2026-10-10 19:33 UTC",
-     "requirement_id": "req:cbu_reg_3030:main:40^4",
-     "status": "not_checkable",
-     "reason": "Code: \"omonatlaringiz kafolatlangan\" appears in the text of https://mkbank.uz/uz/private/deposit/ but not as a link the crawler could read (a button or script?); check manually.",
-     "evidence_url": "https://mkbank.uz/uz/private/deposit/",
-     "evidence_quote": null,
-     "evidence_quote_en": null,
-     "context_quote": null,
-     "decided_by": "code",
-     "pages_read": 15,
-     "urls_read": [
-      "https://mkbank.uz/uz/",
-      "https://mkbank.uz/oz/",
-      "https://mkbank.uz/ru/",
-      "https://mkbank.uz/en/",
-      "https://mkbank.uz/uz/documents/",
-      "https://mkbank.uz/uz/women-enterpreneurship/",
-      "https://mkbank.uz/uz/private/deposit/",
-      "https://mkbank.uz/uz/private/tariffs/",
-      "https://mkbank.uz/uz/small-business/deposits/",
-      "https://mkbank.uz/uz/small-business/tariffs/",
-      "https://mkbank.uz/uz/about/regulations/",
-      "https://mkbank.uz/oz/about/regulations/",
-      "https://mkbank.uz/ru/about/regulations/",
-      "https://mkbank.uz/en/about/regulations/",
-      "https://mkbank.uz/uz/corporate/deposits/"
-     ],
-     "created_at": "2026-10-10T19:33:24.538363+00:00",
-     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
-    },
-    {
-     "label": "pre-computed on 2026-10-10 19:33 UTC",
      "requirement_id": "req:cbu_reg_3030:main:49",
      "status": "ok",
      "reason": "Code: link \"Onlayn-murojaat\" (https://mkbank.uz/uz/services/online-application/) found on https://mkbank.uz/uz/ (homepage page); anchor text quoted from the page.",
@@ -1344,6 +1313,37 @@
       "https://mkbank.uz/uz/corporate/deposits/"
      ],
      "created_at": "2026-10-10T19:33:26.602977+00:00",
+     "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
+    },
+    {
+     "label": "pre-computed on 2026-10-10 19:33 UTC",
+     "requirement_id": "req:cbu_reg_3030:main:40^4",
+     "status": "ok",
+     "reason": "re-checked 2026-10-10 (10 page(s) re-fetched for missing link data): Code: link \"Omonatlaringiz kafolatlangan\" (https://fgd.uz/uz) found on https://mkbank.uz/uz/private/deposit/ (section page); anchor text quoted from the page.",
+     "evidence_url": "https://mkbank.uz/uz/private/deposit/",
+     "evidence_quote": "Omonatlaringiz kafolatlangan",
+     "evidence_quote_en": "Your deposits are guaranteed",
+     "context_quote": null,
+     "decided_by": "code",
+     "pages_read": 15,
+     "urls_read": [
+      "https://mkbank.uz/uz/",
+      "https://mkbank.uz/oz/",
+      "https://mkbank.uz/ru/",
+      "https://mkbank.uz/en/",
+      "https://mkbank.uz/uz/documents/",
+      "https://mkbank.uz/uz/women-enterpreneurship/",
+      "https://mkbank.uz/uz/private/deposit/",
+      "https://mkbank.uz/uz/private/tariffs/",
+      "https://mkbank.uz/uz/small-business/deposits/",
+      "https://mkbank.uz/uz/small-business/tariffs/",
+      "https://mkbank.uz/uz/about/regulations/",
+      "https://mkbank.uz/oz/about/regulations/",
+      "https://mkbank.uz/ru/about/regulations/",
+      "https://mkbank.uz/en/about/regulations/",
+      "https://mkbank.uz/uz/corporate/deposits/"
+     ],
+     "created_at": "2026-10-10T19:57:48.972954+00:00",
      "model": "openai-compatible:api.groq.com/openai/gpt-oss-120b"
     }
    ]
