@@ -144,3 +144,82 @@ def test_approve_flow(tmp_path, tmp_db, assessed):
     with pytest.raises(ValueError, match="not in"):
         approve_mod.approve(["nope:1"], candidates_path=cpath, yaml_path=ypath,
                             db_path=tmp_db)
+
+
+# ---- narrowed pre-filter, dry run, error handling, cost, model comparison
+
+def test_secondary_topics_alone_do_not_pass(clauses):
+    c = clauses["cbu_reg_3030:main:19"]
+    topics = set(sl.keyword_hits(c))
+    assert topics and topics <= sl.SECONDARY_TOPICS
+    assert not sl.prefilter([c])
+    assert sl.passes_topics({"complaints", "website"})
+    assert not sl.passes_topics({"complaints", "terms_offer"})
+
+
+def test_prefilter_count_on_committed_data(clauses):
+    passed = sl.prefilter(list(clauses.values()))
+    assert len(passed) == 80
+    assert all(sl.passes_topics(c["prefilter"]["topics"]) or c["prefilter"]["always_include"]
+               for c in passed)
+
+
+def test_invalid_json_is_recorded_per_clause(tmp_db, clauses):
+    items = sl.prefilter([clauses["cbu_reg_3030:main:13"], clauses["cbu_reg_3030:main:14"]])
+    fake = FakeProvider(["nope", "still nope", CHECKABLE], db_path=tmp_db)
+    first, second = sl.assess(items, fake)
+    assert first["llm_error"] and first["text_en"] is None and first["shortlisted"]
+    assert sl.problems_of(first) and not sl.problems_of(second)
+
+
+def test_transient_error_aborts_run(tmp_db, clauses):
+    items = sl.prefilter([clauses["cbu_reg_3030:main:13"]])
+    fake = FakeProvider([llm.LLMTransientError("HTTP 429")], db_path=tmp_db)
+    with pytest.raises(llm.LLMTransientError):
+        sl.assess(items, fake)
+
+
+def test_dry_run_prints_raw_and_numbers(tmp_db, monkeypatch, clauses, capsys):
+    monkeypatch.setenv("DB_PATH", str(tmp_db))
+    items = sl.prefilter([clauses["cbu_reg_3030:main:13"]])
+    problems = sl.dry_run(items, FakeProvider([CHECKABLE], db_path=tmp_db))
+    out = capsys.readouterr().out
+    assert problems == []
+    assert "raw LLM output: " + CHECKABLE in out and "in=11 out=7" in out
+
+
+def test_cost_not_set_and_computed(monkeypatch):
+    rows = [{"provider": "openai-compatible:a.test", "model": "m", "cache_hit": 0,
+             "input_tokens": 1_000_000, "output_tokens": 500_000},
+            {"provider": "openai-compatible:a.test", "model": "m", "cache_hit": 1,
+             "input_tokens": None, "output_tokens": None}]
+    monkeypatch.setenv("LLM_BASE_URL", "https://a.test/v1")
+    monkeypatch.setenv("LLM_MODEL", "m")
+    monkeypatch.setenv("LLM_FALLBACK_1_BASE_URL", "")
+    monkeypatch.setenv("LLM_PRICE_INPUT_PER_MTOK", "")
+    monkeypatch.setenv("LLM_PRICE_OUTPUT_PER_MTOK", "")
+    assert llm.cost_of(rows) == "not set"
+    monkeypatch.setenv("LLM_PRICE_INPUT_PER_MTOK", "0.5")
+    monkeypatch.setenv("LLM_PRICE_OUTPUT_PER_MTOK", "2")
+    assert llm.cost_of(rows) == 1.5
+
+
+def test_compare_two_models(tmp_db, tmp_path, clauses):
+    from backend.requirements import compare as cmp
+    items = sl.prefilter([clauses["cbu_reg_3030:main:13"], clauses["law_state_language:art:20"]])
+    primary = FakeProvider([CHECKABLE, NOT_CHECKABLE], name="p", model="m1", db_path=tmp_db)
+    other = FakeProvider([CHECKABLE.replace("required_document", "key_info"), "bad", "bad"],
+                         name="f", model="m2", db_path=tmp_db)
+    report = cmp.compare([primary, other], items, db_path=tmp_db)
+    p, f = report["providers"]
+    assert (p["valid_json"], f["valid_json"], f["invalid_json"]) == (2, 1, 1)
+    assert p["input_tokens_total"] == 22 and isinstance(p["latency_ms_mean"], int)
+    assert report["agreement"] == {"both_valid": 1, "same_check_type": 0}
+    assert report["disagreements"][0]["clause_id"] == "cbu_reg_3030:main:13"
+    # Re-run: answers come from the cache, numbers still from the original calls.
+    again = cmp.compare([FakeProvider([], name="p", model="m1", db_path=tmp_db)], items[:1],
+                        db_path=tmp_db)
+    assert again["providers"][0]["input_tokens_total"] == 11
+    cmp.write_report(report, tmp_path / "c.md", tmp_path / "c.json")
+    md = (tmp_path / "c.md").read_text(encoding="utf-8")
+    assert "check_type agreement: 0 of 1" in md and "13. Банк ўзининг" in md
