@@ -15,7 +15,7 @@
   TPD) was exhausted during the audit; no fallback provider is configured. These are
   reported as "not run", never as passed.
 
-### Bugs found (not fixed; each awaits approval)
+### Bugs found (as found by the audit; see "Fixes applied" below for what changed)
 
 | # | Bug | Evidence in this audit | Proposed fix |
 |---|---|---|---|

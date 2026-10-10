@@ -43,6 +43,7 @@ AUDIT_DIR = ROOT / "data" / "raw" / "audit"
 AUDIT_DB = AUDIT_DIR / "audit.sqlite"
 REPORT = ROOT / "eval" / "audit_report.md"
 BUGS = ROOT / "eval" / "audit_bugs.md"
+FIXES = ROOT / "eval" / "audit_fixes.md"
 KEYWORDS = ROOT / "eval" / "audit_keywords.yaml"
 LLM_CHECKS = {"required_document", "key_info"}
 
@@ -654,6 +655,8 @@ def report() -> str:
           "earlier 60-page run instead of fetching new ones.", ""]
     if BUGS.exists():
         L += [BUGS.read_text(encoding="utf-8").strip(), ""]
+    if FIXES.exists():
+        L += [FIXES.read_text(encoding="utf-8").strip(), ""]
 
     # part 1
     L += ["## Part 1. Evidence integrity", "", "### 1a. Quote vs stored page text", ""]

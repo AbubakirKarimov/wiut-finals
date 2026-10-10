@@ -61,8 +61,18 @@ bank URL ─> crawler (robots.txt, 1 req/s/host, depth 2, ≤15 pages, ≤60 s, 
 - The English translation (`evidence_quote_en`) is produced **after** verification, is never
   used for verification, and is labelled "machine translation" in the API and UI.
 - For an *absence* (`possible_gap`), the quote is context, not proof of absence: the closest
-  related passage the LLM found (verified), or the keyword match / opening of the most
-  relevant page read. The reason text says which.
+  related passage the LLM found (verified) or the keyword match on the best candidate page.
+  When no page matched the keywords at all, `evidence_quote` is empty, the reason starts
+  "No evidence found on N pages read.", and a verified passage of the closest page is stored
+  separately as `context_quote` (shown as "not evidence").
+- `possible_gap` also needs at least one page of the requirement's site section (deposit,
+  loan, document, ... from `data/check_hints.yaml`); otherwise `not_checkable` "relevant
+  section not reached (read N pages)".
+- Requirements that name the homepage (`location: homepage` in `data/check_hints.yaml`:
+  main:49, main:51) take evidence from the home page; evidence found only on an inner page
+  is `not_checkable`, not `ok`.
+- Keywords match by word stems, across Latin/Cyrillic script, apostrophe variants and word
+  order (`backend/checks/evidence.py`); quotes are still verified strictly.
 - Crawl failures (blocked, unreachable, robots.txt disallow, needs browser) produce
   `not_checkable` with the reason; protection is never bypassed.
 
