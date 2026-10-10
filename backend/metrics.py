@@ -109,6 +109,60 @@ def consistency(conn: sqlite3.Connection) -> dict:
                          for r in measured]}
 
 
+LATEST_RUNS = ("SELECT id FROM runs r1 WHERE r1.status = 'done' AND r1.source != 'consistency' "
+               "AND r1.finished_at = (SELECT MAX(r2.finished_at) FROM runs r2 WHERE "
+               "r2.bank_id = r1.bank_id AND r2.status = 'done' AND r2.source != 'consistency')")
+
+
+def decided_by(conn: sqlite3.Connection) -> dict:
+    """Who decided the status of the findings currently shown (each bank's latest run):
+    deterministic code or LLM-assisted. Findings stored before decided_by existed count as
+    "not recorded" and are left out of the percentages."""
+    counts = {"code": 0, "llm_assisted": 0, "not_recorded": 0}
+    for r in conn.execute(f"SELECT decided_by, COUNT(*) AS n FROM findings WHERE run_id IN "
+                          f"({LATEST_RUNS}) GROUP BY decided_by"):
+        counts[r["decided_by"] or "not_recorded"] += r["n"]
+    recorded = counts["code"] + counts["llm_assisted"]
+    out = {**counts, "recorded": recorded}
+    if not recorded:
+        return {**out, "share_code": NO_DATA, "share_llm_assisted": NO_DATA}
+    return {**out, "share_code": round(counts["code"] / recorded, 3),
+            "share_llm_assisted": round(counts["llm_assisted"] / recorded, 3)}
+
+
+def llm_usage(conn: sqlite3.Connection) -> dict:
+    """LLM calls, tokens and estimated cost per run and per requirement check, from llm_calls
+    (API calls only; cache hits are free) and the prices in .env. Median latency of API calls.
+    """
+    runs = [r["id"] for r in conn.execute("SELECT id FROM runs WHERE status = 'done'")]
+    if not runs:
+        return {"runs": 0, "calls_per_run": NO_DATA, "tokens_per_run": NO_DATA,
+                "cost_usd_per_run": NO_DATA, "cost_usd_per_check": NO_DATA,
+                "median_call_latency_ms": NO_DATA, "price_source": "LLM_*PRICE_*_PER_MTOK"}
+    marks = ",".join("?" for _ in runs)
+    calls = [dict(r) for r in conn.execute(
+        f"SELECT provider, model, input_tokens, output_tokens, cache_hit, duration_ms, ok "
+        f"FROM llm_calls WHERE run_id IN ({marks})", runs)]
+    checks = conn.execute(f"SELECT COUNT(*) AS n FROM findings WHERE run_id IN ({marks})",
+                          runs).fetchone()["n"]
+    api = [c for c in calls if not c["cache_hit"]]
+    tokens = sum((c["input_tokens"] or 0) + (c["output_tokens"] or 0) for c in api)
+    cost = cost_of(calls) if calls else 0.0
+    lat = percentile([c["duration_ms"] for c in api if c["ok"]], 50)
+    n = len(runs)
+    return {
+        "runs": n, "checks": checks, "api_calls": len(api),
+        "cache_hits": len(calls) - len(api),
+        "calls_per_run": round(len(api) / n, 2),
+        "tokens_per_run": round(tokens / n, 1),
+        "cost_usd_per_run": round(cost / n, 6) if isinstance(cost, float) else cost,
+        "cost_usd_per_check": (round(cost / checks, 6) if isinstance(cost, float) and checks
+                               else (cost if not isinstance(cost, float) else NO_DATA)),
+        "median_call_latency_ms": round(lat) if lat is not None else NO_DATA,
+        "price_source": "LLM_*PRICE_*_PER_MTOK in .env (list price; missing -> not set)",
+    }
+
+
 def _seconds(start: str, end: str) -> float:
     return (datetime.fromisoformat(end) - datetime.fromisoformat(start)).total_seconds()
 
@@ -157,4 +211,6 @@ def compute(conn: sqlite3.Connection, labels_path: Path = LABELS_PATH) -> dict:
         "precision_possible_gap_from_decisions": decision_precision(conn),
         "consistency": consistency(conn),
         "findings_by_status": status_counts,
+        "decided_by": decided_by(conn),
+        "llm_usage": llm_usage(conn),
     }

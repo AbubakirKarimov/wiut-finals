@@ -157,3 +157,35 @@ def test_decision_precision_threshold(tmp_db, monkeypatch):
         monkeypatch.setenv("METRICS_MIN_DECISIONS", "20")
         p = metrics.decision_precision(conn)
         assert p["value"] == "too few decisions to be meaningful" and p["decided"] == 13
+
+
+def test_metrics_decided_by_and_llm_usage(tmp_db, monkeypatch):
+    from datetime import datetime, timezone
+    from backend.models import Finding, Run
+    for k, v in {"LLM_BASE_URL": "https://api.example/v1", "LLM_MODEL": "m",
+                 "LLM_PRICE_INPUT_PER_MTOK": "0.15", "LLM_PRICE_OUTPUT_PER_MTOK": "0.60"}.items():
+        monkeypatch.setenv(k, v)
+    with db.connect(tmp_db) as conn:
+        empty = metrics.compute(conn)
+        assert empty["decided_by"]["share_code"] == "no data"
+        assert empty["llm_usage"]["calls_per_run"] == "no data"
+        now = datetime.now(timezone.utc)
+        db.upsert_run(conn, Run(id="r1", bank_id="b", start_url="https://b.uz/", status="done",
+                                source="batch", started_at=now, finished_at=now))
+        for i, by in enumerate(["code", "code", "code", "llm_assisted"]):
+            db.upsert_finding(conn, Finding(id=f"r1:{i}", bank_id="b", requirement_id=f"q{i}",
+                                            status="ok", run_id="r1", decided_by=by))
+        for ms, tin, tout, hit in [(400, 1_000_000, 0, 0), (600, 0, 1_000_000, 0),
+                                   (5, 50, 5, 1)]:
+            conn.execute("INSERT INTO llm_calls (provider, model, input_tokens, output_tokens, "
+                         "duration_ms, ok, cache_hit, run_id, created_at) VALUES "
+                         "(?, 'm', ?, ?, ?, 1, ?, 'r1', ?)",
+                         ("openai-compatible:api.example", tin, tout, ms, hit, now.isoformat()))
+        m = metrics.compute(conn)
+    assert m["decided_by"] == {"code": 3, "llm_assisted": 1, "not_recorded": 0, "recorded": 4,
+                               "share_code": 0.75, "share_llm_assisted": 0.25}
+    u = m["llm_usage"]
+    assert u["calls_per_run"] == 2 and u["cache_hits"] == 1
+    assert u["tokens_per_run"] == 2_000_000
+    assert u["cost_usd_per_run"] == 0.75 and u["cost_usd_per_check"] == 0.1875
+    assert u["median_call_latency_ms"] == 400
