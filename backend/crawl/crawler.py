@@ -199,6 +199,10 @@ class Crawler:
         if hit is None:
             return None
         page, meta = hit
+        if page.source_type == "html" and "links" not in meta:
+            # Stored before link metadata was kept (meta "{}"): reusing it would hide every
+            # link on the page from the link checks, so fetch the page again instead.
+            return None
         page = page.model_copy(update={"run_id": run_id,
                                        "links": [tuple(x) for x in meta.get("links") or []]})
         self.store.put(page, meta, request_url=url)  # attach the page to this run

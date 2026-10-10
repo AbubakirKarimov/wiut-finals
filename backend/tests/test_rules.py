@@ -231,3 +231,50 @@ def test_threshold_comes_from_check_hints(tmp_path, monkeypatch):
     monkeypatch.setattr(llm_checks, "HINTS_PATH", h)
     out, _, _ = check("14", [thin_home(900), *filler("https://x.uz", 6)])
     assert out.status == "possible_gap"
+
+
+# --- regression: a stored page without link metadata hid MKBANK's guarantee link ---
+
+def test_guarantee_link_extracted_from_mkbank_markup():
+    dep = fixture_page("mkbank_ru_deposit_guarantee")
+    assert ("https://fgd.uz/ru", "Ваши вклады гарантированы") in dep.links
+    out, _, _ = check("40^4", [*filler("https://mkbank.uz", 5), dep])
+    assert out.status == "ok" and "Ваши вклады гарантированы" in out.quote
+    assert "fgd.uz" in out.reason
+
+
+def test_stored_page_without_link_metadata_is_fetched_again(tmp_db):
+    """Rows stored before link metadata existed have links "{}"; the crawler must not reuse
+    them (it did, and the 40^4 link check saw a deposit page with no links)."""
+    import httpx
+    from backend import db
+    from backend.crawl.crawler import CrawlConfig, Crawler
+    from backend.crawl.fetch import FetchConfig, Fetcher
+    from backend.crawl.store import DbPageStore
+
+    raw = (FIX / "mkbank_ru_deposit_guarantee.html").read_text(encoding="utf-8")
+    home = ("<html><body><p>" + "Bank xizmatlari va omonatlar haqida. " * 40 + "</p>"
+            "<a href='/ru/private/deposit/'>Вклады</a></body></html>")
+    fetched = []
+
+    def handler(req):
+        if req.url.path == "/robots.txt":
+            return httpx.Response(404)
+        fetched.append(req.url.path)
+        body = raw if req.url.path == "/ru/private/deposit/" else home
+        return httpx.Response(200, headers={"content-type": "text/html"}, content=body.encode())
+
+    stale = fixture_page("mkbank_ru_deposit_guarantee", bank="mkbank")
+    with db.connect(tmp_db) as conn:   # the old row: text present, link metadata missing
+        db.upsert_page(conn, stale.model_copy(update={"links": []}))
+    f = FetchConfig(user_agent="ComplianceRadar/0.1", min_delay_seconds=0, min_text_chars=100)
+    c = Crawler(CrawlConfig(fetch=f, max_pages=5), store=DbPageStore(tmp_db),
+                fetcher=Fetcher(f, transport=httpx.MockTransport(handler)))
+    res = c.crawl("mkbank", "https://mkbank.uz/ru/")
+    assert "/ru/private/deposit/" in fetched                    # not reused from the store
+    dep = next(p for p in res.pages if p.url.endswith("/ru/private/deposit/"))
+    assert ("https://fgd.uz/ru", "Ваши вклады гарантированы") in dep.links
+    with db.connect(tmp_db) as conn:                             # and the store is repaired
+        _, meta = db.get_cached_page(conn, "mkbank", dep.url,
+                                     __import__("datetime").datetime(2000, 1, 1))
+    assert ["https://fgd.uz/ru", "Ваши вклады гарантированы"] in meta["links"]
