@@ -3,7 +3,7 @@ import { api, formatTime } from "../api.js";
 
 const STATUS_TEXT = {
   ok: "OK",
-  possible_gap: "Possible gap",
+  possible_gap: "Possible gap for review",
   not_checkable: "Not checkable",
 };
 
@@ -92,36 +92,62 @@ function DecisionBox({ finding, analyst, onDecided }) {
   );
 }
 
+function UrlsRead({ f, open }) {
+  if (f.pages_read == null) return null;
+  return (
+    <details className="urls" open={open}>
+      <summary>{f.pages_read} page(s) read</summary>
+      <ul>
+        {f.urls_read.map((u) => (
+          <li key={u}><a href={u} target="_blank" rel="noopener noreferrer">{u}</a></li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
+function Quote({ f }) {
+  return (
+    <>
+      <blockquote className="quote" lang="uz">{f.evidence_quote}</blockquote>
+      <p className="mt">
+        <span className="mt-label">{f.evidence_quote_en_label}:</span>{" "}
+        {f.evidence_quote_en || "not available"}
+      </p>
+    </>
+  );
+}
+
+function PageLink({ url, children = "Open bank page ↗" }) {
+  if (!url) return null;
+  return <a className="pagelink" href={url} target="_blank" rel="noopener noreferrer">{children}</a>;
+}
+
 function Evidence({ f }) {
+  if (f.status === "possible_gap") {
+    // An absence cannot be quoted: the quote only shows the closest page that was read.
+    return (
+      <div className="evidence" data-testid="gap-evidence">
+        <p className="gap-lead">
+          No evidence found on {f.pages_read ?? "no data"} page(s) read. Closest page:
+        </p>
+        <PageLink url={f.evidence_url}>{f.evidence_url}</PageLink>
+        {f.evidence_quote && <Quote f={f} />}
+        <p className="muted small">
+          The passage above is context from the closest page, not proof. Possible gap for
+          review: a CBU analyst decides.
+        </p>
+        {f.reason && <p className="reason">{f.reason}</p>}
+        <UrlsRead f={f} open />
+      </div>
+    );
+  }
   return (
     <div className="evidence">
-      {f.evidence_quote ? (
-        <>
-          <blockquote className="quote" lang="uz">{f.evidence_quote}</blockquote>
-          <p className="mt">
-            <span className="mt-label">{f.evidence_quote_en_label}:</span>{" "}
-            {f.evidence_quote_en || "not available"}
-          </p>
-        </>
-      ) : (
-        <p className="muted">No verified quote.</p>
-      )}
-      {f.evidence_url && (
-        <a className="pagelink" href={f.evidence_url} target="_blank" rel="noopener noreferrer">
-          Open bank page ↗
-        </a>
-      )}
+      {f.evidence_quote ? <Quote f={f} /> : <p className="muted">No verified quote.</p>}
+      <PageLink url={f.evidence_url} />
       {f.reason && <p className="reason">{f.reason}</p>}
-      {f.pages_read != null && (
-        <details className="urls">
-          <summary>{f.pages_read} page(s) read</summary>
-          <ul>
-            {f.urls_read.map((u) => (
-              <li key={u}><a href={u} target="_blank" rel="noopener noreferrer">{u}</a></li>
-            ))}
-          </ul>
-        </details>
-      )}
+      <UrlsRead f={f} />
     </div>
   );
 }

@@ -44,7 +44,7 @@ export default function App() {
         <Component />
       </main>
       <footer className="footer">
-        Findings are <strong>possible gaps</strong> for review, not violations. A CBU analyst makes the decision.
+        Findings are <strong>possible gaps for review</strong>. A CBU analyst makes the decision.
       </footer>
     </div>
   );

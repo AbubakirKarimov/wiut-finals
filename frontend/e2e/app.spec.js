@@ -23,8 +23,12 @@ test("a check reaches results", async ({ page }, testInfo) => {
   const results = page.getByTestId("results");
   await expect(results.getByTestId("finding-row")).toHaveCount(1);
   // Russian-only fixture with 7 pages and no Uzbek version -> possible gap with a quote.
-  await expect(results).toContainText("Possible gap");
-  await expect(results.locator("blockquote")).toContainText("ТестБанк");
+  await expect(results).toContainText("Possible gap for review");
+  const gap = results.getByTestId("gap-evidence");
+  await expect(gap).toContainText("No evidence found on 7 page(s) read. Closest page:");
+  await expect(gap.locator("blockquote")).toContainText("ТестБанк");
+  await expect(gap.locator("details li")).toHaveCount(7);
+  await expect(page.locator("body")).not.toContainText(/violation/i);
   await expect(results).toContainText("machine translation");
   await expect(results).toContainText("checked just now");
   await shot(page, testInfo, "check-results");

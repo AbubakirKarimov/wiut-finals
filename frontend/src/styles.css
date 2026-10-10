@@ -126,7 +126,7 @@ input:focus, textarea:focus, .btn:focus-visible, .chip:focus-visible, .tab:focus
 .analyst { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); min-width: 240px; margin-bottom: 12px; }
 .analyst input { color: var(--text); }
 
-.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: 600; }
 .badge-possible_gap { background: var(--gap-bg); color: var(--gap-fg); }
 .badge-ok { background: var(--ok-bg); color: var(--ok-fg); }
 .badge-not_checkable { background: var(--nc-bg); color: var(--nc-fg); }
@@ -138,7 +138,7 @@ input:focus, textarea:focus, .btn:focus-visible, .chip:focus-visible, .tab:focus
 .findings { display: flex; flex-direction: column; gap: 10px; }
 .frow {
   display: grid; gap: 12px;
-  grid-template-columns: 140px minmax(180px, 1.2fr) 120px minmax(220px, 2fr) 220px;
+  grid-template-columns: 140px minmax(180px, 1.2fr) 130px minmax(220px, 2fr) 220px;
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 12px;
 }
@@ -152,7 +152,9 @@ input:focus, textarea:focus, .btn:focus-visible, .chip:focus-visible, .tab:focus
 }
 .mt { margin: 0 0 6px; font-size: 13px; }
 .mt-label { font-style: italic; color: var(--muted); }
-.pagelink { font-size: 13px; }
+.pagelink { font-size: 13px; overflow-wrap: anywhere; }
+.gap-lead { margin: 0 0 4px; font-weight: 600; }
+.evidence .pagelink + .quote { margin-top: 6px; }
 .reason { font-size: 13px; color: var(--muted); margin: 6px 0; }
 .urls { font-size: 13px; }
 .urls ul { margin: 4px 0; padding-left: 18px; max-height: 160px; overflow: auto; }
