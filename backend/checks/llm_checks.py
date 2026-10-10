@@ -99,6 +99,25 @@ def hint_sections(req: Requirement, path: Path | None = None) -> list[str]:
     return [s for s in (_hint_entry(req, path).get("sections") or []) if s]
 
 
+def hint_location(req: Requirement, path: Path | None = None) -> str | None:
+    """'homepage' when the requirement names the homepage (data/check_hints.yaml)."""
+    return _hint_entry(req, path).get("location") or None
+
+
+def homepage_first(pages: list[Page], keywords: list[str], cands: list[tuple[Page, list[int]]],
+                   limit: int) -> list[tuple[Page, list[int]]]:
+    """For homepage-located requirements: the home page (the first page read) goes to the
+    LLM first even without a keyword hit (its opening and end, where headers and footers
+    are), then the best other keyword candidates."""
+    home = next((p for p in pages if p.readable), None)
+    if home is None:
+        return cands
+    _, offs = keyword_hits(home, keywords)
+    offs = offs or [0, max(0, len(home.text) - 1)]
+    rest = [(p, o) for p, o in cands if p.url != home.url]
+    return [(home, offs)] + rest[:max(0, limit - 1)]
+
+
 def hint_keywords(req: Requirement, path: Path | None = None) -> list[str] | None:
     entry = _hint_entry(req, path)
     if not entry:
@@ -169,6 +188,10 @@ def check_presence(req: Requirement, pages: list[Page], llm: LLMProvider | None
     max_chars = int(_env_int("CHECK_MAX_CONTEXT_TOKENS", 2500) * CHARS_PER_TOKEN)
     window = _env_int("CHECK_EXCERPT_WINDOW_CHARS", 1500)
     cands = candidate_pages(pages, keywords, max_pages)
+    location = hint_location(req)
+    if location == "homepage":
+        cands = homepage_first(pages, keywords, candidate_pages(pages, keywords, max_pages + 1),
+                               max_pages)
     kw_note = f"keywords from {source}: {', '.join(keywords[:12])}"
     readable = [p for p in pages if p.readable]
     if not cands:
@@ -179,8 +202,8 @@ def check_presence(req: Requirement, pages: list[Page], llm: LLMProvider | None
         return CheckOutcome("not_checkable",
                             reason=f"LLM not configured; {len(cands)} keyword candidate page(s): "
                                    + ", ".join(p.url for p, _ in cands))
-    rejected, closest = [], None
-    for page, offs in cands:
+    rejected, closest, inner = [], None, None
+    for i, (page, offs) in enumerate(cands):
         parts = excerpt(page.text, offs, max_chars, before=window, after=window)
         prompt = PRESENCE_PROMPT.format(
             text_en=req.text_en or "no data", text_original=req.text_original,
@@ -195,6 +218,9 @@ def check_presence(req: Requirement, pages: list[Page], llm: LLMProvider | None
             return CheckOutcome("not_checkable", reason=f"LLM error: {str(e)[:160]}",
                                 llm_used=True)
         verified = verify_quote(ans["quote"], page.text)
+        if ans["present"] and verified and location == "homepage" and i > 0:
+            inner = inner or (page, ans["quote"])  # evidence off the homepage: not ok
+            continue
         if ans["present"] and verified:
             return CheckOutcome("ok", page=page, quote=ans["quote"], llm_used=True,
                                 reason=f"LLM: present, quote verified. {ans['explanation']}")
@@ -202,6 +228,12 @@ def check_presence(req: Requirement, pages: list[Page], llm: LLMProvider | None
             rejected.append(page.url)
         elif verified and closest is None:
             closest = (page, ans["quote"], ans["explanation"])
+    if inner:
+        page, quote = inner
+        return CheckOutcome("not_checkable", page=page, quote=quote, llm_used=True,
+                            reason="found on an inner page, not in the homepage text read "
+                                   f"({cands[0][0].url}); the requirement names the homepage, "
+                                   "so check the homepage manually")
     if rejected:
         return CheckOutcome("not_checkable", llm_used=True,
                             reason="LLM said present but its quote was not found verbatim in "

@@ -12,6 +12,8 @@
 #   "homepage" = site root or a language root). A possible_gap is reported only if at least
 #   one page of these sections was read; otherwise not_checkable "relevant section not
 #   reached" (audit bug B7, approved). No entry = no section requirement.
+# location: homepage = the requirement names the homepage; the homepage is always sent to
+#   the LLM first and evidence found only on an inner page is not reported as ok (audit B2).
 requirements:
   req:cbu_reg_3030:main:14:     # section describing the site structure (site map)
     sections: [homepage]
@@ -36,6 +38,7 @@ requirements:
            "guarantee hyperlink", "deposit protection", "guarantee page"]
   req:cbu_reg_3030:main:49:     # complaint page linked from the homepage or top navigation
     sections: [homepage, complaint]
+    location: homepage
     keywords:
       uz_latn: [shikoyat, murojaat, aloqa, telefon, onlayn, form]
       uz_cyrl: [шикоят, мурожаат, алоқа, телефон, онлайн, форм]
@@ -43,3 +46,4 @@ requirements:
       en: [complaint, feedback, contact, support, online, form]
   req:cbu_reg_3030:main:51:     # call-centre numbers on the homepage
     sections: [homepage]
+    location: homepage

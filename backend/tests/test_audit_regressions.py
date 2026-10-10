@@ -112,9 +112,11 @@ def test_keyword_words_far_apart_do_not_match():
 
 # --- location requirements (homepage) are not enforced ---
 
-@pytest.mark.xfail(strict=True, reason="audit bug: key_info requirements that name the "
-                   "homepage accept evidence from any page")
-def test_homepage_requirement_rejects_evidence_from_inner_page(tmp_db):
+REAL_HINTS = llm_checks.Path(llm_checks.__file__).resolve().parents[2] / "data" / "check_hints.yaml"
+
+
+def test_homepage_requirement_rejects_evidence_from_inner_page(tmp_db, monkeypatch):
+    monkeypatch.setattr(llm_checks, "HINTS_PATH", REAL_HINTS)  # location: homepage for 51
     quote = "Yagona telefon-markazi 1285 va +998 55 503-63-63"
     llm = ScriptedLLM(tmp_db, presence={"present": True, "quote": quote, "explanation": ""},
                       keywords={"uz_latn": ["telefon-markazi"], "uz_cyrl": [], "ru": [],
@@ -247,3 +249,23 @@ def test_no_match_gap_without_any_stem_has_no_context(tmp_db):
     assert f.status == "possible_gap"
     assert f.evidence_quote is None and f.context_quote is None
     assert f.evidence_url == "https://b.uz/uz/p0"
+
+
+def test_homepage_requirement_prefers_homepage_evidence(tmp_db, monkeypatch):
+    """main:51: numbers on both the homepage and an inner page -> evidence is the homepage,
+    even though the homepage has no keyword hit (the number is in its footer)."""
+    monkeypatch.setattr(llm_checks, "HINTS_PATH", REAL_HINTS)
+    quote = "Call-markaz: 1285, +998 55 503-63-63"
+    llm = ScriptedLLM(tmp_db, presence={"present": True, "quote": quote, "explanation": ""},
+                      keywords={"uz_latn": ["telefon-markazi"], "uz_cyrl": [], "ru": [],
+                                "en": []})
+    r = req(text_en="Call-center numbers on the homepage.", rid="req:cbu_reg_3030:main:51")
+    home = Page(bank_id="b", url="https://b.uz/uz/", language="uz_latn",
+                text=FILLER * 5 + quote, source_type="html")
+    inner = pages_with("Yagona telefon-markazi " + quote,
+                       first_url="https://b.uz/uz/services/online-reception/send/")
+    c = crawl([home] + inner)
+    out = finalize(run_one(r, c, llm), c, r)
+    assert out.status == "ok" and out.page.url == "https://b.uz/uz/"
+    sent = next(p for p in llm.prompts if "<excerpts>" in p)
+    assert "Page URL: https://b.uz/uz/" in sent and quote in sent   # footer included
