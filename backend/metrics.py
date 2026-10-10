@@ -130,6 +130,18 @@ def decided_by(conn: sqlite3.Connection) -> dict:
             "share_llm_assisted": round(counts["llm_assisted"] / recorded, 3)}
 
 
+REPLAY_PATH = Path(__file__).resolve().parents[1] / "eval" / "replay_stored.json"
+
+
+def replay_summary(path: Path = REPLAY_PATH) -> dict:
+    """Summary of eval/replay_stored.py: the current checks replayed on the stored pages of
+    each bank's latest batch run (no LLM API calls). "no data" until it has been run."""
+    if not path.exists():
+        return {"value": NO_DATA, "detail": "run .venv/bin/python eval/replay_stored.py"}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {**data.get("summary", {}), "generated_at": data.get("generated_at", NO_DATA)}
+
+
 def llm_usage(conn: sqlite3.Connection) -> dict:
     """LLM calls, tokens and estimated cost per run and per requirement check, from llm_calls
     (API calls only; cache hits are free) and the prices in .env. Median latency of API calls.
@@ -212,5 +224,6 @@ def compute(conn: sqlite3.Connection, labels_path: Path = LABELS_PATH) -> dict:
         "consistency": consistency(conn),
         "findings_by_status": status_counts,
         "decided_by": decided_by(conn),
+        "decided_by_replay": replay_summary(),
         "llm_usage": llm_usage(conn),
     }

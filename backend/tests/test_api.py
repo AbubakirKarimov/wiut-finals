@@ -232,3 +232,12 @@ def test_cancel_while_running_stops_at_next_progress_event(client):
     job = client.get("/jobs/j2").json()
     assert job["status"] == "cancelled"
     assert job["run"]["status"] == "error"   # the partial run is never shown as a result
+
+
+def test_replay_summary_no_data_without_file(tmp_path):
+    assert metrics.replay_summary(tmp_path / "missing.json")["value"] == "no data"
+    f = tmp_path / "r.json"
+    f.write_text('{"generated_at": "2026-10-10T00:00:00+00:00", "summary": {"findings": 2, '
+                 '"share_code": 0.5}}', encoding="utf-8")
+    assert metrics.replay_summary(f) == {"findings": 2, "share_code": 0.5,
+                                         "generated_at": "2026-10-10T00:00:00+00:00"}
