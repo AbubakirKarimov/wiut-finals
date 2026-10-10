@@ -77,3 +77,15 @@ def test_second_run_replays_pages_and_bypasses_cache(tmp_db, tmp_path, monkeypat
 def test_consistency_metric_no_data(tmp_db):
     with db.connect(tmp_db) as conn:
         assert metrics.consistency(conn)["value"] == "no data"
+
+
+def test_rate_limited_requirement_is_not_measured():
+    a = [Finding(id="1", bank_id="b", requirement_id="r1", status="ok", evidence_quote="q"),
+         Finding(id="2", bank_id="b", requirement_id="r2", status="possible_gap")]
+    b = [Finding(id="3", bank_id="b", requirement_id="r1", status="ok", evidence_quote="q"),
+         Finding(id="4", bank_id="b", requirement_id="r2", status="not_checkable",
+                 reason="LLM timeout / rate limit: HTTP 429")]
+    r = compare([a, b])
+    assert r["n_requirements"] == 1 and r["not_measured"] == 1
+    assert r["status_agreement"] == 1.0
+    assert r["per_requirement"]["r2"]["measured"] is False

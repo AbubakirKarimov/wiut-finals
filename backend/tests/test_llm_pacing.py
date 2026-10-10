@@ -126,3 +126,29 @@ def test_seed_and_cache_namespace(tmp_db):
     p.cache_namespace = "consistency-x"
     p.complete_json("prompt", Answer)                 # other namespace: fresh call
     assert len(bodies) == 2
+
+
+def test_tokens_per_minute_budget_paces_calls(tmp_db):
+    p = FakeProvider([OK, '{"present": false, "quote": ""}'], db_path=tmp_db,
+                     limits=limits(tokens_per_minute=200))
+    events = []
+    p.on_event = events.append
+    p._token_log.append((time.monotonic(), 150))  # tokens used moments ago
+    p.complete_json("prompt one", Answer)   # 150 + estimate > 200 -> wait for the window
+    assert len(p.slept) == 1 and 59 < p.slept[0] <= 60.1
+    assert any(e.startswith("pacing: 150 of 200 tokens used") for e in events)
+
+
+def test_429_detail_names_the_limit_without_ids(tmp_db):
+    def handler(req):
+        return httpx.Response(429, headers={"retry-after": "500"}, json={"error": {
+            "message": "Rate limit reached for model `m` in organization `org_abc123` service "
+                       "tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199000, "
+                       "Requested 2500. Please try again in 8m20s."}})
+
+    p = llm.OpenAICompatibleProvider("https://api.example/v1", "k", "m", db_path=tmp_db,
+                                     transport=httpx.MockTransport(handler),
+                                     limits=limits(max_retries=0))
+    with pytest.raises(llm.LLMTransientError) as e:
+        p.complete_json("prompt", Answer)
+    assert "tokens per day (TPD)" in str(e.value) and "org_abc123" not in str(e.value)

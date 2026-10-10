@@ -67,6 +67,7 @@ class RateLimits:
     max_wait_seconds: float = 60.0  # a longer Retry-After is not waited out: fail over
     min_interval_seconds: float = 1.0  # minimum gap between two calls to this provider
     fallback_after_seconds: float = 30.0  # with a fallback configured, longer waits switch
+    tokens_per_minute: int | None = None  # client-side budget (provider's TPM limit); None = off
 
     @classmethod
     def from_env(cls) -> "RateLimits":
@@ -78,7 +79,8 @@ class RateLimits:
             min_interval_seconds=float(os.getenv("LLM_MIN_INTERVAL_SECONDS")
                                        or d.min_interval_seconds),
             fallback_after_seconds=float(os.getenv("LLM_FALLBACK_AFTER_SECONDS")
-                                         or d.fallback_after_seconds))
+                                         or d.fallback_after_seconds),
+            tokens_per_minute=int(os.getenv("LLM_TOKENS_PER_MINUTE") or 0) or None)
 
 
 def parse_retry_after(value: str | None) -> float | None:
@@ -100,6 +102,18 @@ class RawCompletion:
     text: str
     input_tokens: int | None
     output_tokens: int | None
+
+
+def _limit_detail(r: httpx.Response) -> str:
+    """Which limit was hit (e.g. tokens per day), without account identifiers."""
+    try:
+        msg = (r.json().get("error") or {}).get("message") or ""
+    except (ValueError, AttributeError):
+        return ""
+    msg = re.sub(r"\b(org|user|project|proj)_[A-Za-z0-9]+", "<id>", msg)
+    msg = re.sub(r"`<id>`|<id>", "", msg)
+    msg = re.sub(r"\s+", " ", msg).split(" Please ")[0].strip()
+    return f" ({msg[:160]})" if msg else ""
 
 
 def _fmt_tokens(n: int | None) -> str:
@@ -137,6 +151,33 @@ class LLMProvider(ABC):
         self.cooldown_until = 0.0
         # Separate cache entries (e.g. for a consistency re-run that must not reuse answers).
         self.cache_namespace = ""
+        # (time.monotonic(), tokens) of recent calls, for the tokens-per-minute budget.
+        self._token_log: list[tuple[float, int]] = []
+
+    def _pace_tokens(self, estimate: int) -> None:
+        """Wait until the last 60 s of tokens plus this call fit in tokens_per_minute."""
+        tpm = self.limits.tokens_per_minute
+        if not tpm:
+            return
+        now = time.monotonic()
+        self._token_log = [(t, n) for t, n in self._token_log if now - t < 60]
+        used = sum(n for _, n in self._token_log)
+        if used + estimate <= tpm:
+            return
+        # Oldest calls leave the window first; wait until enough tokens have expired.
+        freed, wait = 0, 0.0
+        for t, n in self._token_log:
+            freed += n
+            wait = 60 - (now - t) + 0.1
+            if used - freed + estimate <= tpm:
+                break
+        left = self.remaining()
+        if left is not None and wait >= left:
+            raise LLMTimeoutError(f"{self.name}: waiting {wait:.0f} s for the "
+                                  f"tokens-per-minute budget would exceed the check timeout")
+        self._emit(f"pacing: {used} of {tpm} tokens used in the last minute, "
+                   f"waiting {wait:.0f} s")
+        self._sleep(wait)
 
     def _emit(self, msg: str) -> None:
         if self.on_event:
@@ -160,12 +201,16 @@ class LLMProvider(ABC):
         """One logical call: retries 429/5xx/timeouts with Retry-After or exponential backoff."""
         for attempt in range(self.limits.max_retries + 1):
             self._check_deadline()
+            estimate = int(len(prompt) / 2.5) + int(json.dumps(schema).__len__() / 2.5)
+            self._pace_tokens(estimate + (getattr(self, "max_output_tokens", None) or 0))
             self._throttle()
             self._emit(f"calling LLM {self.model} (attempt {attempt + 1}, "
-                       f"~{int(len(prompt) / 2.5)} prompt tokens est.)")
+                       f"~{estimate} prompt tokens est.)")
             t0 = time.perf_counter()
             try:
                 raw = self._complete(prompt, schema)
+                used = (raw.input_tokens or estimate) + (raw.output_tokens or 0)
+                self._token_log.append((time.monotonic(), used))
                 self._emit(f"LLM answered in {time.perf_counter() - t0:.1f} s: "
                            f"{_fmt_tokens(raw.input_tokens)} input / "
                            f"{_fmt_tokens(raw.output_tokens)} output tokens")
@@ -312,7 +357,7 @@ class OpenAICompatibleProvider(LLMProvider):
         except httpx.HTTPError as exc:
             raise LLMError(f"{self.name}: request failed ({type(exc).__name__})") from None
         if r.status_code == 429 or r.status_code >= 500:
-            raise LLMTransientError(f"{self.name}: HTTP {r.status_code}",
+            raise LLMTransientError(f"{self.name}: HTTP {r.status_code}{_limit_detail(r)}",
                                     retry_after=parse_retry_after(r.headers.get("retry-after")))
         if r.status_code >= 400:
             raise LLMError(f"{self.name}: HTTP {r.status_code}: {r.text[:200]}")

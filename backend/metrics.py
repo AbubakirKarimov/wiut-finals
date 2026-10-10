@@ -72,12 +72,17 @@ def consistency(conn: sqlite3.Connection) -> dict:
         latest[r["bank_id"]] = r
     measured = [r for r in latest.values() if r["status_agreement"] is not None]
     if not measured:
+        if latest:
+            return {"value": NO_DATA, "detail": "repeat runs were rate limited: no requirement "
+                                                "was answered in every run; run it again later"}
         return {"value": NO_DATA, "detail": "run python -m backend.consistency <bank_id>"}
+    not_measured = sum(json.loads(r["per_requirement"]).get("_not_measured", 0)
+                       for r in measured)
     n_req = sum(r["n_requirements"] for r in measured)
     agree = sum(r["status_agreement"] * r["n_requirements"] for r in measured) / n_req
     quote = sum((r["quote_agreement"] or 0) * r["n_requirements"] for r in measured) / n_req
     return {"value": round(agree, 3), "quote_agreement": round(quote, 3),
-            "requirements": n_req, "banks": len(measured),
+            "requirements": n_req, "not_measured": not_measured, "banks": len(measured),
             "runs_per_bank": sorted({len(json.loads(r["run_ids"])) for r in measured}),
             "models": sorted({m for r in measured for m in json.loads(r["models"])}),
             "measured_at": max(r["created_at"] for r in measured),

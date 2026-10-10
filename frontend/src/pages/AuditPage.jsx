@@ -42,7 +42,7 @@ function Metrics({ m }) {
             note={`${a.decided} possible gap(s) decided`} />
       <Stat label="Consistency (repeat runs agree on status)" value={pct(c.value)}
             note={c.requirements
-              ? `${c.requirements} requirement(s) on ${c.banks} bank(s), same pages, fresh LLM answers; evidence quotes identical ${pct(c.quote_agreement)}`
+              ? `${c.requirements} requirement(s) on ${c.banks} bank(s), same pages, fresh LLM answers; evidence quotes identical ${pct(c.quote_agreement)}${c.not_measured ? `; ${c.not_measured} not measured (rate limit)` : ""}`
               : c.detail} />
       <Stat label="Findings by status"
             value={`${m.findings_by_status.possible_gap} / ${m.findings_by_status.not_checkable} / ${m.findings_by_status.ok}`}

@@ -20,6 +20,7 @@ from dataclasses import replace
 from backend import db
 from backend.crawl.banks import load_banks
 from backend.crawl.crawler import CrawlResult
+from backend.checks.llm_checks import TIMEOUT_REASON
 from backend.models import utcnow
 from backend.pipeline import check_site, llm_from_env, sync_requirements_yaml
 
@@ -63,18 +64,36 @@ def compare(findings_per_run: list[list]) -> dict:
     for req_id, fs in sorted(by_req.items()):
         statuses = [f.status for f in fs]
         quotes = [f.evidence_quote for f in fs]
-        per_req[req_id] = {"statuses": statuses,
-                           "status_agreement": pair_agreement(statuses),
-                           "quote_agreement": pair_agreement(quotes)}
-    n = len(per_req)
+        # A run that hit the rate limit or timeout did not answer: not a disagreement.
+        unmeasured = any((f.reason or "").startswith(TIMEOUT_REASON) for f in fs)
+        per_req[req_id] = {"statuses": statuses, "measured": not unmeasured,
+                           "status_agreement": None if unmeasured else pair_agreement(statuses),
+                           "quote_agreement": None if unmeasured else pair_agreement(quotes)}
+    measured = [r for r in per_req.values() if r["measured"]]
+    n = len(measured)
     return {
         "n_requirements": n,
-        "status_agreement": (sum(r["status_agreement"] for r in per_req.values()) / n
-                             if n else None),
-        "quote_agreement": (sum(r["quote_agreement"] for r in per_req.values()) / n
-                            if n else None),
+        "not_measured": len(per_req) - n,
+        "status_agreement": (sum(r["status_agreement"] for r in measured) / n if n else None),
+        "quote_agreement": (sum(r["quote_agreement"] for r in measured) / n if n else None),
         "per_requirement": per_req,
     }
+
+
+def recompute_all(db_path=None) -> int:
+    """Re-evaluate stored consistency results with the current rules."""
+    with db.connect(db_path) as conn:
+        rows = [dict(r) for r in conn.execute("SELECT id, run_ids FROM consistency")]
+        for r in rows:
+            run_ids = json.loads(r["run_ids"])
+            res = compare([db.list_findings(conn, run_id=x) for x in run_ids])
+            conn.execute(
+                "UPDATE consistency SET n_requirements = ?, status_agreement = ?, "
+                "quote_agreement = ?, per_requirement = ? WHERE id = ?",
+                (res["n_requirements"], res["status_agreement"], res["quote_agreement"],
+                 json.dumps({**res["per_requirement"], "_not_measured": res["not_measured"]},
+                            ensure_ascii=False), r["id"]))
+    return len(rows)
 
 
 def run_consistency(bank_id: str, runs: int = 2, db_path=None, progress=print,
@@ -121,15 +140,23 @@ def run_consistency(bank_id: str, runs: int = 2, db_path=None, progress=print,
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (record["id"], bank.id, record["created_at"], json.dumps(run_ids),
              result["n_requirements"], result["status_agreement"], result["quote_agreement"],
-             json.dumps(result["per_requirement"], ensure_ascii=False), json.dumps(models)))
+             json.dumps({**result["per_requirement"], "_not_measured": result["not_measured"]},
+                        ensure_ascii=False), json.dumps(models)))
     return record
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Run the checks repeatedly and measure agreement.")
-    ap.add_argument("bank_id")
+    ap.add_argument("bank_id", nargs="?")
     ap.add_argument("--runs", type=int, default=2)
+    ap.add_argument("--recompute", action="store_true",
+                    help="re-evaluate stored results with the current rules and exit")
     args = ap.parse_args(argv)
+    if args.recompute:
+        print(f"recomputed {recompute_all()} stored consistency result(s)")
+        return 0
+    if not args.bank_id:
+        ap.error("bank_id is required")
     try:
         r = run_consistency(args.bank_id, args.runs,
                             progress=lambda m: print(m, file=sys.stderr))
@@ -140,13 +167,17 @@ def main(argv: list[str] | None = None) -> int:
           f"(models: {', '.join(r['models']) or 'no API calls'})")
     print(f"{'requirement':40} {'statuses':38} status  quote")
     for req, v in r["per_requirement"].items():
+        if not v["measured"]:
+            print(f"{req:40} {' / '.join(v['statuses']):38} not measured (LLM rate limit)")
+            continue
         print(f"{req:40} {' / '.join(v['statuses']):38} {v['status_agreement']:>5.0%}  "
               f"{v['quote_agreement']:>5.0%}")
     if r["status_agreement"] is None:
-        print("no data: no approved requirements produced findings")
+        print("no data: no requirement was answered in every run")
     else:
         print(f"\nstatus agreement {r['status_agreement']:.0%} and evidence-quote agreement "
-              f"{r['quote_agreement']:.0%} on {r['n_requirements']} requirement(s)")
+              f"{r['quote_agreement']:.0%} on {r['n_requirements']} requirement(s); "
+              f"{r['not_measured']} not measured (rate limit / timeout)")
     return 0
 
 
