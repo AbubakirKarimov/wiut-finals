@@ -55,6 +55,7 @@ def export(path: Path | None = None, db_path=None) -> dict:
                     "evidence_quote": f.evidence_quote,
                     "evidence_quote_en": f.evidence_quote_en,
                     "context_quote": f.context_quote,
+                    "decided_by": f.decided_by,
                     "pages_read": f.pages_read, "urls_read": f.urls_read,
                     "created_at": f.created_at.isoformat(),
                     "model": (", ".join(models) or "no API call (cached)") if llm_check
@@ -104,7 +105,8 @@ def load_if_empty(path: Path | None = None, db_path=None) -> int:
                     reason=f["reason"], evidence_url=f["evidence_url"],
                     evidence_quote=f["evidence_quote"],
                     evidence_quote_en=f["evidence_quote_en"],
-                    context_quote=f.get("context_quote"), pages_read=f["pages_read"],
+                    context_quote=f.get("context_quote"), decided_by=f.get("decided_by"),
+                    pages_read=f["pages_read"],
                     urls_read=f["urls_read"], created_at=f["created_at"]))
                 n += 1
     return n

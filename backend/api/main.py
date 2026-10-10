@@ -240,6 +240,7 @@ def decisions() -> list[dict]:
     with db.connect() as conn:
         rows = conn.execute(
             "SELECT d.*, f.bank_id, f.requirement_id, f.status AS finding_status, "
+            "f.decided_by, "
             "r.text_en AS req_text_en FROM decisions d "
             "LEFT JOIN findings f ON f.id = d.finding_id "
             "LEFT JOIN requirements r ON r.id = f.requirement_id "

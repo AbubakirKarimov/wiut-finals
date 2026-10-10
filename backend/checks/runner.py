@@ -102,6 +102,7 @@ def run_checks(run_id: str, crawl: CrawlResult, requirements: list[Requirement],
             # Translation only after the original quote has been verified.
             evidence_quote_en=translate(quote, llm) if quote else None,
             context_quote=out.context if context_ok else None,
+            decided_by="llm_assisted" if out.llm_used else "code",
             pages_read=crawl.unique_pages, urls_read=crawl.urls_read)
         findings.append(f)
         if on_finding:

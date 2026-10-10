@@ -66,6 +66,7 @@ def test_check_job_to_findings_to_decision(client):
     assert d.status_code == 201
     log = client.get("/decisions").json()
     assert log[0]["finding_id"] == f["id"] and log[0]["verdict"] == "confirmed"
+    assert f["decided_by"] == "code" and log[0]["decided_by"] == "code"  # uz_version: no LLM
     assert client.get("/findings").json()[0]["decision"]["verdict"] == "confirmed"
 
     m = client.get("/metrics").json()

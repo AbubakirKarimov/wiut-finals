@@ -11,6 +11,9 @@ SourceType = Literal["html", "pdf"]
 # A finding is never a "violation": only a possible gap for an analyst to review.
 FindingStatus = Literal["ok", "possible_gap", "not_checkable"]
 Verdict = Literal["confirmed", "rejected"]
+# "code": the status was decided by deterministic code alone; "llm_assisted": an LLM answer
+# influenced the status (its quote still verified by code). Translation does not count.
+DecidedBy = Literal["code", "llm_assisted"]
 JobStatus = Literal["queued", "running", "done", "error"]
 
 
@@ -62,6 +65,8 @@ class Finding(BaseModel):
     urls_read: list[str] = Field(default_factory=list)
     # Why the status was chosen (e.g. "needs browser", "quote not found verbatim").
     reason: str | None = None
+    # None only for findings stored before this field existed ("not recorded").
+    decided_by: DecidedBy | None = None
 
 
 class Decision(BaseModel):

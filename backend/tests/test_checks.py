@@ -90,6 +90,7 @@ def test_uz_version_ok(tmp_db):
     pages = many(4) + many(2, "ru", RU_HOME)
     [f] = run_checks("r", crawl(pages), [req("uz_version")], None)
     assert f.status == "ok" and f.evidence_quote and "language switcher found" in f.reason
+    assert f.decided_by == "code"
     assert f.evidence_quote_en is None  # no LLM -> no translation, never invented
 
 
@@ -129,6 +130,10 @@ def test_key_info_ok_with_verified_quote_then_translation(tmp_db):
     [f] = run_checks("r", crawl(pages), [req("key_info")], llm)
     assert f.status == "ok" and f.evidence_quote == quote
     assert f.evidence_url == "https://b.uz/tariflar"
+    assert f.decided_by == "llm_assisted"
+    with db.connect(tmp_db) as conn:
+        db.upsert_finding(conn, f)
+        assert db.get_finding(conn, f.id).decided_by == "llm_assisted"
     assert f.evidence_quote_en.startswith("EN: ")
     # The translation prompt comes after the presence prompt (verification first).
     kinds = ["translate" if "Translate" in p else "presence" if "<excerpts>" in p else "kw"
