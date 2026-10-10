@@ -9,6 +9,24 @@ confirms or rejects each one, and every decision is logged.
 
 Finding statuses: `ok` · `possible_gap` · `not_checkable`.
 
+## Hosted demo
+
+**URL: `https://<to be filled after the first deploy>.onrender.com`** (one Docker service on
+Render's free plan; see `DEPLOY.md`).
+
+- **Pre-computed:** the Findings and Audit & Metrics screens show the latest batch run over
+  the banks with a website URL (`data/precomputed/findings.json`, labelled "pre-computed on
+  <date>") and the team's analyst decisions (`data/precomputed/decisions.json`).
+- **Live:** the Check screen crawls any public https site and runs the checks while you
+  wait. Decisions you make on the site are labelled "live session, may reset on restart":
+  every restart rebuilds the state from the pre-computed files.
+- **Sleeping:** on the free plan the service sleeps after about 15 minutes without traffic;
+  the first request after that takes about a minute.
+- **JavaScript-only sites** cannot be read there (no browser in the image):
+  `not_checkable` "page needs JavaScript rendering; not available on this hosted demo".
+  Agrobank and Hayot Bank need a browser; their pre-computed results come from a local run
+  with the browser fallback.
+
 ## Architecture
 
 ```
@@ -159,12 +177,14 @@ findings.
 | GET | `/decisions` | decision log |
 | GET | `/metrics` | latency p50/p95, tokens and cost per check, precision vs labels, analyst confirmation rate |
 
-**CORS.** The API answers browser requests only from the origins in `CORS_ORIGINS`
+**CORS.** The hosted app serves the UI from the API's own origin, so it needs no CORS
+setting. For a separately hosted frontend, the API answers browser requests only from the
+origins in `CORS_ORIGINS`
 (comma-separated `scheme://host[:port]`). When it is empty or unset, the local dev and e2e
 origins are allowed: `http://localhost:5173`, `http://127.0.0.1:5173`,
-`http://localhost:5174`, `http://127.0.0.1:5174`. In production set it to the hosted
-frontend, e.g. `CORS_ORIGINS=https://wiut-finals.vercel.app` (then only the listed origins
-are allowed). A `*` entry is refused at startup; credentials are not allowed cross-origin.
+`http://localhost:5174`, `http://127.0.0.1:5174`. For a separate frontend host, list
+it, e.g. `CORS_ORIGINS=https://frontend.example` (then only the listed origins are
+allowed). A `*` entry is refused at startup; credentials are not allowed cross-origin.
 
 `POST /check` resolves the host and refuses non-public addresses; the same guard runs on every
 redirect hop. `CHECK_ALLOW_PRIVATE_URLS=1` lifts this for local tests only.
@@ -236,7 +256,8 @@ passages, not whole pages.
 - **JavaScript-only sites (`js_shell`)**: little or no text without a browser. With
   `BROWSER_FALLBACK=1` they are rendered in plain headless Chromium (network idle up to 45 s,
   one retry; otherwise `js_shell_failed`) and crawled to depth 1 only. On the hosted demo
-  (`BROWSER_FALLBACK=0`) they are `not_checkable` with "needs browser". In the probe
+  (`BROWSER_FALLBACK=0`) they are `not_checkable` with "page needs JavaScript rendering; not
+  available on this hosted demo". In the probe
   (`data/probe_report.md`) Agrobank and Hayot Bank needed the browser.
 - **Blocked sites**: HTTP 403/429/503 or a challenge page ("Just a moment", captcha, ...) →
   `not_checkable`, never bypassed. Agrobank answers robots.txt with 403, which RFC 9309
@@ -264,7 +285,8 @@ passages, not whole pages.
   findings"); below `METRICS_MIN_DECISIONS` (10) decisions it says "too few decisions to be
   meaningful". Without labels the label-based value is "no data".
 - Jobs run in the API process (one worker); a restart marks running jobs as failed. On
-  Render's free plan the SQLite file is lost on redeploy (see `DEPLOY.md`).
+  the hosted demo SQLite is in `/tmp` and rebuilt from `data/precomputed/` on every start
+  (see `DEPLOY.md`).
 - The DNS check of `POST /check` does not pin the resolved address (DNS rebinding is not
   covered).
 - **Prompt injection is reduced, not solved.** Page text goes to the model inside an

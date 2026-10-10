@@ -1,86 +1,76 @@
-# Deployment checklist
+# Deploying ComplianceRadar on Render (one Docker web service)
 
-Backend (FastAPI) → **Render**. Frontend (Vite build) → **Vercel**. GitHub Actions runs CI
-on every push; `.github/workflows/deploy.yml` deploys both after CI passes on `main`.
-No secret is stored in the repository: every key below is entered in a web dashboard.
+The API and the built frontend run in **one Docker container** (`Dockerfile`) as one Render
+web service on the **free plan**, described by `render.yaml` (a Render Blueprint). The UI is
+served by the API from the same origin, so no CORS setup is needed. No secret is stored in
+the repository: every key below is typed into the Render dashboard.
 
-## 1. Backend on Render
+## What the image does
 
-1. Sign in to https://render.com with GitHub.
-2. **New → Blueprint**, pick the `AbubakirKarimov/wiut-finals` repository. Render reads
-   `render.yaml` and proposes the web service `compliance-radar-api`. Click **Apply**.
-3. Fill in the variables marked `sync: false` when Render asks (Service → **Environment**):
+- Stage 1 (`node:20-slim`) builds the frontend; stage 2 (`python:3.11-slim`) installs the
+  backend, copies `backend/`, `data/` (pre-computed results, approved requirements, check
+  hints, banks, regulations) and the built UI, and runs as a non-root user.
+- Start command (Render sets `PORT`; the image defaults to 10000):
+  `uvicorn backend.api.main:app --host 0.0.0.0 --port ${PORT:-10000} --workers 1 --proxy-headers --forwarded-allow-ips="*"`
+  One worker, because jobs, the rate limiter and SQLite live in one process; proxy headers so
+  the per-IP rate limit of `POST /check` sees the real client address.
+- SQLite lives in `/tmp` (`DB_PATH=/tmp/compliance.sqlite`). With `RESET_DB_ON_START=1` every
+  start rebuilds the state from `data/precomputed/findings.json` and
+  `data/precomputed/decisions.json`. Decisions made on the site are labelled "live session,
+  may reset on restart" (`LIVE_DECISIONS_EPHEMERAL=1`).
+- `BROWSER_FALLBACK=0`: no Chromium in the image. JavaScript-only sites are reported as
+  `not_checkable` ("page needs JavaScript rendering; not available on this hosted demo").
+- The app starts and shows the pre-computed findings without any LLM key. Without a key,
+  live checks still run the deterministic checks; LLM-assisted ones become `not_checkable`.
+
+## Steps in Render (first deploy)
+
+1. Sign in at https://dashboard.render.com with GitHub and allow access to the repository
+   `AbubakirKarimov/wiut-finals`.
+2. **New → Blueprint** → select the repository (branch `main`). Render reads `render.yaml`
+   and shows one web service, `compliance-radar` (Docker, free, Frankfurt).
+3. Render asks for the variables marked `sync: false`. Enter (or leave empty):
 
    | Variable | Value |
    |---|---|
-   | `CORS_ORIGINS` | your Vercel URL from step 2, e.g. `https://wiut-finals.vercel.app` (fill after step 2; comma-separate several) |
    | `LLM_BASE_URL` | e.g. `https://api.groq.com/openai/v1` (any OpenAI-compatible endpoint) |
-   | `LLM_API_KEY` | your provider key |
+   | `LLM_API_KEY` | your provider key (secret) |
    | `LLM_MODEL` | a model id from your provider account |
-   | `LLM_PRICE_INPUT_PER_MTOK`, `LLM_PRICE_OUTPUT_PER_MTOK` | USD per 1M tokens from the provider's price page; leave empty if unknown (metrics then say "not set") |
+   | `LLM_FALLBACK_1_BASE_URL` | optional second provider (used on HTTP 429 / network errors) |
+   | `LLM_FALLBACK_1_API_KEY` | optional (secret) |
+   | `LLM_FALLBACK_1_MODEL` | optional |
+   | `LLM_TOKENS_PER_MINUTE` | optional client-side pacing, e.g. your provider's TPM limit |
+   | `LLM_PRICE_INPUT_PER_MTOK`, `LLM_PRICE_OUTPUT_PER_MTOK` | optional list prices (USD per 1M tokens) for the cost metric; empty -> "not set" |
 
-   Optional fallback provider: add `LLM_FALLBACK_1_BASE_URL`, `LLM_FALLBACK_1_API_KEY`,
-   `LLM_FALLBACK_1_MODEL` (+ prices) the same way.
-4. Wait for the first deploy, then open `https://<service>.onrender.com/health`; it must
-   return `{"status":"ok"}`. This is the **public API URL**.
-5. Service → **Settings → Deploy Hook** → copy the URL (it is a secret).
+   All of them can be left empty: the demo then shows the pre-computed results only.
+4. Click **Apply** (Deploy Blueprint). The first build takes a few minutes (frontend build
+   + Python dependencies). When it is live, open `https://<service>.onrender.com/health`:
+   it must return `{"status":"ok"}`. The app itself is at `https://<service>.onrender.com/`.
+5. Check it from your machine:
+   `python3 scripts/smoke_hosted.py https://<service>.onrender.com`
+6. Put the URL into the README section "Hosted demo".
 
-The start command already uses one worker and trusts the proxy headers, so the per-IP rate
-limit sees the real client address:
+Later changes to secrets: Service → **Environment** → edit → **Save, rebuild and deploy**.
 
-```
-uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwarded-allow-ips="*"
-```
+## Automatic deploys
 
-`BROWSER_FALLBACK=0` on Render: JavaScript-only sites are reported as `not_checkable`
-("needs browser") instead of launching Chromium.
+`render.yaml` sets `autoDeployTrigger: checksPass`: after the first deploy, every push to
+`main` is deployed **only after the GitHub CI checks pass** (`.github/workflows/ci.yml`:
+backend tests, frontend lint and build). A failing CI run blocks the deploy.
 
-## 2. Frontend on Vercel
+## Free-plan behaviour
 
-1. Sign in to https://vercel.com with GitHub → **Add New → Project** → import the repository.
-2. **Root Directory**: `frontend`. Framework preset: **Vite** (build `npm run build`,
-   output `dist`).
-3. **Environment Variables** (Production and Preview):
-   `VITE_API_BASE_URL` = the public API URL from step 1.4 (no trailing slash).
-4. Deploy, copy the production URL, and put it into Render's `CORS_ORIGINS` (step 1.3).
-5. For deploys from GitHub Actions: Vercel → **Account Settings → Tokens** → create a token.
-   Run `npx vercel@59.23.2 link` once inside `frontend/` (or open Project → Settings) to read
-   the **Org ID** and **Project ID**.
-   If you prefer Vercel's own Git integration, skip the `VERCEL_*` secrets: the deploy job
-   then skips itself.
+- The service **sleeps after about 15 minutes without traffic**. The next request wakes it;
+  the first page then takes **about a minute** to open. Open the URL a minute before a demo.
+- Optional: keep it awake during a demo window by pinging `/health` every 10 minutes (e.g.
+  an external uptime monitor). `/health` answers from memory: no database, LLM or network.
+- 512 MB memory; one instance; the filesystem is ephemeral (restarts reset live decisions,
+  as the UI says).
 
-## 3. GitHub repository secrets
-
-GitHub → repository → **Settings → Secrets and variables → Actions → New repository secret**:
-
-| Secret | From |
-|---|---|
-| `RENDER_DEPLOY_HOOK_URL` | Render deploy hook (step 1.5) |
-| `VERCEL_TOKEN` | Vercel token (step 2.5) |
-| `VERCEL_ORG_ID` | Vercel org/team id (step 2.5) |
-| `VERCEL_PROJECT_ID` | Vercel project id (step 2.5) |
-
-Each deploy step is skipped while its secret is missing, so CI stays green before setup.
-
-## 4. Approved requirements and stored results
-
-- Checks run only for approved requirements. Approve them locally
-  (`python -m backend.requirements.approve <clause_id> ...`), which writes
-  `data/requirements.yaml`; commit that file. The API loads it into SQLite at startup.
-- On Render's free plan the disk is **ephemeral**: findings, decisions and the LLM cache
-  are lost on every redeploy or restart. For a persistent demo add a Render disk (paid) and
-  set `DB_PATH` to a path on it, e.g. `/var/data/compliance.sqlite`.
-- Pre-computed results: run `python scripts/crawl_all.py` where the database lives (Render
-  **Shell** on a paid plan, or locally for a local demo). The UI labels those results
-  "pre-computed on <time>"; nothing is shown that was not stored by a real run.
-
-## 5. Smoke test after deploy
+## Local equivalent
 
 ```bash
-curl https://<service>.onrender.com/health
-curl -X POST https://<service>.onrender.com/check -H 'Content-Type: application/json' \
-     -d '{"url":"https://mkbank.uz/uz/"}'
-curl https://<service>.onrender.com/jobs/<job_id>
+docker build -t compliance-radar .
+docker run --rm -e PORT=10000 -p 10000:10000 compliance-radar   # add -e LLM_API_KEY=... etc. if wanted
+python3 scripts/smoke_hosted.py http://localhost:10000
 ```
-
-Then open the Vercel URL → **Check** → enter a bank URL.
