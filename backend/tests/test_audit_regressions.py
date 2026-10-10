@@ -307,3 +307,16 @@ def test_homepage_requirement_prefers_homepage_evidence(tmp_db, monkeypatch):
     assert out.status == "ok" and out.page.url == "https://b.uz/uz/"
     sent = next(p for p in llm.prompts if "<excerpts>" in p)
     assert "Page URL: https://b.uz/uz/" in sent and quote in sent   # footer included
+
+
+# --- B8 (decision): uz_version stays ok with a low Uzbek share, and says so ---
+
+def test_uz_version_ok_states_share_and_that_completeness_is_not_assessed(tmp_db):
+    """Garant Bank in the audit: 2 Uzbek and 9 Russian pages."""
+    uz = [Page(bank_id="b", url=f"https://b.uz/uz/{i}", language="uz_latn", text=FILLER,
+               source_type="html") for i in range(2)]
+    ru = [Page(bank_id="b", url=f"https://b.uz/ru/{i}", language="ru", text="Вклады. " * 30,
+               source_type="html") for i in range(9)]
+    [f] = run_checks("r", crawl(uz + ru), [req("uz_version")], None)
+    assert f.status == "ok"
+    assert "2 Uzbek pages of 11; completeness not assessed" in f.reason

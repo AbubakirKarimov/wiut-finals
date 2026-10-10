@@ -5,7 +5,8 @@ whether a language switcher was found. Rules:
 - no Uzbek or Russian page read                -> not_checkable
 - no Uzbek page at all, Russian pages present  -> possible_gap (quote: a Russian page)
 - UZ_VERSION_MIN_SHARE set and the Uzbek share is below it -> possible_gap
-- otherwise                                    -> ok (quote: an Uzbek page)
+- otherwise                                    -> ok (quote: an Uzbek page); the
+  explanation says "N Uzbek pages of M; completeness not assessed" (audit B8)
 The runner downgrades possible_gap to not_checkable when too few pages were read.
 """
 
@@ -38,5 +39,7 @@ def check_uz_version(req: Requirement, pages: list[Page],
     if raw_min and ru and share < float(raw_min):
         return CheckOutcome("possible_gap", page=ru[0], quote=opening_quote(ru[0].text),
                             reason=f"Uzbek share below UZ_VERSION_MIN_SHARE={raw_min}: {stats}")
+    # An Uzbek version exists; whether every key page has an Uzbek counterpart is not checked.
     return CheckOutcome("ok", page=uz[0], quote=opening_quote(uz[0].text),
-                        reason=f"Uzbek version present: {stats}")
+                        reason=f"Uzbek version present ({len(uz)} Uzbek pages of {len(html)}; "
+                               f"completeness not assessed): {stats}")
