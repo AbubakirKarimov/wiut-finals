@@ -1,44 +1,51 @@
-# Render Blueprint for the ComplianceRadar API (see DEPLOY.md).
+# Render Blueprint: ONE Docker web service (API + built frontend). See DEPLOY.md.
+# No secret values here: every `sync: false` variable is entered in the Render dashboard.
 services:
   - type: web
-    name: compliance-radar-api
-    runtime: python
+    name: compliance-radar
+    runtime: docker
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwarded-allow-ips="*"
+    region: frankfurt          # closest Render region to Central Asia / Europe
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /health
-    autoDeploy: false   # deployed by .github/workflows/deploy.yml after CI passes
+    autoDeployTrigger: checksPass   # deploy a commit on main only after GitHub CI passes
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.11.9"
+      # SQLite in /tmp: writable, rebuilt from data/precomputed/ on every start.
       - key: DB_PATH
-        value: data/compliance.sqlite
-      - key: LIVE_DECISIONS_EPHEMERAL   # free plan: the SQLite file resets on restart
-        value: "1"
+        value: /tmp/compliance.sqlite
       - key: BROWSER_FALLBACK
         value: "0"
+      - key: LIVE_DECISIONS_EPHEMERAL
+        value: "1"
+      - key: CHECK_RATE_LIMIT_PER_MINUTE
+        value: "5"
+      - key: MAX_CONCURRENT_CHECKS
+        value: "2"
       - key: CRAWLER_MAX_PAGES_PER_BANK
         value: "15"
-      - key: CRAWLER_MAX_DEPTH
-        value: "2"
       - key: CRAWLER_TIME_BUDGET_SECONDS
         value: "60"
       - key: CRAWLER_MIN_DELAY_SECONDS
         value: "1.0"
       - key: CRAWLER_USER_AGENT
         value: "ComplianceRadar/0.1 (WIUT hackathon; consumer-protection research bot)"
-      - key: CHECK_RATE_LIMIT_PER_MINUTE
-        value: "5"
-      - key: MAX_CONCURRENT_CHECKS
-        value: "2"
-      - key: CORS_ORIGINS
-        sync: false     # https://<your-project>.vercel.app
+      # Secrets and provider settings: set in the dashboard (Environment), never in the repo.
       - key: LLM_BASE_URL
         sync: false
       - key: LLM_API_KEY
         sync: false
       - key: LLM_MODEL
         sync: false
+      - key: LLM_FALLBACK_1_BASE_URL
+        sync: false
+      - key: LLM_FALLBACK_1_API_KEY
+        sync: false
+      - key: LLM_FALLBACK_1_MODEL
+        sync: false
+      - key: LLM_TOKENS_PER_MINUTE
+        sync: false
+      # Optional: list prices (USD per 1M tokens) for the cost metric; empty -> "not set".
       - key: LLM_PRICE_INPUT_PER_MTOK
         sync: false
       - key: LLM_PRICE_OUTPUT_PER_MTOK
