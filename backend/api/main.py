@@ -14,7 +14,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from backend import db, metrics
+from backend import db, metrics, precomputed
 from backend.api.cors import cors_origins
 from backend.api.ratelimit import limiter_from_env, rate_limit_dependency
 from backend.api.urlcheck import allow_private, validate_public_url
@@ -30,6 +30,8 @@ MT_LABEL = "machine translation"
 async def lifespan(_: FastAPI):
     db.init_db()
     sync_requirements_yaml()
+    # Hosted demo: an empty database starts with the committed pre-computed results.
+    precomputed.load_if_empty()
     with db.connect() as conn:
         # Jobs cannot survive a restart (they run in this process).
         conn.execute("UPDATE jobs SET status = 'error', error = 'server restarted' "
