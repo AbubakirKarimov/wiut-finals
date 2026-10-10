@@ -1,33 +1,130 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api.js";
-import { AnalystField, FindingsList, Notice, useAnalystName } from "../components/Findings.jsx";
+import {
+  AnalystField, FindingsList, Notice, reasonHeadline, useAnalystName,
+} from "../components/Findings.jsx";
 
 const POLL_MS = 1500;
 
+// Human message per crawl outcome (the technical reason is shown below it).
 const CRAWL_TEXT = {
-  ok: "Site read",
-  blocked: "Blocked by bot protection (not bypassed)",
-  unreachable: "Site unreachable",
-  robots_disallowed: "robots.txt disallows our crawler",
-  needs_browser: "Needs a browser (JavaScript-only site)",
-  js_shell_failed: "Browser could not render the site",
-  other: "Unexpected response",
+  blocked: "The site blocked our crawler. Bot protection is never bypassed, so nothing could be checked.",
+  unreachable: "The site could not be reached (DNS, timeout or connection error).",
+  robots_disallowed: "The site's robots.txt does not allow our crawler, so it was not read.",
+  needs_browser: "The site shows almost no text without JavaScript and the browser fallback is off here.",
+  js_shell_failed: "The site stayed nearly empty even in a browser.",
+  other: "The site returned an unexpected response.",
 };
+
+export function validateUrl(raw) {
+  const v = raw.trim();
+  if (!v) return "Enter a website address.";
+  let u;
+  try {
+    u = new URL(v);
+  } catch {
+    return "This is not a valid address. Example: https://bank.uz/";
+  }
+  // The server decides what is allowed (public https only, unless configured otherwise).
+  if (u.protocol !== "https:" && u.protocol !== "http:") return "The address must start with https://";
+  if (!u.hostname) return "Enter a domain name, for example https://bank.uz/";
+  return "";
+}
+
+// Stage of a running job, from its real progress events.
+export function stageOf(progress, prev) {
+  const p = progress || "";
+  const pages = p.match(/page (\d+)\/(\d+)/);
+  const checks = p.match(/check (\d+)\/(\d+)/);
+  const crawlDone = p.match(/crawl \w+: (\d+) page/);
+  const next = { ...prev };
+  if (pages) Object.assign(next, { stage: 1, pages: +pages[1], pagesMax: +pages[2] });
+  else if (crawlDone) Object.assign(next, { stage: 2, pages: +crawlDone[1] });
+  else if (/running \d+ approved/.test(p)) {
+    const n = p.match(/running (\d+)/);
+    Object.assign(next, { stage: 2, checks: 0, checksMax: +n[1] });
+  } else if (checks) Object.assign(next, { stage: 2, checks: +checks[1], checksMax: +checks[2] });
+  else if (/home page/.test(p) && next.stage === undefined) next.stage = 0;
+  return next;
+}
+
+function Stepper({ job, st, elapsed }) {
+  const steps = [
+    { label: "Crawling site", detail: st.stage === 0 ? "fetching home page" : "" },
+    { label: "Reading pages", detail: st.pages != null ? `${st.pages}/${st.pagesMax || "?"}` : "" },
+    { label: "Running checks", detail: st.checksMax != null ? `${st.checks}/${st.checksMax}` : "" },
+    { label: "Done", detail: "" },
+  ];
+  const done = job.status === "done";
+  const current = done ? 4 : st.stage ?? 0;
+  return (
+    <ol className="stepper" aria-label="Check progress">
+      {steps.map((s, i) => {
+        const state = i < current || done ? "done" : i === current ? "active" : "todo";
+        return (
+          <li key={s.label} className={`step step-${state}`} aria-current={state === "active" ? "step" : undefined}>
+            <span className="step-dot" aria-hidden="true">{state === "done" ? "✓" : i + 1}</span>
+            <span className="step-label">{s.label}</span>
+            {s.detail && <span className="step-detail">{s.detail}</span>}
+          </li>
+        );
+      })}
+      <li className="elapsed" data-testid="elapsed">Elapsed {elapsed}s</li>
+    </ol>
+  );
+}
+
+function HowItWorks() {
+  const steps = ["Law clause", "Check", "Evidence", "Analyst decision", "Audit log"];
+  return (
+    <section className="how" aria-label="How it works">
+      <ol className="how-steps">
+        {steps.map((s, i) => (
+          <li key={s}><span className="how-n">{i + 1}</span>{s}</li>
+        ))}
+      </ol>
+      <p className="muted small">
+        Production design: designed to run on a local model inside the regulator&rsquo;s perimeter
+        (not yet measured in this prototype).
+      </p>
+    </section>
+  );
+}
 
 export default function CheckPage() {
   const [url, setUrl] = useState("");
+  const [urlError, setUrlError] = useState("");
   const [job, setJob] = useState(null);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [st, setSt] = useState({});
+  const [started, setStarted] = useState(null);
+  const [now, setNow] = useState(Date.now());
+  const [examples, setExamples] = useState([]);
   const [analyst, setAnalyst] = useAnalystName();
   const timer = useRef(null);
 
   useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => {
+    api.banks()
+      .then((bs) => setExamples(bs.filter((b) => b.website_url).slice(0, 3).map((b) => b.website_url)))
+      .catch(() => setExamples([]));
+  }, []);
+
+  const running = job && (job.status === "queued" || job.status === "running");
+  useEffect(() => {
+    if (!running) return undefined;
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [running]);
 
   const poll = async (id) => {
     try {
       const j = await api.job(id);
       setJob(j);
+      setSt((prev) => stageOf(j.progress, prev));
+      setNow(Date.now());
       if (j.status === "queued" || j.status === "running") {
         timer.current = setTimeout(() => poll(id), POLL_MS);
       }
@@ -36,14 +133,19 @@ export default function CheckPage() {
     }
   };
 
-  const submit = async (e) => {
-    e.preventDefault();
+  const start = async (target) => {
+    const msg = validateUrl(target);
+    setUrlError(msg);
+    if (msg) return;
     clearTimeout(timer.current);
     setError(null);
     setJob(null);
+    setSt({});
+    setCancelling(false);
     setSubmitting(true);
+    setStarted(Date.now());
     try {
-      const { job_id } = await api.startCheck(url.trim());
+      const { job_id } = await api.startCheck(target.trim());
       await poll(job_id);
     } catch (err) {
       setError(err);
@@ -52,51 +154,100 @@ export default function CheckPage() {
     }
   };
 
+  const submit = (e) => {
+    e.preventDefault();
+    start(url);
+  };
+
+  const cancel = async () => {
+    if (!job) return;
+    setCancelling(true);
+    try {
+      await api.cancelJob(job.id);
+    } catch (e) {
+      setError(e);
+      setCancelling(false);
+    }
+  };
+
   const onDecided = (id, d) =>
     setJob((j) => ({ ...j, findings: j.findings.map((f) => (f.id === id ? { ...f, decision: d } : f)) }));
 
-  const running = job && (job.status === "queued" || job.status === "running");
   const run = job && job.run;
+  const elapsed = started ? Math.max(0, Math.round((now - started) / 1000)) : 0;
+  const quotaHit = job && job.status === "done"
+    ? job.findings.filter((f) => /LLM timeout|rate limit|quota/i.test(f.reason || "")).length : 0;
+  const retry = <button type="button" className="btn" onClick={() => start(url)}>Retry</button>;
 
   return (
     <section>
       <h1>Check a website</h1>
       <p className="lead">
-        Enter a bank&rsquo;s public https address. The crawler respects robots.txt, waits one second
-        between requests and reads a limited number of pages.
+        Enter any public https address, a bank in the list or not. The crawler respects
+        robots.txt, waits one second between requests and reads at most 15 pages.
       </p>
-      <form className="checkform" onSubmit={submit}>
+      <HowItWorks />
+      <form className="checkform" onSubmit={submit} noValidate>
         <label className="sr-only" htmlFor="url">Website URL</label>
-        <input id="url" type="url" inputMode="url" required placeholder="https://bank.uz/"
-               value={url} onChange={(e) => setUrl(e.target.value)} />
+        <input id="url" type="url" inputMode="url" placeholder="https://bank.uz/"
+               aria-invalid={urlError ? "true" : "false"} aria-describedby="url-hint"
+               value={url} onChange={(e) => { setUrl(e.target.value); setUrlError(""); }} />
         <button className="btn btn-primary" type="submit" disabled={submitting || running}>
           {running ? "Checking…" : "Check"}
         </button>
       </form>
+      <p id="url-hint" className={urlError ? "field-error" : "muted small"} role={urlError ? "alert" : undefined}>
+        {urlError || "Must start with https://"}
+      </p>
+      {examples.length > 0 && (
+        <p className="examples small">
+          Examples:{" "}
+          {examples.map((x) => (
+            <button key={x} type="button" className="chip chip-small" onClick={() => { setUrl(x); setUrlError(""); }}>
+              {x.replace(/^https:\/\//, "").replace(/\/$/, "")}
+            </button>
+          ))}
+        </p>
+      )}
 
       {error && (
         <Notice kind={error.status === 429 ? "warn" : "error"}>
           {error.status === 429 ? <strong>Too many checks. </strong> : null}
-          {error.message}
+          {error.status === 422 ? <strong>Address not accepted. </strong> : null}
+          {error.message} {error.status !== 422 && retry}
         </Notice>
       )}
 
       {job && (
         <div className="progress" data-testid="job-status">
-          <div className={`progress-bar ${running ? "indeterminate" : ""}`}
-               aria-hidden="true"><span /></div>
-          <p>
+          <Stepper job={job} st={st} elapsed={elapsed} />
+          <p className="small">
             <strong>Status:</strong> {job.status}
             {job.progress && job.progress !== job.status ? ` — ${job.progress}` : ""}
           </p>
-          {run && (
-            <p className="muted">
-              {CRAWL_TEXT[run.crawl_status] || "Crawling"} · {run.pages_read} page(s) read
-              {run.fetch_errors && run.fetch_errors.length ? ` · ${run.fetch_errors.length} fetch error(s)` : ""}
-              {run.crawl_reason ? ` · ${run.crawl_reason}` : ""}
-            </p>
+          {running && (
+            <button type="button" className="btn" onClick={cancel} disabled={cancelling}>
+              {cancelling ? "Cancelling…" : "Cancel"}
+            </button>
           )}
-          {job.status === "error" && <Notice kind="error">The check failed: {job.error}</Notice>}
+          {job.status === "cancelled" && <Notice kind="warn">Check cancelled. Nothing was saved as a result. {retry}</Notice>}
+          {job.status === "error" && (
+            <Notice kind="error">
+              The check failed{/server restarted/.test(job.error || "") ? " because the server restarted" : ""}.{" "}
+              <span className="small">({job.error})</span> {retry}
+            </Notice>
+          )}
+          {run && run.crawl_status && run.crawl_status !== "ok" && (
+            <Notice kind="error">
+              {CRAWL_TEXT[run.crawl_status] || "The site could not be read."}{" "}
+              {run.crawl_reason && <span className="small">({run.crawl_reason})</span>} {retry}
+            </Notice>
+          )}
+          {quotaHit > 0 && (
+            <Notice kind="warn">
+              {reasonHeadline("LLM timeout")}: {quotaHit} check(s) could not run. {retry}
+            </Notice>
+          )}
         </div>
       )}
 

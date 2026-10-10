@@ -39,6 +39,7 @@ export const api = {
   banks: () => request("/banks"),
   startCheck: (url) => request("/check", { method: "POST", body: JSON.stringify({ url }) }),
   job: (id) => request(`/jobs/${encodeURIComponent(id)}`),
+  cancelJob: (id) => request(`/jobs/${encodeURIComponent(id)}/cancel`, { method: "POST" }),
   findings: (params = {}) => {
     const q = new URLSearchParams(Object.entries(params).filter(([, v]) => v));
     return request(`/findings${q.toString() ? `?${q}` : ""}`);
