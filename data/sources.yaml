@@ -72,38 +72,38 @@ sources:
     verification_note: "Title and No. 3030-8 match. Russian page is a card; Uzbek original is doc 6371971."
 
   - id: law_state_language
-    title_original: "О государственном языке"
+    title_original: "Давлат тили ҳақида"
     title_en: "On the State Language"
-    lex_uz_doc_id: "121433"
-    url: "https://lex.uz/ru/docs/121433"
+    lex_uz_doc_id: "121051"
+    url: "https://lex.uz/ru/docs/121051"
     expected_regulation_number: "167-I"
     status: verified
-    language: ru
+    language: uz_cyrl
     role: law
     has_text_on_page: true
     parallel:
-      - lex_uz_doc_id: "121051"
-        url: "https://lex.uz/ru/docs/121051"
-        language: uz_cyrl
-        status: unverified
-        has_text_on_page: null
       - lex_uz_doc_id: "-121051"
         url: "https://lex.uz/ru/docs/-121051"
         language: uz_latn
-        status: unverified
-        has_text_on_page: null
+        status: verified
+        has_text_on_page: true
+        block_ids: "one-to-one: Latin id = Cyrillic id with '-' before the number (128/128 blocks)"
+      - lex_uz_doc_id: "121433"
+        url: "https://lex.uz/ru/docs/121433"
+        language: ru
+        status: verified
+        has_text_on_page: true
+        note: "Reference only. LexUz comment 8473255 marks art. 3 part 3 as an unofficial Russian translation."
       - lex_uz_doc_id: "6813902"
         url: "https://lex.uz/ru/docs/6813902"
         language: en
         status: unverified
         has_text_on_page: null
-    # Checked 2026-10-10 against data/raw/lex/121433.html: page act is Law No. 167-I of 21.12.1995
-    # "О внесении изменений и дополнений в Закон «О государственном языке Республики Узбекистан»",
-    # which sets out the full Law "О ГОСУДАРСТВЕННОМ ЯЗЫКЕ (новая редакция)" (blocks 121452-121584,
-    # articles 1-24). Consolidated: 5 CHANGES_ORIGINS notes (714-II, ЗРУ-255, ЗРУ-304, ЗРУ-446,
-    # ЗРУ-653); LexUz comment 8473255 marks art. 3 part 3 (ЗРУ-1158, 13.07.2026) as an
-    # unofficial Russian translation.
-    verification_note: "Page contains the full Law 'О государственном языке' (new edition, No. 167-I)."
+    # Checked 2026-10-10 against data/raw/lex/121051.html and -121051.html: Law No. 167-I of
+    # 21.12.1995 "«Ўзбекистон Республикасининг Давлат тили ҳақида»ги Қонунга ўзгартишлар ва
+    # қўшимчалар киритиш тўғрисида", which sets out the full Law "Давлат тили ҳақида (янги
+    # таҳрири)" (ACT_TITLE_APPL 121097, articles 1-24). 10 CHANGES_ORIGINS notes (Russian: 5).
+    verification_note: "Title and No. 167-I match (Cyrillic and Latin); page contains the full Law in its new edition."
 
   - id: law_state_language_enactment
     title_original: "О порядке введения в действие Закона Республики Узбекистан «О государственном языке» в новой редакции"
