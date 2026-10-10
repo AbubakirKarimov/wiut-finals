@@ -19,6 +19,9 @@
 #   "homepage"). A possible_gap needs at least one page of these sections read; otherwise
 #   not_checkable "relevant section not reached" (audit B7).
 # title: short English name shown in the UI (not a legal text).
+# section_match: strict -> for the "relevant section was read" gate a page counts only if
+#   its URL path matches the section stems or a read page links to it with section-named
+#   link text (menu); the homepage and page titles never count (decision 2026-10-11).
 # location: homepage -> LLM path sends the home page first; evidence only on an inner page is
 #   not_checkable (audit B2). Deterministic rules express the same with where: homepage.
 settings:
@@ -27,6 +30,18 @@ settings:
   # (not_checkable "homepage text too short"). The crawler re-renders such a homepage once in
   # a browser first when BROWSER_FALLBACK is on.
   homepage_min_chars: 1500
+  # Site sections, recognised by stems in a URL path or link text (matched after folding:
+  # lowercase, Cyrillic -> Latin, apostrophes removed; one Latin stem covers both scripts).
+  # Used for crawl order and for the "relevant section was read" gate. Single source:
+  # backend/crawl/sections.py only falls back to its own copy when this block is missing.
+  section_stems:
+    deposit: [omonat, vklad, depozit, deposit]
+    loan: [kredit, credit, loan, lending, ipotek, mikroqarz, mikrozaym, avtokredit]
+    document: [hujjat, dokument, document, oferta, shartnoma, dogovor, pdf, qoidalar, pravila]
+    tariff: [tarif, komissiya, komiss]
+    restructuring: [restruktur, restructur, qayta]
+    complaint: [murojaat, obrashen, jalob, shikoyat, complaint, appeal, reception, feedback]
+    contacts: [contact, kontakt, aloqa, svyaz]
 
 requirements:
   req:cbu_reg_3030:main:7:      # Uzbek (state language) version of the website
@@ -54,6 +69,7 @@ requirements:
   req:cbu_reg_3030:main:18^1:   # loan full-cost calculator for natural persons
     title: "Loan full-cost calculator"
     sections: [loan]
+    section_match: strict
     rule:
       kind: link
       where: any
@@ -63,6 +79,7 @@ requirements:
   req:cbu_reg_3030:main:28^1:   # procedure for applications to change loan terms (LLM-assisted)
     title: "Procedure to change loan terms"
     sections: [loan, document, restructuring]
+    section_match: strict
     keywords:
       uz_latn: [restrukturizatsiya, "kredit shartlarini o'zgartirish", "shartnoma shartlarini o'zgartirish",
                 "to'lov muddatini uzaytirish", "to'lov jadvalini o'zgartirish", "kredit ta'tili"]
@@ -75,6 +92,7 @@ requirements:
   req:cbu_reg_3030:main:37^5:   # procedure for releasing or replacing collateral (LLM-assisted)
     title: "Collateral release procedure"
     sections: [loan, document]
+    section_match: strict
     keywords:
       uz_latn: ["garovdan ozod qilish", "garovni almashtirish", "garov mulkini qaytarish",
                 "taqiqni olib tashlash", "taqiqdan chiqarish"]

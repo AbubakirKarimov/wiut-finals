@@ -361,3 +361,59 @@ def test_40_4_styled_text_that_is_not_a_link():
     assert not any("fgd" in u for u, _ in p.links)
     out = run_40_4(p)
     assert out.status == "not_checkable" and "not as a link" in out.reason
+
+
+# --- strict section gate for 18^1, 28^1, 37^5 (decision 2026-10-11) ---
+
+def loans_titled_home(extra_links=()):
+    return Page(bank_id="b", url="https://x.uz/uz/", language="uz_latn", source_type="html",
+                title="Bank: loans and deposits / kreditlar va omonatlar",
+                text="Bosh sahifa yangiliklari va xizmatlar. " * 60,
+                links=[("https://x.uz/uz/news", "Yangiliklar"), *extra_links])
+
+
+def news(n=6):
+    return [Page(bank_id="b", url=f"https://x.uz/uz/news/{i}", language="uz_latn",
+                 source_type="html", text="Yangiliklar va e'lonlar. " * 20,
+                 links=[("https://x.uz/uz/news", "Yangiliklar")]) for i in range(n)]
+
+
+@pytest.mark.parametrize("clause", ["18^1", "28^1", "37^5"])
+def test_homepage_titled_loans_does_not_reach_the_loan_section(clause):
+    out, _, _ = check(clause, [loans_titled_home(), *news()])
+    assert out.status == "not_checkable"
+    assert out.reason.startswith("relevant section not reached (read 7 pages)")
+
+
+@pytest.mark.parametrize("clause", ["18^1", "37^5"])
+def test_real_loans_page_allows_a_gap(clause):
+    loans = Page(bank_id="b", url="https://x.uz/uz/kreditlar/avtokredit", language="uz_latn",
+                 source_type="html", text="Avtokredit: yillik foiz stavkasi 24 foiz. " * 20,
+                 links=[("https://x.uz/uz/kreditlar", "Kreditlar")])
+    out, _, _ = check(clause, [loans_titled_home(), *news(), loans])
+    assert out.status == "possible_gap" and not out.llm_used
+
+
+def test_page_reached_by_a_section_menu_link_counts():
+    """URL without a section stem, but the homepage menu links to it as "Kreditlar"."""
+    page = Page(bank_id="b", url="https://x.uz/uz/p/123", language="uz_latn",
+                source_type="html", text="Shartlar va foizlar. " * 30)
+    home = loans_titled_home([("https://x.uz/uz/p/123", "Kreditlar")])
+    out, _, _ = check("18^1", [home, *news(), page])
+    assert out.status == "possible_gap"
+
+
+def test_title_alone_does_not_make_a_section_page():
+    page = Page(bank_id="b", url="https://x.uz/uz/p/9", language="uz_latn", source_type="html",
+                title="Kreditlar", text="Shartlar va foizlar. " * 30)
+    out, _, _ = check("18^1", [loans_titled_home(), *news(), page])
+    assert out.status == "not_checkable" and "relevant section not reached" in out.reason
+
+
+def test_section_stems_come_from_check_hints(tmp_path, monkeypatch):
+    from backend.crawl.sections import section_stems
+    assert "lending" in section_stems()["loan"]          # only in data/check_hints.yaml
+    h = tmp_path / "hints.yaml"
+    h.write_text("requirements: {}\n", encoding="utf-8")
+    monkeypatch.setattr(llm_checks, "HINTS_PATH", h)
+    assert "lending" not in section_stems()["loan"]      # code fallback without the block

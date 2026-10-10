@@ -11,6 +11,8 @@ from backend.checks.evidence import _fold
 
 # Stems are matched against folded text (lowercase, Cyrillic transliterated to Latin,
 # apostrophes and punctuation removed), so one Latin stem covers both scripts.
+# The authoritative list is `settings.section_stems` in data/check_hints.yaml; this copy is
+# only the fallback when that block is missing (e.g. tests with their own hints file).
 SECTION_STEMS: dict[str, tuple[str, ...]] = {
     "deposit": ("omonat", "vklad", "depozit", "deposit"),
     "loan": ("kredit", "credit", "loan", "ipotek", "mikroqarz", "mikrozaym", "avtokredit"),
@@ -29,10 +31,44 @@ OTHER_STEMS = ("karta", "foiz", "stavk", "consumer", "istemolchi", "about",
 HOMEPAGE_PATHS = {"", "uz", "ru", "oz", "en", "uz-latn", "uz-cyrl", "main", "home"}
 
 
+def section_stems() -> dict[str, tuple[str, ...]]:
+    from backend.checks.llm_checks import hint_setting  # data/check_hints.yaml
+    stems = hint_setting("section_stems", None)
+    if not stems:
+        return SECTION_STEMS
+    return {k: tuple(str(x) for x in (v or [])) for k, v in stems.items()}
+
+
+def _hay(*texts: str) -> str:
+    return " ".join(_fold(t.replace("/", " ").replace("-", " ").replace("_", " "))
+                    for t in texts)
+
+
 def sections_of(*texts: str) -> list[str]:
-    hay = " ".join(_fold(t.replace("/", " ").replace("-", " ").replace("_", " "))
-                   for t in texts)
-    return [s for s, stems in SECTION_STEMS.items() if any(st in hay for st in stems)]
+    hay = _hay(*texts)
+    return [s for s, stems in section_stems().items() if any(st in hay for st in stems)]
+
+
+def _norm(url: str) -> str:
+    p = urlsplit(url)
+    return p.netloc.lower().removeprefix("www.") + "/" + p.path.strip("/")
+
+
+def page_reached_section(page, sections: list[str], pages: list, home_url: str | None) -> bool:
+    """Strict section membership (section_match: strict): the page's URL path matches the
+    section stems, or a page that was read links to it with link text naming the section
+    (menu). The homepage never counts for a content section, and titles are not used."""
+    if is_homepage(page.url, home_url):
+        return "homepage" in sections
+    wanted = set(sections) - {"homepage"}
+    if wanted & set(sections_of(urlsplit(page.url).path)):
+        return True
+    target = _norm(page.url)
+    for other in pages:
+        for u, anchor in getattr(other, "links", None) or []:
+            if _norm(u) == target and wanted & set(sections_of(anchor)):
+                return True
+    return False
 
 
 def link_rank(url: str, anchor: str) -> tuple[int, str | None]:

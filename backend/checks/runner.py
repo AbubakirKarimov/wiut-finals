@@ -9,13 +9,14 @@ import time
 from typing import Callable
 
 from backend.checks.evidence import verify_quote
-from backend.checks.llm_checks import (TIMEOUT_REASON, check_presence, hint_rule, hint_sections,
-                                       homepage_min_chars, translate)
+from backend.checks.llm_checks import (TIMEOUT_REASON, check_presence, hint_rule,
+                                       hint_section_match, hint_sections, homepage_min_chars,
+                                       translate)
 from backend.checks.rules import run_rule
 from backend.checks.types import CheckOutcome
 from backend.checks.uz_version import check_uz_version
 from backend.crawl.crawler import CrawlResult
-from backend.crawl.sections import page_in_section
+from backend.crawl.sections import page_in_section, page_reached_section
 from backend.llm.provider import LLMProvider
 from backend.models import Finding, Requirement
 
@@ -65,8 +66,14 @@ def finalize(out: CheckOutcome, crawl: CrawlResult, req: Requirement | None = No
         # A gap needs at least one page of the section where the evidence would be.
         sections = hint_sections(req) if req is not None else []
         home = crawl.pages[0].url if crawl.pages else None
-        if sections and not any(p.readable and page_in_section(p.url, p.title, sections, home)
-                                for p in crawl.pages):
+        strict = req is not None and hint_section_match(req) == "strict"
+
+        def in_section(p) -> bool:
+            if strict:  # URL path or a section-named menu link; never the homepage or title
+                return page_reached_section(p, sections, crawl.pages, home)
+            return page_in_section(p.url, p.title, sections, home)
+
+        if sections and not any(p.readable and in_section(p) for p in crawl.pages):
             return CheckOutcome("not_checkable", page=out.page, quote=out.quote,
                                 llm_used=out.llm_used, context=out.context,
                                 reason=f"relevant section not reached (read {n} pages); no page "

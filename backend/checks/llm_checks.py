@@ -110,13 +110,23 @@ def _env_int(name: str, default: int) -> int:
     return int(os.getenv(name) or default)
 
 
+_HINTS_CACHE: dict[tuple[str, float], dict] = {}
+
+
+def _load_hints(path: Path) -> dict:
+    """Parsed hints file, cached by path and modification time (read in hot loops)."""
+    if not path.exists():
+        return {}
+    key = (str(path), path.stat().st_mtime)
+    if key not in _HINTS_CACHE:
+        _HINTS_CACHE.clear()
+        _HINTS_CACHE[key] = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return _HINTS_CACHE[key]
+
+
 def hint_setting(name: str, default, path: Path | None = None):
     """Top-level `settings:` value of data/check_hints.yaml (default when missing)."""
-    path = path or HINTS_PATH
-    if not path.exists():
-        return default
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    value = (data.get("settings") or {}).get(name)
+    value = (_load_hints(path or HINTS_PATH).get("settings") or {}).get(name)
     return default if value is None else value
 
 
@@ -125,11 +135,13 @@ def homepage_min_chars() -> int:
 
 
 def _hint_entry(req: Requirement, path: Path | None = None) -> dict:
-    path = path or HINTS_PATH
-    if not path.exists():
-        return {}
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    data = _load_hints(path or HINTS_PATH)
     return (data.get("requirements") or {}).get(req.id) or {}
+
+
+def hint_section_match(req: Requirement, path: Path | None = None) -> str:
+    """'strict' or 'loose' (default): how a page is recognised as a section page."""
+    return _hint_entry(req, path).get("section_match") or "loose"
 
 
 def hint_title(req: Requirement, path: Path | None = None) -> str | None:
