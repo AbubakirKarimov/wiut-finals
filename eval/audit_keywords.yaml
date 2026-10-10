@@ -1,0 +1,25 @@
+# Broad search terms used ONLY by the audit (eval/audit.py, part 2) to look for evidence the
+# checks may have missed. Matching: case-insensitive substring, apostrophe variants unified
+# (ʻ ’ ‘ ` -> '). Terms are stems where possible. They are deliberately specific to the
+# requirement so that a hit is worth a manual look; a hit is NOT proof of compliance.
+requirements:
+  req:cbu_reg_3030:main:18^1:   # loan full-cost calculator for natural persons
+    uz_latn: [kalkulyator, "to'liq qiymat", hisoblagich]
+    uz_cyrl: [калькулятор, "тўлиқ қиймат", ҳисоблагич]
+    ru: [калькулятор, "полная стоимость кредита", "полной стоимости"]
+    en: [calculator]
+  req:cbu_reg_3030:main:28^1:   # procedure for reviewing applications to change loan terms
+    uz_latn: [restrukturiz, "shartlarini o'zgartir", "qayta ko'rib chiq", "to'lov jadvalini o'zgartir", "kredit ta'tili"]
+    uz_cyrl: [реструктуриз, "шартларини ўзгартир", "қайта кўриб чиқ", "тўлов жадвалини ўзгартир", "кредит таътили"]
+    ru: [реструктуриз, "изменение условий", "изменения условий", "кредитные каникулы", "изменение графика"]
+    en: [restructur, "change of loan terms"]
+  req:cbu_reg_3030:main:37^5:   # step-by-step release or substitution of pledged assets
+    uz_latn: ["garovdan ozod", "garovni qaytar", "garovni almashtir", "garov mulkini", "taqiqni olib tashla", "taqiqdan chiqar"]
+    uz_cyrl: ["гаровдан озод", "гаровни қайтар", "гаровни алмаштир", "гаров мулкини", "тақиқни олиб ташла", "тақиқдан чиқар"]
+    ru: ["освобождение залог", "замена залог", "замены залог", "снятие залог", "снятие обременен", "снятия обременен", "возврат залог"]
+    en: ["pledge release", "collateral release", "release of collateral"]
+  req:cbu_reg_3030:main:40^4:   # visible link "Your deposits are guaranteed"
+    uz_latn: ["omonatlaringiz kafolatlangan", "omonatlarni kafolatlash", "kafolatlash fondi", "kafolatlangan"]
+    uz_cyrl: ["омонатларингиз кафолатланган", "омонатларни кафолатлаш", "кафолатлаш фонди", "кафолатланган"]
+    ru: ["ваши вклады гарантированы", "вклады гарантированы", "гарантирования вкладов", "фонд гарантирования"]
+    en: ["deposits are guaranteed", "deposit guarantee"]
