@@ -49,7 +49,7 @@ LLM only through the LLMProvider interface:
 ## 4. Structure
 CLAUDE.md, TASK.md, README.md, .env.example, data/{sources.yaml,banks.yaml,regulations/,raw/,
 requirements.draft.yaml,requirements.yaml,labels/}, backend/{models.py,db.py,ingest/lex.py,
-extract/requirements.py,crawl/crawler.py,checks/,llm/provider.py,api/main.py,tests/},
+requirements/{shortlist.py,approve.py},llm/provider.py,crawl/crawler.py,checks/,api/main.py,tests/},
 eval/run_eval.py, scripts/{check_sites.py,crawl_all.py,bench_local.py}, frontend/.
 data/raw/ is in .gitignore. CLAUDE.md is built from section 2 of this file.
 
@@ -97,13 +97,15 @@ STAGE C. LLM layer and requirements.
  2. LLM response cache in SQLite (llm_cache), keyed by a hash of
     (provider, model, prompt, schema). A repeated request must not hit the API; the llm_calls
     row records that the response came from the cache.
- 3. backend/extract/requirements.py: from data/regulations/*.json select the clauses relevant
-    to a bank website (website, official website, state language, publication, disclosure and
-    semantically close terms), turn each into a Requirement via LLMProvider: text_original is
-    the clause text in its original language, text_en an English rendering. Write to
-    data/requirements.draft.yaml with approved=false everywhere.
-    STOP: the user manually approves 8-12 requirements and saves them in
-    data/requirements.yaml.
+ 3. backend/requirements/shortlist.py (CLI: python -m backend.requirements.shortlist
+    [--prefilter-only]): deterministic keyword pre-filter (Uzbek Cyrillic and Latin) over all
+    non-repealed, non-form clauses, then an English LLM prompt per passing clause: checkable
+    from the PUBLIC website alone? -> check_type, one-sentence text_en (machine translation),
+    evidence hint, or a one-sentence reason why not. Always included for review:
+    cbu_reg_3030:main:13, 14, 17, 18^1 and law_state_language:art:20. Writes
+    data/requirements_review.md and data/requirements_candidates.json, approved=false for all.
+    STOP: the user reviews and runs python -m backend.requirements.approve <clause_id> ...
+    (sets approved=true, stores Requirements in SQLite, writes data/requirements.yaml).
 
 STAGE D. Banks and crawler.
  1. data/banks.yaml: template (id, name, url, group: fined | control | partner). Fill in only
