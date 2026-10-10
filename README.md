@@ -250,6 +250,12 @@ passages, not whole pages.
   Render's free plan the SQLite file is lost on redeploy (see `DEPLOY.md`).
 - The DNS check of `POST /check` does not pin the resolved address (DNS rebinding is not
   covered).
+- **Prompt injection is reduced, not solved.** Page text goes to the model inside an
+  `<untrusted_page_text>` block marked as data, and a quote that repeats our own prompt
+  instructions is rejected. A page that tells the model to answer "present" *and* contains
+  the sentence it asks the model to quote would still pass verbatim verification (the quote
+  really is on the page); `test_quote_planted_inside_injected_instruction_is_not_accepted`
+  stays an expected failure to document this. An analyst's review remains the safeguard.
 
 ## Built with an AI agent
 
