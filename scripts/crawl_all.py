@@ -2,40 +2,65 @@
 
     .venv/bin/python scripts/crawl_all.py [bank_id ...]
 
+Respects robots.txt, 1 request/second per host and the LLM pacing settings in .env; prints
+progress for every page and check. Banks whose site cannot be read (blocked, unreachable,
+js_shell_failed, ...) are recorded with the reason and their checks are not_checkable.
+At the end a summary table is printed and written to data/precomputed/batch_summary.md.
 Results are stored in SQLite and shown in the UI as "pre-computed on <finish time>".
 """
 
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 from backend import db  # noqa: E402
-from backend.crawl.banks import crawlable_banks  # noqa: E402
-from backend.pipeline import check_site, sync_requirements_yaml  # noqa: E402
+from backend.batch import markdown_table, summarize, text_table  # noqa: E402
+from backend.crawl.banks import crawlable_banks, load_banks  # noqa: E402
+from backend.pipeline import check_site, llm_from_env, sync_requirements_yaml  # noqa: E402
+
+SUMMARY_PATH = ROOT / "data" / "precomputed" / "batch_summary.md"
 
 
 def main(only: list[str]) -> int:
     db.init_db()
     sync_requirements_yaml()
     banks = [b for b in crawlable_banks() if not only or b.id in only]
+    without_url = [b.id for b in load_banks() if not b.website_url]
     if not banks:
         print("no banks with a website_url match", file=sys.stderr)
         return 2
-    for b in banks:
-        print(f"{b.id}: {b.website_url}", file=sys.stderr)
+    run_ids = []
+    for i, b in enumerate(banks, 1):
+        print(f"[{i}/{len(banks)}] {b.id}: {b.website_url}", file=sys.stderr)
         try:
             run = check_site(b.website_url, bank_id=b.id, source="batch",
-                             progress=lambda m: print(f"  {m}", file=sys.stderr))
+                             progress=lambda m: print(f"  {m}", file=sys.stderr),
+                             on_run=run_ids.append)
         except Exception as e:  # keep going with the next bank; the run row has the error
             print(f"  error: {type(e).__name__}: {e}", file=sys.stderr)
             continue
-        with db.connect() as conn:
-            findings = db.list_findings(conn, run_id=run.id)
-        counts = {s: sum(f.status == s for f in findings)
-                  for s in ("ok", "possible_gap", "not_checkable")}
-        print(f"  crawl={run.crawl_status} pages={run.pages_read} "
-              f"errors={len(run.fetch_errors)} findings={counts}")
+        print(f"  done: crawl={run.crawl_status} pages={run.pages_read}", file=sys.stderr)
+
+    with db.connect() as conn:
+        rows = summarize(conn, run_ids)
+    llm = llm_from_env()
+    model = f"{llm.name} / {llm.model}" if llm else "LLM not configured"
+    print("\n" + text_table(rows))
+    print(f"\nmodel: {model}; cost from token logs x LLM_PRICE_* in .env "
+          f"(\"not set\" when no price is configured)")
+    if without_url:
+        print(f"not run (no website_url in data/banks.yaml): {', '.join(without_url)}")
+    SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SUMMARY_PATH.write_text(
+        f"# Batch run summary\n\n- Finished: "
+        f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n- Model: {model}\n"
+        f"- Cost: token logs x LLM_PRICE_* from .env\n"
+        f"- Not run (no website_url): {', '.join(without_url) or 'none'}\n\n"
+        + markdown_table(rows) + "\n", encoding="utf-8")
+    print(f"summary: {SUMMARY_PATH.relative_to(ROOT)}")
     return 0
 
 
