@@ -108,6 +108,13 @@ npx playwright test                                   # e2e (starts its own serv
 | GET | `/decisions` | decision log |
 | GET | `/metrics` | latency p50/p95, tokens and cost per check, precision vs labels, analyst confirmation rate |
 
+**CORS.** The API answers browser requests only from the origins in `CORS_ORIGINS`
+(comma-separated `scheme://host[:port]`). When it is empty or unset, the local dev and e2e
+origins are allowed: `http://localhost:5173`, `http://127.0.0.1:5173`,
+`http://localhost:5174`, `http://127.0.0.1:5174`. In production set it to the hosted
+frontend, e.g. `CORS_ORIGINS=https://wiut-finals.vercel.app` (then only the listed origins
+are allowed). A `*` entry is refused at startup; credentials are not allowed cross-origin.
+
 `POST /check` resolves the host and refuses non-public addresses; the same guard runs on every
 redirect hop. `CHECK_ALLOW_PRIVATE_URLS=1` lifts this for local tests only.
 

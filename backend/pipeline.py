@@ -3,6 +3,7 @@
 Used by POST /check (source="job") and scripts/crawl_all.py (source="batch").
 """
 
+import os
 import re
 import uuid
 from pathlib import Path
@@ -31,8 +32,9 @@ def bank_id_for(url: str, banks_path: Path = BANKS_YAML) -> str:
     return "site_" + re.sub(r"[^a-z0-9]+", "_", host.lower()).strip("_")
 
 
-def sync_requirements_yaml(path: Path = REQUIREMENTS_YAML, db_path=None) -> int:
+def sync_requirements_yaml(path: Path | None = None, db_path=None) -> int:
     """Load human-approved requirements from data/requirements.yaml into SQLite."""
+    path = path or Path(os.getenv("REQUIREMENTS_PATH") or REQUIREMENTS_YAML)
     if not path.exists():
         return 0
     rows = (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get("requirements") or []

@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from backend import db, metrics
+from backend.api.cors import cors_origins
 from backend.api.ratelimit import limiter_from_env, rate_limit_dependency
 from backend.api.urlcheck import allow_private, validate_public_url
 from backend.crawl.banks import load_banks
@@ -42,10 +43,10 @@ app = FastAPI(title="ComplianceRadar", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in
-                   os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",") if o.strip()],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=cors_origins(),
+    allow_credentials=False,  # no cookies or auth headers cross-origin
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 check_limiter = limiter_from_env()

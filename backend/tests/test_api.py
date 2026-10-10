@@ -4,7 +4,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from backend import db, metrics
+from backend import db, metrics, pipeline
 from backend.api import main
 from backend.api.urlcheck import validate_public_url
 from backend.crawl.crawler import CrawlConfig, Crawler
@@ -34,6 +34,8 @@ def client(tmp_db, monkeypatch):
                        fetcher=Fetcher(f, transport=httpx.MockTransport(ru_site)))
 
     monkeypatch.setattr(main, "Crawler", fake_crawler)
+    # Isolate from the team's real data/requirements.yaml (loaded at API startup).
+    monkeypatch.setattr(pipeline, "REQUIREMENTS_YAML", tmp_db.parent / "no-requirements.yaml")
     main.check_limiter._hits.clear()
     with db.connect(tmp_db) as conn:
         db.upsert_requirement(conn, Requirement(
