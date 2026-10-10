@@ -18,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from backend import db, metrics, precomputed, team_decisions
+from backend.reasons import split_reason
 from backend.api.cors import cors_origins
 from backend.api.ratelimit import limiter_from_env, rate_limit_dependency
 from backend.api.urlcheck import allow_private, validate_public_url
@@ -104,8 +105,11 @@ def _finding_rows(conn, where: str = "", args: tuple = ()) -> list[dict]:
             titles[f.requirement_id] = hint_title(Requirement(
                 id=f.requirement_id, text_original="", source_doc="", source_clause_id="",
                 source_url="", check_type="uz_version"))
+        short, details = split_reason(f.status, f.reason, f.pages_read)
         out.append({
             **f.model_dump(mode="json"),
+            # Display text; `reason` itself is unchanged (audit log).
+            "reason_short": short, "reason_details": details,
             "bank_name": names.get(f.bank_id, f.bank_id),
             # Language as stored for the URL now (the page store keeps one row per URL).
             "pages_detail": [{"url": u, "language": langs.get((f.bank_id, u), "no data")}

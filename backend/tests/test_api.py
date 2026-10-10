@@ -241,3 +241,11 @@ def test_replay_summary_no_data_without_file(tmp_path):
                  '"share_code": 0.5}}', encoding="utf-8")
     assert metrics.replay_summary(f) == {"findings": 2, "share_code": 0.5,
                                          "generated_at": "2026-10-10T00:00:00+00:00"}
+
+
+def test_findings_carry_reason_short_and_details(client):
+    r = client.post("/check", json={"url": "https://ru-only.example/ru/"})
+    [f] = client.get(f"/jobs/{r.json()['job_id']}").json()["findings"]
+    assert f["reason_short"] == "No evidence found on 6 pages read."
+    assert "no Uzbek-language page found" in f["reason_details"]
+    assert f["reason"] == f["reason_details"]          # stored reason unchanged
