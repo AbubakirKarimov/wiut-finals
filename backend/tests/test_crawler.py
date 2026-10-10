@@ -149,3 +149,27 @@ def test_pages_stored_in_sqlite(tmp_db):
         stored = db.list_pages(conn, "b", run_id="r1")
     assert len(stored) == len(res.pages)
     assert {p.language for p in stored} >= {"uz_latn", "ru"}
+
+
+def test_section_pages_fetched_first_within_page_cap():
+    """Deposit, loan and document links come before generic pages; sections take turns."""
+    generic = "".join(f'<a href="/uz/news/{i}">Yangilik {i}</a>' for i in range(10))
+    home = (f"<html><body><p>{UZ}</p><a href=\"/uz/\">Oʻz</a><a href=\"/ru/\">Рус</a>{generic}"
+            '<a href="/uz/kredit/avto">Avtokredit</a><a href="/uz/kredit/ipoteka">Ipoteka</a>'
+            '<a href="/uz/contacts">Aloqa</a>'
+            '<a href="/uz/private/deposit/">Omonatlar</a>'
+            '<a href="/uz/about/documents/">Hujjatlar</a></body></html>')
+
+    def handler(req):
+        if req.url.path == "/robots.txt":
+            return httpx.Response(404)
+        body = home if req.url.path == "/uz/" else f"<html><body><p>{UZ}</p></body></html>"
+        return httpx.Response(200, headers={"content-type": "text/html"}, content=body.encode())
+
+    res = crawler(handler, max_pages=6).crawl("b", "https://bank.uz/uz/")
+    paths = [u.split("bank.uz")[1] for u in res.urls_read]
+    # home, /ru/ (language version first), then one page per core section, then the 2nd loan page
+    assert paths[0] == "/uz/" and paths[1] == "/ru/"
+    assert set(paths[2:5]) == {"/uz/kredit/avto", "/uz/private/deposit/", "/uz/about/documents/"}
+    assert paths[5] == "/uz/kredit/ipoteka"
+    assert not any("/news/" in p for p in paths)

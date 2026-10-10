@@ -17,6 +17,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from backend.crawl.fetch import (ROBOTS_UNREADABLE, Browser, FetchConfig, Fetcher,
                                  FetchResult)
+from backend.crawl.sections import link_rank
 from backend.crawl.text import (classify, detect_language, language_links, links, page_title,
                                 same_site, visible_text)
 from backend.models import Page
@@ -26,14 +27,6 @@ SKIP_EXT = re.compile(r"\.(jpe?g|png|gif|svg|webp|ico|css|js|zip|rar|7z|mp4|mp3|
 # Site search, login and print views add no new content.
 SKIP_PATH = re.compile(r"/(search|poisk|qidiruv|login|auth|signin|print)(/|$)|[?&](q|search|query)=",
                        re.I)
-# Path/anchor stems of consumer-facing sections; such links are crawled first.
-PRIORITY_STEMS = (
-    "tarif", "тариф", "kredit", "кредит", "ipoteka", "ипотек", "omonat", "вклад", "депозит",
-    "deposit", "oferta", "оферт", "shartnoma", "договор", "hujjat", "документ", "document",
-    "murojaat", "обращен", "жалоб", "shikoyat", "komissiya", "комисс", "karta", "карт",
-    "foiz", "ставк", "rate", "fee", "loan", "consumer", "истеъмолчи", "iste'molchi",
-    "about", "biz haqimizda", "о банке", "contacts", "контакт", "aloqa", "pdf",
-)
 # Fetch failures that make a site unreliable to judge (not ordinary 404 links).
 ERROR_STATUSES = {403, 429} | set(range(500, 600))
 
@@ -86,9 +79,24 @@ def normalize_url(url: str) -> str:
     return urlunsplit((p.scheme, p.netloc.lower(), path, p.query, ""))
 
 
-def link_priority(url: str, anchor: str) -> int:
-    hay = (urlsplit(url).path + " " + anchor).lower()
-    return 0 if any(s in hay for s in PRIORITY_STEMS) else 1
+class LinkRanker:
+    """Crawl order within the page cap: deposit/loan/document/tariff/restructuring pages
+    first, then complaint and contacts pages, then other consumer pages, then the rest.
+    Within a tier, sections take turns (the 1st deposit link, the 1st loan link, ..., then
+    the 2nd of each), so one section with many links cannot use up the cap."""
+
+    def __init__(self):
+        self.per_section: dict[str | None, int] = {}
+
+    def __call__(self, url: str, anchor: str) -> tuple[int, int]:
+        tier, section = link_rank(url, anchor)
+        turn = self.per_section.get(section, 0) if section else 0
+        if section:
+            self.per_section[section] = turn + 1
+        return tier, turn
+
+
+LANGUAGE_LINK = (-1, 0)  # language versions of the home page come first
 
 
 def pdf_text(data: bytes, max_pages: int) -> str:
@@ -181,10 +189,11 @@ class Crawler:
                      run_id: str | None, from_store: bool = False) -> None:
         root = home.url
         seen = {normalize_url(res.start_url), normalize_url(root)}
-        queue: list[tuple[int, int, int, str]] = []  # (priority, depth, order, url)
+        queue: list[tuple[tuple[int, int], int, int, str]] = []  # (rank, depth, order, url)
         order = 0
+        rank = LinkRanker()
 
-        def push(url: str, depth: int, prio: int) -> None:
+        def push(url: str, depth: int, prio: tuple[int, int] | None, anchor: str = "") -> None:
             nonlocal order
             key = normalize_url(url)
             if key in seen or not same_site(url, root) or SKIP_EXT.search(urlsplit(url).path) \
@@ -192,15 +201,15 @@ class Crawler:
                 return
             seen.add(key)
             order += 1
-            heapq.heappush(queue, (prio, depth, order, url))
+            heapq.heappush(queue, (prio or rank(url, anchor), depth, order, url))
 
         def expand(meta: dict, depth: int) -> None:
             if depth >= self.cfg.max_depth:
                 return
             for u in (meta.get("lang") or {}).values():
-                push(u, depth + 1, -1)  # language versions first
+                push(u, depth + 1, LANGUAGE_LINK)
             for u, anchor in meta.get("links") or []:
-                push(u, depth + 1, link_priority(u, anchor))
+                push(u, depth + 1, None, anchor)
 
         if from_store:
             res.pages.append(home)
@@ -211,7 +220,7 @@ class Crawler:
         if not res.language_links:
             origin = "{0.scheme}://{0.netloc}".format(urlsplit(root))
             for k in ("uz", "ru"):
-                push(f"{origin}/{k}/", 1, -1)
+                push(f"{origin}/{k}/", 1, LANGUAGE_LINK)
 
         while queue and len(res.pages) < self.cfg.max_pages:
             if time.monotonic() >= deadline:
@@ -315,9 +324,10 @@ class Crawler:
             res.language_links = language_links(rr.html, rr.final_url)
             res.has_language_switcher = bool(res.language_links)
             seen = {normalize_url(rr.final_url)}
-            queue = [(-1, u) for u in res.language_links.values()]
-            queue += [(link_priority(u, a), u) for u, a in links(rr.html, rr.final_url)]
-            queue.sort(key=lambda x: x[0])
+            rank = LinkRanker()
+            queue = [(LANGUAGE_LINK, u) for u in res.language_links.values()]
+            queue += [(rank(u, a), u) for u, a in links(rr.html, rr.final_url)]
+            queue.sort(key=lambda x: x[0])  # stable: page order within the same rank
             for _, url in queue:  # depth 1 only in browser mode (slow)
                 if len(res.pages) >= self.cfg.max_pages:
                     break
