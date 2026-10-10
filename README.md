@@ -11,7 +11,7 @@ Finding statuses: `ok` · `possible_gap` · `not_checkable`.
 
 ## Hosted demo
 
-**URL: `https://<to be filled after the first deploy>.onrender.com`** (one Docker service on
+**URL: https://compliance-radar-vy9n.onrender.com** (one Docker service on
 Render's free plan; see `DEPLOY.md`).
 
 - **Pre-computed:** the Findings and Audit & Metrics screens show the latest batch run over
