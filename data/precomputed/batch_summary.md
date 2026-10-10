@@ -1,6 +1,6 @@
 # Batch run summary
 
-- Finished: 2026-10-10 20:20 UTC
+- Finished: 2026-10-10 20:48 UTC
 - Model: openai-compatible:api.groq.com / openai/gpt-oss-120b
 - Cost: token logs x LLM_PRICE_* from .env
 - Not run (no website_url): turonbank, infinbank, trustbank, madad_invest_bank, saderat_bank, orient_finans_bank, ipoteka_bank, tenge_bank, ziraat_bank_uzbekistan, avo_bank, open_bank, tbc_bank, davr_bank, hamkorbank
@@ -21,6 +21,5 @@ LLM calls by purpose (presence decides a status; translation only translates a v
 
 | purpose | API calls | cache hits | tokens |
 |---|---|---|---|
-| failed | 1 | 0 | 0 |
-| presence (decision) | 9 | 0 | 19954 |
+| presence (decision) | 10 | 0 | 19954 |
 | translation | 33 | 3 | 12908 |

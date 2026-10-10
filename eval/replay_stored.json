@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-10T20:20:59+00:00",
+ "generated_at": "2026-10-10T20:48:50+00:00",
  "summary": {
   "findings": 54,
   "decided_by": {
@@ -13,7 +13,7 @@
   },
   "banks": 6,
   "share_code": 0.889,
-  "llm_api_calls_attempted": 4,
+  "llm_api_calls_attempted": 0,
   "note": "LLM-path checks not in llm_cache become not_checkable in this replay"
  },
  "rows": [
@@ -275,9 +275,9 @@
    "old_status": "not_checkable",
    "new_status": "not_checkable",
    "decided_by": "llm_assisted",
-   "evidence_url": null,
-   "quote": null,
-   "reason": "LLM timeout / rate limit: replay: not in llm_cache (no API call made)",
+   "evidence_url": "https://garantbank.uz/en",
+   "quote": "restriction on Humo card Top-Ups from account News 30.09.2026 JSC Garant bank Congratulates Teachers and Mentors on October 1 News 30.09.2026 Operating schedule for international money transfer and",
+   "reason": "Code found related passages on 2 candidate page(s) but the LLM did not confirm the requirement there; a possible gap needs code-level evidence of absence, so this is left for review. Quote: the keyword match on the best candidate (keywords from hints: restrukturizatsiya, kredit shartlarini o'zgartir",
    "pages_found": 15,
    "pages_listed": 15
   },
