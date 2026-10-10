@@ -55,3 +55,27 @@ def test_sync_requirements_yaml(tmp_db, tmp_path):
     assert sync_requirements_yaml(y, db_path=tmp_db) == 1
     with db.connect(tmp_db) as conn:
         assert [r.id for r in db.list_requirements(conn, approved_only=True)] == ["req:a"]
+
+
+def test_rerun_reuses_stored_pages(tmp_db):
+    seen = []
+
+    def counting(req):
+        seen.append(req.url.path)
+        return ru_site(req)
+
+    def crawler():
+        f = FetchConfig(user_agent="ComplianceRadar/0.1", min_delay_seconds=0, min_text_chars=100)
+        return Crawler(CrawlConfig(fetch=f, max_pages=6),
+                       fetcher=Fetcher(f, transport=httpx.MockTransport(counting)))
+
+    first = check_site("https://ru-only.uz/ru/", crawler=crawler(), llm=None, db_path=tmp_db)
+    n_first = len(seen)
+    lines = []
+    second = check_site("https://ru-only.uz/ru/", crawler=crawler(), llm=None, db_path=tmp_db,
+                        progress=lines.append)
+    assert n_first >= 6 and len(seen) == n_first      # nothing fetched again
+    assert first.pages_read == second.pages_read == 6
+    assert any("6 page(s) (6 from the store)" in l for l in lines)
+    with db.connect(tmp_db) as conn:
+        assert len(db.list_pages(conn, second.bank_id, run_id=second.id)) == 6

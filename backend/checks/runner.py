@@ -5,9 +5,11 @@ possible_gap (enough pages, no fetch errors) -> machine-translate the verified q
 """
 
 import os
+import time
+from typing import Callable
 
 from backend.checks.evidence import verify_quote
-from backend.checks.llm_checks import check_presence, translate
+from backend.checks.llm_checks import TIMEOUT_REASON, check_presence, translate
 from backend.checks.types import CheckOutcome
 from backend.checks.uz_version import check_uz_version
 from backend.crawl.crawler import CrawlResult
@@ -52,20 +54,40 @@ def finalize(out: CheckOutcome, crawl: CrawlResult) -> CheckOutcome:
 
 
 def run_checks(run_id: str, crawl: CrawlResult, requirements: list[Requirement],
-               llm: LLMProvider | None) -> list[Finding]:
+               llm: LLMProvider | None, progress: Callable[[str], None] | None = None,
+               on_finding: Callable[[Finding], None] | None = None) -> list[Finding]:
+    """Each check gets CHECK_TIMEOUT_SECONDS; all checks together CHECK_RUN_BUDGET_SECONDS.
+    A check that runs out of time is not_checkable ("LLM timeout / rate limit")."""
+    progress = progress or (lambda m: None)
+    approved = [r for r in requirements if r.approved]
+    check_timeout = float(os.getenv("CHECK_TIMEOUT_SECONDS") or 90)
+    run_deadline = time.monotonic() + float(os.getenv("CHECK_RUN_BUDGET_SECONDS") or 900)
     findings = []
-    for req in requirements:
-        if not req.approved:
-            continue
-        out = finalize(run_one(req, crawl, llm), crawl)
+    for i, req in enumerate(approved, 1):
+        prefix = f"check {i}/{len(approved)} {req.source_clause_id}"
+        progress(f"{prefix}: {req.check_type}")
+        if llm is not None:
+            llm.deadline = min(time.monotonic() + check_timeout, run_deadline)
+            llm.on_event = lambda m, p=prefix: progress(f"{p}: {m}")
+        if time.monotonic() >= run_deadline:
+            out = CheckOutcome("not_checkable",
+                               reason=f"{TIMEOUT_REASON}: run time cap reached before this check")
+        else:
+            out = finalize(run_one(req, crawl, llm), crawl)
         quote_ok = out.page is not None and verify_quote(out.quote, out.page.text)
         quote = out.quote if quote_ok else None
-        findings.append(Finding(
+        f = Finding(
             id=f"{run_id}:{req.id}", bank_id=crawl.bank_id, requirement_id=req.id,
             status=out.status, run_id=run_id, reason=out.reason or None,
             evidence_url=out.page.url if out.page else None,
             evidence_quote=quote,
             # Translation only after the original quote has been verified.
             evidence_quote_en=translate(quote, llm) if quote else None,
-            pages_read=len(crawl.pages), urls_read=crawl.urls_read))
+            pages_read=len(crawl.pages), urls_read=crawl.urls_read)
+        findings.append(f)
+        if on_finding:
+            on_finding(f)
+        progress(f"{prefix}: {f.status}")
+    if llm is not None:
+        llm.deadline, llm.on_event = None, None
     return findings

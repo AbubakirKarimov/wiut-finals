@@ -140,6 +140,8 @@ MIGRATIONS = [
     ("llm_calls", "run_id", "TEXT"),
     ("pages", "title", "TEXT NOT NULL DEFAULT ''"),
     ("pages", "run_id", "TEXT"),
+    ("pages", "request_url", "TEXT"),
+    ("pages", "links", "TEXT NOT NULL DEFAULT '{}'"),
     ("findings", "run_id", "TEXT"),
     ("findings", "pages_read", "INTEGER"),
     ("findings", "urls_read", "TEXT NOT NULL DEFAULT '[]'"),
@@ -180,12 +182,31 @@ def _insert(conn: sqlite3.Connection, table: str, row: dict) -> None:
                  tuple(row.values()))
 
 
-def upsert_page(conn: sqlite3.Connection, page: Page) -> None:
+def upsert_page(conn: sqlite3.Connection, page: Page, links: dict | None = None,
+                request_url: str | None = None) -> None:
+    """links: crawl metadata kept so a later run can reuse the page without fetching it
+    ({"links": [[url, anchor], ...], "lang": {...}, "method": "httpx"})."""
     _insert(conn, "pages", {
         "bank_id": page.bank_id, "url": page.url, "language": page.language,
         "text": page.text, "source_type": page.source_type,
         "fetched_at": _ts(page.fetched_at), "readable": int(page.readable),
-        "title": page.title, "run_id": page.run_id})
+        "title": page.title, "run_id": page.run_id, "request_url": request_url,
+        "links": json.dumps(links or {}, ensure_ascii=False)})
+
+
+def get_cached_page(conn: sqlite3.Connection, bank_id: str, url: str,
+                    fetched_after: datetime) -> tuple[Page, dict] | None:
+    """A stored page for this URL (requested or final) fetched after the given time."""
+    row = conn.execute(
+        "SELECT * FROM pages WHERE bank_id = ? AND (url = ? OR request_url = ?) "
+        "AND fetched_at >= ? ORDER BY fetched_at DESC LIMIT 1",
+        (bank_id, url, url, _ts(fetched_after))).fetchone()
+    if row is None:
+        return None
+    d = dict(row)
+    links = json.loads(d.pop("links") or "{}")
+    d.pop("request_url", None)
+    return Page(**{**d, "readable": bool(d["readable"])}), links
 
 
 def list_pages(conn: sqlite3.Connection, bank_id: str, run_id: str | None = None) -> list[Page]:
@@ -194,7 +215,14 @@ def list_pages(conn: sqlite3.Connection, bank_id: str, run_id: str | None = None
                             (bank_id, run_id))
     else:
         rows = conn.execute("SELECT * FROM pages WHERE bank_id = ? ORDER BY url", (bank_id,))
-    return [Page(**{**dict(r), "readable": bool(r["readable"])}) for r in rows]
+    return [_page(r) for r in rows]
+
+
+def _page(row: sqlite3.Row) -> Page:
+    d = dict(row)
+    d.pop("links", None)
+    d.pop("request_url", None)
+    return Page(**{**d, "readable": bool(d["readable"])})
 
 
 # --- findings ---

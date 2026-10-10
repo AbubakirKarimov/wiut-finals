@@ -123,8 +123,17 @@ redirect hop. `CHECK_ALLOW_PRIVATE_URLS=1` lifts this for local tests only.
 All settings live in `.env` (template: `.env.example`); secrets are never committed. Crawl
 caps: `CRAWLER_MAX_PAGES_PER_BANK`, `CRAWLER_MAX_DEPTH`, `CRAWLER_TIME_BUDGET_SECONDS`,
 `CRAWLER_MIN_DELAY_SECONDS`, `BROWSER_FALLBACK`, `BROWSER_TIMEOUT_SECONDS`. Checks:
-`CHECK_MIN_PAGES_FOR_GAP`, `CHECK_LLM_MAX_PAGES`, `CHECK_EXCERPT_CHARS`,
-`CHECK_MIN_QUOTE_CHARS`, optional `UZ_VERSION_MIN_SHARE`. Search keywords for a requirement
+`CHECK_MIN_PAGES_FOR_GAP`, `CHECK_LLM_MAX_PAGES`, `CHECK_EXCERPT_WINDOW_CHARS`,
+`CHECK_MAX_CONTEXT_TOKENS`, `CHECK_TIMEOUT_SECONDS`, `CHECK_RUN_BUDGET_SECONDS`,
+`CHECK_MIN_QUOTE_CHARS`, optional `UZ_VERSION_MIN_SHARE`. LLM pacing: `LLM_MAX_OUTPUT_TOKENS`,
+optional `LLM_REASONING_EFFORT`, `LLM_FALLBACK_AFTER_SECONDS`.
+
+**Progress and resuming.** Each check prints progress (`check 3/9 <clause_id>: calling LLM
+(attempt 2 ...)`, `rate limited, waiting 20 s`, tokens per call, `switching to fallback
+model ...`) to the CLI and to `GET /jobs/{id}`. Pages are stored as they are fetched and
+reused for `CRAWLER_CACHE_MAX_AGE_HOURS`; LLM answers come from `llm_cache`; each finding is
+saved as soon as it is decided. A re-run after an interruption therefore continues quickly.
+A check that runs out of time is `not_checkable` with "LLM timeout / rate limit". Search keywords for a requirement
 can be written by a human in `data/check_hints.yaml`
 (`requirements: {<requirement id>: {keywords: {uz_latn: [...], ru: [...]}}}`); otherwise the
 LLM proposes them once and they are cached.
@@ -168,7 +177,8 @@ key = hash of provider, model, prompt and schema) cost nothing and are counted s
 If a price is not set, `/metrics` reports cost as "not set"; nothing is estimated.
 Upper bound of LLM calls per check: per `required_document`/`key_info` requirement, one
 keyword call (cached across runs), up to `CHECK_LLM_MAX_PAGES` presence calls, one
-translation call.
+translation call. Each call carries at most about `CHECK_MAX_CONTEXT_TOKENS` of page
+passages, not whole pages.
 
 ## Known failure cases
 

@@ -72,6 +72,7 @@ class CrawlResult:
     language_links: dict[str, str] = field(default_factory=dict)
     method: str = "httpx"
     budget_exhausted: bool = False
+    reused_pages: int = 0          # taken from the page store instead of fetched
     notes: list[str] = field(default_factory=list)
 
     @property
@@ -102,8 +103,9 @@ def pdf_text(data: bytes, max_pages: int) -> str:
 class Crawler:
     def __init__(self, cfg: CrawlConfig, fetcher: Fetcher | None = None,
                  browser_factory: Callable[[], Browser] | None = None,
-                 progress: Callable[[str], None] | None = None):
+                 progress: Callable[[str], None] | None = None, store=None):
         self.cfg = cfg
+        self.store = store  # DbPageStore-like: get(bank_id, url) / put(page, links, request_url)
         self.fetcher = fetcher or Fetcher(cfg.fetch)
         self._browser_factory = browser_factory or (
             lambda: Browser(cfg.fetch, self.fetcher.throttle))
@@ -115,6 +117,12 @@ class Crawler:
         deadline = time.monotonic() + self.cfg.time_budget_seconds
         fcfg = self.cfg.fetch
 
+        cached = self._cached(bank_id, start_url, run_id)
+        if cached and cached[1].get("method") == "httpx" and \
+                len(cached[0].text) >= fcfg.min_text_chars:
+            self.progress("home page from the store (fetched earlier)")
+            self._crawl_httpx(res, cached[0], cached[1], deadline, run_id, from_store=True)
+            return res
         self.progress("fetching home page")
         home = self.fetcher.get(start_url)
         if home.robots_blocked and home.error == ROBOTS_UNREADABLE:
@@ -148,14 +156,30 @@ class Crawler:
                 return res
             return self._crawl_with_browser(res, home.final_url, deadline, run_id)
 
-        self._crawl_httpx(res, home, deadline, run_id)
+        page, meta = self._store(res, home, run_id)
+        if page is None:
+            res.status = "other"
+            res.reason = f"home page is not a readable HTML page ({home.content_type or 'unknown'})"
+            return res
+        self._crawl_httpx(res, page, meta, deadline, run_id)
         return res
+
+    def _cached(self, bank_id: str, url: str, run_id: str | None) -> tuple[Page, dict] | None:
+        if self.store is None:
+            return None
+        hit = self.store.get(bank_id, url)
+        if hit is None:
+            return None
+        page, meta = hit
+        page = page.model_copy(update={"run_id": run_id})
+        self.store.put(page, meta, request_url=url)  # attach the page to this run
+        return page, meta
 
     # --- httpx crawl ---
 
-    def _crawl_httpx(self, res: CrawlResult, home: FetchResult, deadline: float,
-                     run_id: str | None) -> None:
-        root = home.final_url
+    def _crawl_httpx(self, res: CrawlResult, home: Page, home_meta: dict, deadline: float,
+                     run_id: str | None, from_store: bool = False) -> None:
+        root = home.url
         seen = {normalize_url(res.start_url), normalize_url(root)}
         queue: list[tuple[int, int, int, str]] = []  # (priority, depth, order, url)
         order = 0
@@ -170,19 +194,20 @@ class Crawler:
             order += 1
             heapq.heappush(queue, (prio, depth, order, url))
 
-        def expand(html: str, base: str, depth: int) -> None:
+        def expand(meta: dict, depth: int) -> None:
             if depth >= self.cfg.max_depth:
                 return
-            langs = language_links(html, base)
-            for u in langs.values():
+            for u in (meta.get("lang") or {}).values():
                 push(u, depth + 1, -1)  # language versions first
-            for u, anchor in links(html, base):
+            for u, anchor in meta.get("links") or []:
                 push(u, depth + 1, link_priority(u, anchor))
 
-        self._store(res, home, run_id)
-        res.language_links = language_links(home.text, root)
+        if from_store:
+            res.pages.append(home)
+            res.reused_pages += 1
+        res.language_links = dict(home_meta.get("lang") or {})
         res.has_language_switcher = bool(res.language_links)
-        expand(home.text, root, 0)
+        expand(home_meta, 0)
         if not res.language_links:
             origin = "{0.scheme}://{0.netloc}".format(urlsplit(root))
             for k in ("uz", "ru"):
@@ -194,7 +219,19 @@ class Crawler:
                 res.notes.append(f"time budget of {self.cfg.time_budget_seconds:g} s reached")
                 break
             _, depth, _, url = heapq.heappop(queue)
-            self.progress(f"fetching page {len(res.pages) + 1}/{self.cfg.max_pages}")
+            n = len(res.pages) + 1
+            cached = self._cached(res.bank_id, url, run_id)
+            if cached:
+                page, meta = cached
+                if normalize_url(page.url) in {normalize_url(p.url) for p in res.pages}:
+                    continue
+                self.progress(f"page {n}/{self.cfg.max_pages} from the store")
+                seen.add(normalize_url(page.url))
+                res.pages.append(page)
+                res.reused_pages += 1
+                expand(meta, depth)
+                continue
+            self.progress(f"fetching page {n}/{self.cfg.max_pages}")
             r = self.fetcher.get(url)
             if r.robots_blocked:
                 res.skipped.append(f"{url}: {r.error}")
@@ -211,9 +248,11 @@ class Crawler:
             if normalize_url(r.final_url) in {normalize_url(p.url) for p in res.pages}:
                 continue  # redirected to a page already read
             seen.add(normalize_url(r.final_url))
-            page = self._store(res, r, run_id)
+            page, meta = self._store(res, r, run_id)
             if page and page.source_type == "html":
-                expand(r.text, r.final_url, depth)
+                expand(meta, depth)
+        if res.reused_pages:
+            res.notes.append(f"{res.reused_pages} page(s) reused from the store")
         if not res.has_language_switcher:
             # A guessed /uz/ or /ru/ that exists also counts as a language version.
             langs = {p.language for p in res.pages}
@@ -221,16 +260,18 @@ class Crawler:
                 "ru" in langs and any(urlsplit(p.url).path.strip("/").split("/")[0]
                                       in {"uz", "ru", "oz"} for p in res.pages)
 
-    def _store(self, res: CrawlResult, r: FetchResult, run_id: str | None) -> Page | None:
+    def _store(self, res: CrawlResult, r: FetchResult, run_id: str | None
+               ) -> tuple[Page | None, dict]:
+        meta: dict = {"method": "httpx", "links": [], "lang": {}}
         if r.is_pdf:
             if r.truncated:
                 res.skipped.append(f"{r.final_url}: PDF larger than the size cap")
-                return None
+                return None, meta
             try:
                 text = pdf_text(r.body, self.cfg.max_pdf_pages)
             except Exception as e:  # pdfplumber raises many types on broken files
                 res.skipped.append(f"{r.final_url}: unreadable PDF ({type(e).__name__})")
-                return None
+                return None, meta
             page = Page(bank_id=res.bank_id, url=r.final_url, source_type="pdf", text=text,
                         language=detect_language(text) or "other", readable=bool(text),
                         title=r.final_url.rsplit("/", 1)[-1], run_id=run_id)
@@ -240,11 +281,15 @@ class Crawler:
             page = Page(bank_id=res.bank_id, url=r.final_url, source_type="html", text=text,
                         language=detect_language(text) or "other", readable=bool(text),
                         title=page_title(html), run_id=run_id)
+            meta["links"] = [list(x) for x in links(html, r.final_url)]
+            meta["lang"] = language_links(html, r.final_url)
         else:
             res.skipped.append(f"{r.final_url}: content type {r.content_type or 'unknown'}")
-            return None
+            return None, meta
         res.pages.append(page)
-        return page
+        if self.store is not None:
+            self.store.put(page, meta, request_url=r.url)
+        return page, meta
 
     # --- browser crawl (JavaScript-only sites) ---
 
@@ -301,9 +346,13 @@ class Crawler:
 
     def _store_html(self, res: CrawlResult, url: str, html: str, run_id: str | None) -> None:
         text = visible_text(html)
-        res.pages.append(Page(bank_id=res.bank_id, url=url, source_type="html", text=text,
-                              language=detect_language(text) or "other", readable=bool(text),
-                              title=page_title(html), run_id=run_id))
+        page = Page(bank_id=res.bank_id, url=url, source_type="html", text=text,
+                    language=detect_language(text) or "other", readable=bool(text),
+                    title=page_title(html), run_id=run_id)
+        res.pages.append(page)
+        if self.store is not None:
+            self.store.put(page, {"method": "browser", "links": [list(x) for x in links(html, url)],
+                                  "lang": language_links(html, url)}, request_url=url)
 
     def close(self) -> None:
         self.fetcher.close()

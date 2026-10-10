@@ -16,10 +16,12 @@ from pydantic import BaseModel, Field
 
 from backend.checks.evidence import excerpt, keyword_hits, opening_quote, verify_quote
 from backend.checks.types import CheckOutcome
-from backend.llm.provider import LLMError, LLMProvider
+from backend.llm.provider import LLMError, LLMProvider, LLMTransientError
 from backend.models import Page, Requirement
 
 HINTS_PATH = Path(__file__).resolve().parents[2] / "data" / "check_hints.yaml"
+TIMEOUT_REASON = "LLM timeout / rate limit"
+CHARS_PER_TOKEN = 2.5  # a real run measured ~2.6 characters per token on Uzbek/Russian text
 
 
 class KeywordSet(BaseModel):
@@ -107,6 +109,8 @@ def get_keywords(req: Requirement, llm: LLMProvider | None) -> tuple[list[str] |
         ans = llm.complete_json(KEYWORDS_PROMPT.format(text_en=req.text_en or "no data",
                                                        text_original=req.text_original),
                                 KeywordSet)
+    except LLMTransientError as e:
+        return None, f"{TIMEOUT_REASON} while choosing keywords: {str(e)[:120]}"
     except LLMError as e:
         return None, f"no keywords: LLM error ({str(e)[:120]})"
     flat = [k for v in ans.values() for k in v if k and len(k.strip()) >= 3]
@@ -132,8 +136,11 @@ def check_presence(req: Requirement, pages: list[Page], llm: LLMProvider | None
     keywords, source = get_keywords(req, llm)
     if not keywords:
         return CheckOutcome("not_checkable", reason=source)
-    max_pages = _env_int("CHECK_LLM_MAX_PAGES", 3)
-    max_chars = _env_int("CHECK_EXCERPT_CHARS", 6000)
+    max_pages = _env_int("CHECK_LLM_MAX_PAGES", 2)
+    # Context budget per call: CHECK_MAX_CONTEXT_TOKENS, converted with a conservative
+    # CHARS_PER_TOKEN estimate (Cyrillic and Uzbek text tokenize worse than English).
+    max_chars = int(_env_int("CHECK_MAX_CONTEXT_TOKENS", 2500) * CHARS_PER_TOKEN)
+    window = _env_int("CHECK_EXCERPT_WINDOW_CHARS", 1500)
     cands = candidate_pages(pages, keywords, max_pages)
     kw_note = f"keywords from {source}: {', '.join(keywords[:12])}"
     readable = [p for p in pages if p.readable]
@@ -150,13 +157,16 @@ def check_presence(req: Requirement, pages: list[Page], llm: LLMProvider | None
                                    + ", ".join(p.url for p, _ in cands))
     rejected, closest = [], None
     for page, offs in cands:
-        parts = excerpt(page.text, offs, max_chars)
+        parts = excerpt(page.text, offs, max_chars, before=window, after=window)
         prompt = PRESENCE_PROMPT.format(
             text_en=req.text_en or "no data", text_original=req.text_original,
             question=QUESTIONS[req.check_type], url=page.url, title=page.title or "no data",
             excerpts="\n...\n".join(parts))
         try:
             ans = llm.complete_json(prompt, PresenceAnswer)
+        except LLMTransientError as e:
+            return CheckOutcome("not_checkable", llm_used=True,
+                                reason=f"{TIMEOUT_REASON}: {str(e)[:160]}")
         except LLMError as e:
             return CheckOutcome("not_checkable", reason=f"LLM error: {str(e)[:160]}",
                                 llm_used=True)
@@ -192,4 +202,4 @@ def translate(quote: str, llm: LLMProvider | None) -> str | None:
         return llm.complete_json(TRANSLATE_PROMPT.format(quote=quote),
                                  TranslationAnswer)["translation_en"] or None
     except LLMError:
-        return None
+        return None  # the finding keeps its verified original quote

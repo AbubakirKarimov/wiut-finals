@@ -16,6 +16,7 @@ from backend import db
 from backend.checks.runner import run_checks
 from backend.crawl.banks import BANKS_YAML, load_banks
 from backend.crawl.crawler import CrawlConfig, Crawler
+from backend.crawl.store import DbPageStore
 from backend.crawl.text import same_site
 from backend.llm.provider import LLMConfigError, LLMProvider, provider_from_env
 from backend.models import Requirement, Run, utcnow
@@ -69,23 +70,30 @@ def check_site(url: str, *, bank_id: str | None = None, source: str = "job",
         on_run(run.id)
     token = db.current_run_id.set(run.id)
     crawler = crawler or Crawler(crawl_cfg or CrawlConfig.from_env(), progress=progress)
+    if crawler.store is None:
+        # Pages are written as they are fetched and reused by later runs (resumable).
+        crawler.store = DbPageStore(db_path)
+
+    def save_finding(f) -> None:
+        with db.connect(db_path) as conn:
+            db.upsert_finding(conn, f)
+
     try:
         crawl = crawler.crawl(run.bank_id, url, run_id=run.id)
         run.crawl_status, run.crawl_reason = crawl.status, crawl.reason or None
         run.pages_read, run.fetch_errors = len(crawl.pages), crawl.fetch_errors
         run.has_language_switcher = crawl.has_language_switcher
         with db.connect(db_path) as conn:
-            for p in crawl.pages:
-                db.upsert_page(conn, p)
             db.upsert_run(conn, run)
             requirements = db.list_requirements(conn, approved_only=True)
+        progress(f"crawl {crawl.status}: {len(crawl.pages)} page(s) "
+                 f"({crawl.reused_pages} from the store), {len(crawl.fetch_errors)} fetch error(s)")
         if llm == "env":
             llm = llm_from_env(db_path)
-        progress(f"running {len(requirements)} approved check(s)")
-        findings = run_checks(run.id, crawl, requirements, llm)
-        with db.connect(db_path) as conn:
-            for f in findings:
-                db.upsert_finding(conn, f)
+        progress(f"running {len(requirements)} approved check(s)"
+                 + ("" if llm else " (LLM not configured)"))
+        run_checks(run.id, crawl, requirements, llm, progress=progress,
+                   on_finding=save_finding)
         run.status = "done"
     except Exception as e:  # recorded on the run and the job; never swallowed silently
         run.status, run.error = "error", f"{type(e).__name__}: {str(e)[:300]}"

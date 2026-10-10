@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from typing import Callable
 from urllib.parse import urlparse
 
 import httpx
@@ -50,6 +51,10 @@ class LLMTransientError(LLMError):
         self.retry_after = retry_after
 
 
+class LLMTimeoutError(LLMTransientError):
+    """The per-check deadline was reached (slow provider or rate-limit waits)."""
+
+
 class LLMResponseError(LLMError):
     """The model did not return valid JSON for the schema, even after one retry."""
 
@@ -61,6 +66,7 @@ class RateLimits:
     backoff_seconds: float = 2.0  # wait = backoff * 2**attempt when no Retry-After is sent
     max_wait_seconds: float = 60.0  # a longer Retry-After is not waited out: fail over
     min_interval_seconds: float = 1.0  # minimum gap between two calls to this provider
+    fallback_after_seconds: float = 30.0  # with a fallback configured, longer waits switch
 
     @classmethod
     def from_env(cls) -> "RateLimits":
@@ -70,7 +76,9 @@ class RateLimits:
             backoff_seconds=float(os.getenv("LLM_BACKOFF_SECONDS") or d.backoff_seconds),
             max_wait_seconds=float(os.getenv("LLM_MAX_WAIT_SECONDS") or d.max_wait_seconds),
             min_interval_seconds=float(os.getenv("LLM_MIN_INTERVAL_SECONDS")
-                                       or d.min_interval_seconds))
+                                       or d.min_interval_seconds),
+            fallback_after_seconds=float(os.getenv("LLM_FALLBACK_AFTER_SECONDS")
+                                         or d.fallback_after_seconds))
 
 
 def parse_retry_after(value: str | None) -> float | None:
@@ -92,6 +100,10 @@ class RawCompletion:
     text: str
     input_tokens: int | None
     output_tokens: int | None
+
+
+def _fmt_tokens(n: int | None) -> str:
+    return "no data" if n is None else str(n)
 
 
 def _schema_dict(schema: type[BaseModel]) -> dict:
@@ -118,6 +130,23 @@ class LLMProvider(ABC):
         self.last_raw: RawCompletion | None = None  # in memory only, for dry-run printouts
         self._last_call = 0.0
         self._sleep = time.sleep
+        # Set by the caller per check: progress callback and a time.monotonic() deadline.
+        self.on_event: Callable[[str], None] | None = None
+        self.deadline: float | None = None
+        # Not before this time.monotonic() (set from Retry-After); used by FallbackProvider.
+        self.cooldown_until = 0.0
+
+    def _emit(self, msg: str) -> None:
+        if self.on_event:
+            self.on_event(msg)
+
+    def remaining(self) -> float | None:
+        return None if self.deadline is None else self.deadline - time.monotonic()
+
+    def _check_deadline(self) -> None:
+        left = self.remaining()
+        if left is not None and left <= 0:
+            raise LLMTimeoutError(f"{self.name}: check timeout reached")
 
     def _throttle(self) -> None:
         gap = time.monotonic() - self._last_call
@@ -128,19 +157,38 @@ class LLMProvider(ABC):
     def _call_with_backoff(self, prompt: str, schema: dict, key: str) -> tuple[RawCompletion, float]:
         """One logical call: retries 429/5xx/timeouts with Retry-After or exponential backoff."""
         for attempt in range(self.limits.max_retries + 1):
+            self._check_deadline()
             self._throttle()
+            self._emit(f"calling LLM {self.model} (attempt {attempt + 1}, "
+                       f"~{int(len(prompt) / 2.5)} prompt tokens est.)")
             t0 = time.perf_counter()
             try:
                 raw = self._complete(prompt, schema)
+                self._emit(f"LLM answered in {time.perf_counter() - t0:.1f} s: "
+                           f"{_fmt_tokens(raw.input_tokens)} input / "
+                           f"{_fmt_tokens(raw.output_tokens)} output tokens")
                 return raw, (time.perf_counter() - t0) * 1000
             except LLMTransientError as exc:
                 self._log(input_tokens=None, output_tokens=None, ok=False, cache_hit=False,
                           duration_ms=(time.perf_counter() - t0) * 1000, error=str(exc),
                           cache_key=key)
+                if isinstance(exc, LLMTimeoutError):
+                    raise
                 wait = (exc.retry_after if exc.retry_after is not None
                         else self.limits.backoff_seconds * 2 ** attempt)
+                if exc.retry_after is not None:
+                    self.cooldown_until = time.monotonic() + exc.retry_after
                 if attempt == self.limits.max_retries or wait > self.limits.max_wait_seconds:
+                    self._emit(f"{exc}; not waiting {wait:.0f} s (limit "
+                               f"{self.limits.max_wait_seconds:.0f} s)")
                     raise
+                left = self.remaining()
+                if left is not None and wait >= left:
+                    raise LLMTimeoutError(f"{self.name}: waiting {wait:.0f} s would exceed the "
+                                          f"check timeout ({left:.0f} s left)",
+                                          retry_after=exc.retry_after) from None
+                kind = "rate limited" if "429" in str(exc) else str(exc)
+                self._emit(f"{kind}, waiting {wait:.0f} s")
                 self._sleep(wait)
             except LLMError as exc:
                 self._log(input_tokens=None, output_tokens=None, ok=False, cache_hit=False,
@@ -169,6 +217,7 @@ class LLMProvider(ABC):
         with db.connect(self.db_path) as conn:
             cached = db.llm_cache_get(conn, key)
         if cached is not None:
+            self._emit("LLM answer from cache")
             self._log(input_tokens=None, output_tokens=None, ok=True, cache_hit=True,
                       duration_ms=(time.perf_counter() - started) * 1000, cache_key=key)
             self.last_raw = None
@@ -206,7 +255,8 @@ class OpenAICompatibleProvider(LLMProvider):
     def __init__(self, base_url: str, api_key: str, model: str, *,
                  timeout: float = 60.0, json_mode: bool = True,
                  db_path: Path | str | None = None, transport: httpx.BaseTransport | None = None,
-                 limits: RateLimits | None = None):
+                 limits: RateLimits | None = None, max_output_tokens: int | None = None,
+                 reasoning_effort: str | None = None):
         super().__init__(db_path, limits)
         missing = [n for n, v in (("base_url", base_url), ("api_key", api_key),
                                   ("model", model)) if not v]
@@ -217,6 +267,9 @@ class OpenAICompatibleProvider(LLMProvider):
         self.model = model
         self.name = provider_name(self.base_url)
         self.json_mode = json_mode
+        self.timeout = timeout
+        self.max_output_tokens = max_output_tokens
+        self.reasoning_effort = reasoning_effort
         self._client = httpx.Client(timeout=timeout, transport=transport)
 
     def __repr__(self) -> str:  # never expose the key
@@ -234,10 +287,21 @@ class OpenAICompatibleProvider(LLMProvider):
         }
         if self.json_mode:
             body["response_format"] = {"type": "json_object"}
+        if self.max_output_tokens:
+            body["max_tokens"] = self.max_output_tokens
+        if self.reasoning_effort:
+            # Only for models that accept it (set per slot in .env, e.g. gpt-oss on Groq).
+            body["reasoning_effort"] = self.reasoning_effort
+        left = self.remaining()
+        timeout = self.timeout if left is None else max(1.0, min(self.timeout, left))
         try:
             r = self._client.post(f"{self.base_url}/chat/completions", json=body,
-                                  headers={"Authorization": f"Bearer {self._api_key}"})
+                                  headers={"Authorization": f"Bearer {self._api_key}"},
+                                  timeout=timeout)
         except httpx.TimeoutException as exc:
+            if self.remaining() is not None and self.remaining() <= 1:
+                raise LLMTimeoutError(f"{self.name}: check timeout reached during the call") \
+                    from None
             raise LLMTransientError(f"{self.name}: timeout ({type(exc).__name__})") from None
         except httpx.HTTPError as exc:
             raise LLMError(f"{self.name}: request failed ({type(exc).__name__})") from None
@@ -257,27 +321,41 @@ class OpenAICompatibleProvider(LLMProvider):
 
 
 class FallbackProvider(LLMProvider):
-    """Try providers in order; move to the next one only on 429/5xx/timeout."""
+    """Try providers in order; move to the next one on 429/5xx/timeout, or when a rate-limit
+    wait would exceed `fallback_after_seconds`. A provider still cooling down after a 429
+    (Retry-After) is skipped while another one is available."""
 
-    def __init__(self, providers: list[LLMProvider]):
+    def __init__(self, providers: list[LLMProvider], fallback_after_seconds: float | None = None):
         if not providers:
             raise LLMConfigError("FallbackProvider needs at least one provider")
         super().__init__(providers[0].db_path)
         self.providers = providers
         self.name = "fallback(" + ",".join(p.name for p in providers) + ")"
         self.model = providers[0].model
+        if fallback_after_seconds is not None:
+            for p in providers[:-1]:
+                p.limits.max_wait_seconds = min(p.limits.max_wait_seconds,
+                                                fallback_after_seconds)
 
     def _complete(self, prompt: str, schema: dict) -> RawCompletion:  # pragma: no cover
         raise NotImplementedError("FallbackProvider delegates complete_json")
 
     def complete_json(self, prompt: str, schema: type[BaseModel]) -> dict:
         errors = []
-        for p in self.providers:
+        now = time.monotonic()
+        ready = [p for p in self.providers if p.cooldown_until <= now]
+        order = ready + [p for p in self.providers if p not in ready]
+        for i, p in enumerate(order):
+            p.on_event, p.deadline = self.on_event, self.deadline
+            if i > 0:
+                self._emit(f"switching to fallback model {p.model}")
             try:
                 result = p.complete_json(prompt, schema)
                 self.last_raw = p.last_raw
                 self.last_provider = p
                 return result
+            except LLMTimeoutError:
+                raise
             except LLMTransientError as exc:
                 errors.append(str(exc))
         raise LLMTransientError("all providers failed: " + "; ".join(errors))
@@ -302,7 +380,8 @@ def provider_from_env(db_path: Path | str | None = None,
             f"LLM_MODEL (see .env.example); for a local Ollama any non-empty key works.")
     providers: list[LLMProvider] = [OpenAICompatibleProvider(
         primary["BASE_URL"], primary["API_KEY"], primary["MODEL"], timeout=timeout,
-        json_mode=json_mode, db_path=db_path, transport=transport, limits=limits)]
+        json_mode=json_mode, db_path=db_path, transport=transport, limits=limits,
+        **_call_options("LLM_"))]
     n = 1
     while True:
         slot = _slot(f"LLM_FALLBACK_{n}_")
@@ -313,9 +392,22 @@ def provider_from_env(db_path: Path | str | None = None,
             raise LLMConfigError(f"incomplete fallback slot: {', '.join(missing)} not set")
         providers.append(OpenAICompatibleProvider(
             slot["BASE_URL"], slot["API_KEY"], slot["MODEL"], timeout=timeout,
-            json_mode=json_mode, db_path=db_path, transport=transport, limits=limits))
+            json_mode=json_mode, db_path=db_path, transport=transport,
+            limits=RateLimits.from_env(), **_call_options(f"LLM_FALLBACK_{n}_")))
         n += 1
-    return providers[0] if len(providers) == 1 else FallbackProvider(providers)
+    if len(providers) == 1:
+        return providers[0]
+    return FallbackProvider(providers, fallback_after_seconds=limits.fallback_after_seconds)
+
+
+def _call_options(prefix: str) -> dict:
+    """max_output_tokens / reasoning_effort for one slot; a fallback slot inherits the
+    primary's max tokens but not its reasoning effort (models differ)."""
+    max_out = (os.getenv(f"{prefix}MAX_OUTPUT_TOKENS") or os.getenv("LLM_MAX_OUTPUT_TOKENS")
+               or "").strip()
+    effort = (os.getenv(f"{prefix}REASONING_EFFORT") or "").strip()
+    return {"max_output_tokens": int(max_out) if max_out else None,
+            "reasoning_effort": effort or None}
 
 
 def _env_slots() -> list[str]:

@@ -198,3 +198,61 @@ def test_only_approved_requirements_run(tmp_db):
 def test_every_crawl_failure_never_yields_gap(tmp_db, status):
     [f] = run_checks("r", crawl([], status=status), [req("required_document")], None)
     assert f.status == "not_checkable"
+
+
+# --- pacing: timeouts, context size, progress ---
+
+class SlowLLM(ScriptedLLM):
+    """Every presence call is rate limited longer than the check timeout allows."""
+
+    def _complete(self, prompt, schema):
+        if "present" in schema.get("properties", {}):
+            from backend.llm.provider import LLMTransientError
+            raise LLMTransientError("scripted: HTTP 429", retry_after=500)
+        return super()._complete(prompt, schema)
+
+
+def test_llm_timeout_is_not_checkable_never_gap(tmp_db, monkeypatch):
+    monkeypatch.setenv("CHECK_TIMEOUT_SECONDS", "5")
+    llm = SlowLLM(tmp_db)
+    llm.limits.max_wait_seconds = 1000
+    pages = [page("https://b.uz/tariflar", UZ_TARIFF)] + many(5, "ru", RU_HOME)
+    [f] = run_checks("r", crawl(pages), [req("required_document")], llm)
+    assert f.status == "not_checkable"
+    assert f.reason.startswith("LLM timeout / rate limit")
+
+
+def test_run_budget_exhausted_marks_remaining_checks(tmp_db, monkeypatch):
+    monkeypatch.setenv("CHECK_RUN_BUDGET_SECONDS", "0")
+    fs = run_checks("r", crawl(many(6)), [req("uz_version", "req:a"), req("key_info", "req:b")],
+                    ScriptedLLM(tmp_db))
+    assert [f.status for f in fs] == ["not_checkable", "not_checkable"]
+    assert all("run time cap" in f.reason for f in fs)
+
+
+def test_context_sent_to_llm_is_bounded(tmp_db, monkeypatch):
+    monkeypatch.setenv("CHECK_MAX_CONTEXT_TOKENS", "1000")
+    quote = "Kredit bo'yicha yillik foiz stavkasi 24 foiz."
+    llm = ScriptedLLM(tmp_db, presence={"present": True, "quote": quote, "explanation": ""})
+    huge = ("Boshqa ma'lumot. " * 3000) + UZ_TARIFF + (" Yana matn." * 3000)
+    pages = [page("https://b.uz/tariflar", huge)] + many(5, "ru", RU_HOME)
+    [f] = run_checks("r", crawl(pages), [req("key_info")], llm)
+    assert f.status == "ok"
+    sent = next(p for p in llm.prompts if "<excerpts>" in p)
+    excerpt_text = sent.split("<excerpts>")[1].split("</excerpts>")[0]
+    assert len(excerpt_text) <= 1000 * llm_checks.CHARS_PER_TOKEN + 50
+    assert len(huge) > 10 * len(excerpt_text)
+
+
+def test_progress_lines_per_check(tmp_db):
+    lines = []
+    quote = "Kredit bo'yicha yillik foiz stavkasi 24 foiz."
+    llm = ScriptedLLM(tmp_db, presence={"present": True, "quote": quote, "explanation": ""})
+    pages = [page("https://b.uz/tariflar", UZ_TARIFF)] + many(5, "ru", RU_HOME)
+    run_checks("r", crawl(pages), [req("uz_version", "req:a"), req("key_info", "req:b")], llm,
+               progress=lines.append)
+    assert lines[0] == "check 1/2 cbu_reg_3030:main:13: uz_version"
+    assert any(l.startswith("check 2/2 cbu_reg_3030:main:13: calling LLM test-model (attempt 1")
+               for l in lines)
+    assert any("input / " in l and "output tokens" in l for l in lines)
+    assert lines[-1] == "check 2/2 cbu_reg_3030:main:13: ok"
