@@ -1,0 +1,56 @@
+export const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
+
+export class ApiError extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+  }
+}
+
+async function request(path, options = {}) {
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
+  } catch {
+    throw new ApiError(0, `Cannot reach the API at ${API_BASE}. Is the backend running?`);
+  }
+  let body = null;
+  try {
+    body = await res.json();
+  } catch {
+    /* empty or non-JSON body */
+  }
+  if (!res.ok) {
+    let detail = body && body.detail;
+    if (Array.isArray(detail)) detail = detail.map((d) => d.msg).join("; ");
+    if (res.status === 429) {
+      throw new ApiError(429, detail || "Too many checks from your address. Wait a minute and try again.");
+    }
+    throw new ApiError(res.status, detail || `Request failed (HTTP ${res.status}).`);
+  }
+  return body;
+}
+
+export const api = {
+  health: () => request("/health"),
+  banks: () => request("/banks"),
+  startCheck: (url) => request("/check", { method: "POST", body: JSON.stringify({ url }) }),
+  job: (id) => request(`/jobs/${encodeURIComponent(id)}`),
+  findings: (params = {}) => {
+    const q = new URLSearchParams(Object.entries(params).filter(([, v]) => v));
+    return request(`/findings${q.toString() ? `?${q}` : ""}`);
+  },
+  decide: (payload) => request("/decisions", { method: "POST", body: JSON.stringify(payload) }),
+  decisions: () => request("/decisions"),
+  metrics: () => request("/metrics"),
+};
+
+export function formatTime(iso) {
+  if (!iso) return "no data";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toISOString().replace("T", " ").slice(0, 16) + " UTC";
+}

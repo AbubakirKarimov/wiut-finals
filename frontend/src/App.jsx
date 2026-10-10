@@ -1,22 +1,51 @@
 import { useEffect, useState } from "react";
+import CheckPage from "./pages/CheckPage.jsx";
+import FindingsPage from "./pages/FindingsPage.jsx";
+import AuditPage from "./pages/AuditPage.jsx";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const ROUTES = {
+  check: { label: "Check", Component: CheckPage },
+  findings: { label: "Findings", Component: FindingsPage },
+  audit: { label: "Audit & Metrics", Component: AuditPage },
+};
+
+function currentRoute() {
+  const key = window.location.hash.replace(/^#\/?/, "");
+  return ROUTES[key] ? key : "check";
+}
 
 export default function App() {
-  const [health, setHealth] = useState("checking…");
+  const [route, setRoute] = useState(currentRoute);
 
   useEffect(() => {
-    fetch(`${API}/health`)
-      .then((r) => r.json())
-      .then((d) => setHealth(d.status === "ok" ? "available" : "error"))
-      .catch(() => setHealth("unavailable"));
+    const onHash = () => setRoute(currentRoute());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
+  const { Component } = ROUTES[route];
   return (
-    <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
-      <h1>ComplianceRadar</h1>
-      <p>Monitoring bank websites for possible gaps against Central Bank requirements.</p>
-      <p>Backend: {health}</p>
-    </main>
+    <div className="app">
+      <header className="topbar">
+        <div className="brand">
+          <span className="brand-name">ComplianceRadar</span>
+          <span className="brand-sub">Possible gaps on bank websites · CBU Regulation 3030 &amp; State Language Law</span>
+        </div>
+        <nav className="tabs" aria-label="Main">
+          {Object.entries(ROUTES).map(([key, r]) => (
+            <a key={key} href={`#/${key}`} className={key === route ? "tab active" : "tab"}
+               aria-current={key === route ? "page" : undefined}>
+              {r.label}
+            </a>
+          ))}
+        </nav>
+      </header>
+      <main className="content">
+        <Component />
+      </main>
+      <footer className="footer">
+        Findings are <strong>possible gaps</strong> for review, not violations. A CBU analyst makes the decision.
+      </footer>
+    </div>
   );
 }

@@ -10,3 +10,6 @@ data/raw/
 node_modules/
 frontend/dist/
 .DS_Store
+frontend/e2e/.tmp/
+frontend/test-results/
+frontend/playwright-report/
