@@ -15,14 +15,20 @@ class Answer(BaseModel):
     quote: str
 
 
+NO_RETRY = llm.RateLimits(max_retries=0, min_interval_seconds=0)
+
+
 class FakeProvider(llm.LLMProvider):
     """Returns scripted raw replies (or raises scripted errors) in order."""
 
-    def __init__(self, replies, *, name="fake", model="fake-model", db_path=None):
-        super().__init__(db_path)
+    def __init__(self, replies, *, name="fake", model="fake-model", db_path=None,
+                 limits=NO_RETRY):
+        super().__init__(db_path, limits)
         self.replies = list(replies)
         self.name, self.model = name, model
         self.calls = 0
+        self.slept = []
+        self._sleep = self.slept.append
 
     def _complete(self, prompt, schema):
         self.calls += 1
@@ -114,7 +120,8 @@ def test_openai_compatible_request_and_usage(tmp_db):
         return _chat_reply('{"present": true, "quote": "q"}')
 
     p = llm.OpenAICompatibleProvider("https://example.test/v1/", "secret-key", "m-1",
-                                     db_path=tmp_db, transport=httpx.MockTransport(handler))
+                                     db_path=tmp_db, transport=httpx.MockTransport(handler),
+                                     limits=NO_RETRY)
     assert p.complete_json("Is X present?", Answer) == {"present": True, "quote": "q"}
     assert seen["url"] == "https://example.test/v1/chat/completions"
     assert seen["auth"] == "Bearer secret-key"
@@ -132,7 +139,7 @@ def test_openai_compatible_request_and_usage(tmp_db):
                                           (401, llm.LLMError)])
 def test_openai_compatible_status_mapping(tmp_db, status, error):
     p = llm.OpenAICompatibleProvider(
-        "https://example.test/v1", "k", "m", db_path=tmp_db,
+        "https://example.test/v1", "k", "m", db_path=tmp_db, limits=NO_RETRY,
         transport=httpx.MockTransport(lambda r: httpx.Response(status, text="err")))
     with pytest.raises(error) as exc:
         p.complete_json("prompt", Answer)
@@ -146,19 +153,82 @@ def test_openai_compatible_timeout_is_transient(tmp_db):
         raise httpx.ReadTimeout("slow", request=request)
 
     p = llm.OpenAICompatibleProvider("https://example.test/v1", "k", "m", db_path=tmp_db,
-                                     transport=httpx.MockTransport(handler))
+                                     transport=httpx.MockTransport(handler), limits=NO_RETRY)
     with pytest.raises(llm.LLMTransientError, match="timeout"):
         p.complete_json("prompt", Answer)
 
 
 def test_error_log_never_contains_key_or_prompt(tmp_db):
     p = llm.OpenAICompatibleProvider(
-        "https://example.test/v1", "sk-very-secret", "m", db_path=tmp_db,
+        "https://example.test/v1", "sk-very-secret", "m", db_path=tmp_db, limits=NO_RETRY,
         transport=httpx.MockTransport(lambda r: _chat_reply("garbage")))
     with pytest.raises(llm.LLMResponseError):
         p.complete_json("CONFIDENTIAL PROMPT TEXT", Answer)
     dump = json.dumps(calls(tmp_db))
     assert "sk-very-secret" not in dump and "CONFIDENTIAL PROMPT TEXT" not in dump
+
+
+# ---- rate limits: Retry-After, exponential backoff, pacing
+
+def test_backoff_uses_retry_after_then_exponential(tmp_db):
+    limits = llm.RateLimits(max_retries=3, backoff_seconds=2, max_wait_seconds=60,
+                            min_interval_seconds=0)
+    p = FakeProvider([llm.LLMTransientError("HTTP 429", retry_after=7),
+                      llm.LLMTransientError("HTTP 503"),
+                      llm.LLMTransientError("timeout"),
+                      '{"present": true, "quote": "x"}'], db_path=tmp_db, limits=limits)
+    assert p.complete_json("prompt", Answer)["quote"] == "x"
+    assert p.slept == [7, 4, 8]  # Retry-After, then 2*2**1, 2*2**2
+    assert [r["ok"] for r in calls(tmp_db)] == [0, 0, 0, 1]
+    assert len({r["cache_key"] for r in calls(tmp_db)}) == 1
+
+
+def test_backoff_gives_up_and_fallback_takes_over(tmp_db):
+    limits = llm.RateLimits(max_retries=1, backoff_seconds=1, min_interval_seconds=0)
+    first = FakeProvider([llm.LLMTransientError("HTTP 429")] * 2, name="first",
+                         db_path=tmp_db, limits=limits)
+    second = FakeProvider(['{"present": true, "quote": "y"}'], name="second", db_path=tmp_db)
+    assert llm.FallbackProvider([first, second]).complete_json("p", Answer)["quote"] == "y"
+    assert first.calls == 2 and first.slept == [1]
+
+
+def test_long_retry_after_is_not_waited_out(tmp_db):
+    limits = llm.RateLimits(max_retries=3, max_wait_seconds=60, min_interval_seconds=0)
+    p = FakeProvider([llm.LLMTransientError("HTTP 429", retry_after=600)], db_path=tmp_db,
+                     limits=limits)
+    with pytest.raises(llm.LLMTransientError):
+        p.complete_json("prompt", Answer)
+    assert p.slept == [] and p.calls == 1
+
+
+def test_min_interval_between_api_calls_but_not_cache_hits(tmp_db):
+    limits = llm.RateLimits(max_retries=0, min_interval_seconds=5)
+    p = FakeProvider(['{"present": true, "quote": "a"}', '{"present": true, "quote": "b"}'],
+                     db_path=tmp_db, limits=limits)
+    p.complete_json("one", Answer)
+    p.complete_json("one", Answer)  # cache hit: no pacing
+    p.complete_json("two", Answer)
+    assert len(p.slept) == 1 and 0 < p.slept[0] <= 5
+
+
+def test_parse_retry_after():
+    assert llm.parse_retry_after("12") == 12.0
+    assert llm.parse_retry_after(None) is None
+    assert llm.parse_retry_after("garbage") is None
+    assert llm.parse_retry_after("Wed, 21 Oct 2015 07:28:00 GMT") == 0.0  # in the past
+
+
+def test_http_429_retry_after_header_is_read(tmp_db):
+    replies = iter([httpx.Response(429, headers={"Retry-After": "3"}, text="slow down"),
+                    _chat_reply('{"present": true, "quote": "q"}')])
+    p = llm.OpenAICompatibleProvider(
+        "https://example.test/v1", "k", "m", db_path=tmp_db,
+        limits=llm.RateLimits(max_retries=2, min_interval_seconds=0),
+        transport=httpx.MockTransport(lambda r: next(replies)))
+    slept = []
+    p._sleep = slept.append
+    assert p.complete_json("prompt", Answer)["quote"] == "q"
+    assert slept == [3.0]
 
 
 # ---- configuration from env

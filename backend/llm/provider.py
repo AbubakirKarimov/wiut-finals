@@ -15,6 +15,8 @@ import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -41,11 +43,48 @@ class LLMConfigError(LLMError):
 
 
 class LLMTransientError(LLMError):
-    """HTTP 429, 5xx or timeout: a fallback provider may succeed."""
+    """HTTP 429, 5xx or timeout: retried with backoff, then a fallback provider may succeed."""
+
+    def __init__(self, message: str, retry_after: float | None = None):
+        super().__init__(message)
+        self.retry_after = retry_after
 
 
 class LLMResponseError(LLMError):
     """The model did not return valid JSON for the schema, even after one retry."""
+
+
+@dataclass
+class RateLimits:
+    """Pacing for real API calls (cache hits are never delayed)."""
+    max_retries: int = 3          # extra attempts on 429/5xx/timeout before giving up
+    backoff_seconds: float = 2.0  # wait = backoff * 2**attempt when no Retry-After is sent
+    max_wait_seconds: float = 60.0  # a longer Retry-After is not waited out: fail over
+    min_interval_seconds: float = 1.0  # minimum gap between two calls to this provider
+
+    @classmethod
+    def from_env(cls) -> "RateLimits":
+        d = cls()
+        return cls(
+            max_retries=int(os.getenv("LLM_MAX_RETRIES") or d.max_retries),
+            backoff_seconds=float(os.getenv("LLM_BACKOFF_SECONDS") or d.backoff_seconds),
+            max_wait_seconds=float(os.getenv("LLM_MAX_WAIT_SECONDS") or d.max_wait_seconds),
+            min_interval_seconds=float(os.getenv("LLM_MIN_INTERVAL_SECONDS")
+                                       or d.min_interval_seconds))
+
+
+def parse_retry_after(value: str | None) -> float | None:
+    """Retry-After is either delta-seconds or an HTTP date."""
+    if not value:
+        return None
+    value = value.strip()
+    if re.fullmatch(r"\d+(\.\d+)?", value):
+        return float(value)
+    try:
+        when = parsedate_to_datetime(value)
+    except (TypeError, ValueError):
+        return None
+    return max(0.0, (when - datetime.now(timezone.utc)).total_seconds())
 
 
 @dataclass
@@ -73,19 +112,54 @@ class LLMProvider(ABC):
     name: str
     model: str
 
-    def __init__(self, db_path: Path | str | None = None):
+    def __init__(self, db_path: Path | str | None = None, limits: RateLimits | None = None):
         self.db_path = db_path
+        self.limits = limits or RateLimits()
+        self.last_raw: RawCompletion | None = None  # in memory only, for dry-run printouts
+        self._last_call = 0.0
+        self._sleep = time.sleep
+
+    def _throttle(self) -> None:
+        gap = time.monotonic() - self._last_call
+        if self._last_call and gap < self.limits.min_interval_seconds:
+            self._sleep(self.limits.min_interval_seconds - gap)
+        self._last_call = time.monotonic()
+
+    def _call_with_backoff(self, prompt: str, schema: dict, key: str) -> tuple[RawCompletion, float]:
+        """One logical call: retries 429/5xx/timeouts with Retry-After or exponential backoff."""
+        for attempt in range(self.limits.max_retries + 1):
+            self._throttle()
+            t0 = time.perf_counter()
+            try:
+                raw = self._complete(prompt, schema)
+                return raw, (time.perf_counter() - t0) * 1000
+            except LLMTransientError as exc:
+                self._log(input_tokens=None, output_tokens=None, ok=False, cache_hit=False,
+                          duration_ms=(time.perf_counter() - t0) * 1000, error=str(exc),
+                          cache_key=key)
+                wait = (exc.retry_after if exc.retry_after is not None
+                        else self.limits.backoff_seconds * 2 ** attempt)
+                if attempt == self.limits.max_retries or wait > self.limits.max_wait_seconds:
+                    raise
+                self._sleep(wait)
+            except LLMError as exc:
+                self._log(input_tokens=None, output_tokens=None, ok=False, cache_hit=False,
+                          duration_ms=(time.perf_counter() - t0) * 1000, error=str(exc),
+                          cache_key=key)
+                raise
+        raise AssertionError("unreachable")  # pragma: no cover
 
     @abstractmethod
     def _complete(self, prompt: str, schema: dict) -> RawCompletion:
         """One raw call. Raise LLMTransientError for 429/5xx/timeouts, LLMError otherwise."""
 
-    def _log(self, *, input_tokens, output_tokens, duration_ms, ok, cache_hit, error=None):
+    def _log(self, *, input_tokens, output_tokens, duration_ms, ok, cache_hit, error=None,
+             cache_key=None):
         with db.connect(self.db_path) as conn:
             db.log_llm_call(conn, provider=self.name, model=self.model,
                             input_tokens=input_tokens, output_tokens=output_tokens,
                             duration_ms=duration_ms, ok=ok, cache_hit=cache_hit,
-                            error=error[:500] if error else None)
+                            error=error[:500] if error else None, cache_key=cache_key)
 
     def complete_json(self, prompt: str, schema: type[BaseModel]) -> dict:
         db.init_db(self.db_path)
@@ -96,30 +170,25 @@ class LLMProvider(ABC):
             cached = db.llm_cache_get(conn, key)
         if cached is not None:
             self._log(input_tokens=None, output_tokens=None, ok=True, cache_hit=True,
-                      duration_ms=(time.perf_counter() - started) * 1000)
+                      duration_ms=(time.perf_counter() - started) * 1000, cache_key=key)
+            self.last_raw = None
             return schema.model_validate(cached).model_dump()
 
         last_problem = None
         for attempt in range(2):  # first call + one retry on invalid JSON
             attempt_prompt = prompt if attempt == 0 else prompt + RETRY_NOTE
-            t0 = time.perf_counter()
-            try:
-                raw = self._complete(attempt_prompt, schema_json)
-            except LLMError as exc:
-                self._log(input_tokens=None, output_tokens=None, ok=False, cache_hit=False,
-                          duration_ms=(time.perf_counter() - t0) * 1000, error=str(exc))
-                raise
-            duration = (time.perf_counter() - t0) * 1000
+            raw, duration = self._call_with_backoff(attempt_prompt, schema_json, key)
+            self.last_raw = raw
             try:
                 result = schema.model_validate(_extract_json(raw.text)).model_dump()
             except (ValueError, ValidationError) as exc:
                 last_problem = f"{type(exc).__name__}: {str(exc)[:300]}"
                 self._log(input_tokens=raw.input_tokens, output_tokens=raw.output_tokens,
-                          duration_ms=duration, ok=False, cache_hit=False,
+                          duration_ms=duration, ok=False, cache_hit=False, cache_key=key,
                           error=f"invalid JSON (attempt {attempt + 1}): {last_problem}")
                 continue
             self._log(input_tokens=raw.input_tokens, output_tokens=raw.output_tokens,
-                      duration_ms=duration, ok=True, cache_hit=False)
+                      duration_ms=duration, ok=True, cache_hit=False, cache_key=key)
             with db.connect(self.db_path) as conn:
                 db.llm_cache_put(conn, key, self.name, self.model, result)
             return result
@@ -128,11 +197,17 @@ class LLMProvider(ABC):
             f"{last_problem}")
 
 
+def provider_name(base_url: str) -> str:
+    base_url = base_url.rstrip("/")
+    return f"openai-compatible:{urlparse(base_url).netloc or base_url}"
+
+
 class OpenAICompatibleProvider(LLMProvider):
     def __init__(self, base_url: str, api_key: str, model: str, *,
                  timeout: float = 60.0, json_mode: bool = True,
-                 db_path: Path | str | None = None, transport: httpx.BaseTransport | None = None):
-        super().__init__(db_path)
+                 db_path: Path | str | None = None, transport: httpx.BaseTransport | None = None,
+                 limits: RateLimits | None = None):
+        super().__init__(db_path, limits)
         missing = [n for n, v in (("base_url", base_url), ("api_key", api_key),
                                   ("model", model)) if not v]
         if missing:
@@ -140,7 +215,7 @@ class OpenAICompatibleProvider(LLMProvider):
         self.base_url = base_url.rstrip("/")
         self._api_key = api_key
         self.model = model
-        self.name = f"openai-compatible:{urlparse(self.base_url).netloc or self.base_url}"
+        self.name = provider_name(self.base_url)
         self.json_mode = json_mode
         self._client = httpx.Client(timeout=timeout, transport=transport)
 
@@ -167,7 +242,8 @@ class OpenAICompatibleProvider(LLMProvider):
         except httpx.HTTPError as exc:
             raise LLMError(f"{self.name}: request failed ({type(exc).__name__})") from None
         if r.status_code == 429 or r.status_code >= 500:
-            raise LLMTransientError(f"{self.name}: HTTP {r.status_code}")
+            raise LLMTransientError(f"{self.name}: HTTP {r.status_code}",
+                                    retry_after=parse_retry_after(r.headers.get("retry-after")))
         if r.status_code >= 400:
             raise LLMError(f"{self.name}: HTTP {r.status_code}: {r.text[:200]}")
         try:
@@ -198,7 +274,10 @@ class FallbackProvider(LLMProvider):
         errors = []
         for p in self.providers:
             try:
-                return p.complete_json(prompt, schema)
+                result = p.complete_json(prompt, schema)
+                self.last_raw = p.last_raw
+                self.last_provider = p
+                return result
             except LLMTransientError as exc:
                 errors.append(str(exc))
         raise LLMTransientError("all providers failed: " + "; ".join(errors))
@@ -213,6 +292,7 @@ def provider_from_env(db_path: Path | str | None = None,
                       transport: httpx.BaseTransport | None = None) -> LLMProvider:
     """Build the primary provider plus LLM_FALLBACK_1_*, _2_* ... from the environment."""
     timeout = float(os.getenv("LLM_TIMEOUT_SECONDS") or 60)
+    limits = RateLimits.from_env()
     json_mode = (os.getenv("LLM_JSON_MODE") or "1") != "0"
     primary = _slot("LLM_")
     missing = [f"LLM_{k}" for k, v in primary.items() if not v]
@@ -222,7 +302,7 @@ def provider_from_env(db_path: Path | str | None = None,
             f"LLM_MODEL (see .env.example); for a local Ollama any non-empty key works.")
     providers: list[LLMProvider] = [OpenAICompatibleProvider(
         primary["BASE_URL"], primary["API_KEY"], primary["MODEL"], timeout=timeout,
-        json_mode=json_mode, db_path=db_path, transport=transport)]
+        json_mode=json_mode, db_path=db_path, transport=transport, limits=limits)]
     n = 1
     while True:
         slot = _slot(f"LLM_FALLBACK_{n}_")
@@ -233,6 +313,47 @@ def provider_from_env(db_path: Path | str | None = None,
             raise LLMConfigError(f"incomplete fallback slot: {', '.join(missing)} not set")
         providers.append(OpenAICompatibleProvider(
             slot["BASE_URL"], slot["API_KEY"], slot["MODEL"], timeout=timeout,
-            json_mode=json_mode, db_path=db_path, transport=transport))
+            json_mode=json_mode, db_path=db_path, transport=transport, limits=limits))
         n += 1
     return providers[0] if len(providers) == 1 else FallbackProvider(providers)
+
+
+def _env_slots() -> list[str]:
+    prefixes, n = ["LLM_"], 1
+    while any(_slot(f"LLM_FALLBACK_{n}_").values()):
+        prefixes.append(f"LLM_FALLBACK_{n}_")
+        n += 1
+    return prefixes
+
+
+def prices_from_env() -> dict[tuple[str, str], tuple[float, float] | None]:
+    """USD per 1M input/output tokens per (provider name, model); None when not set."""
+    prices = {}
+    for prefix in _env_slots():
+        slot = _slot(prefix)
+        if not slot["BASE_URL"] or not slot["MODEL"]:
+            continue
+        pin = os.getenv(f"{prefix}PRICE_INPUT_PER_MTOK", "").strip()
+        pout = os.getenv(f"{prefix}PRICE_OUTPUT_PER_MTOK", "").strip()
+        prices[(provider_name(slot["BASE_URL"]), slot["MODEL"])] = (
+            (float(pin), float(pout)) if pin and pout else None)
+    return prices
+
+
+def cost_of(rows: list[dict]) -> float | str:
+    """Cost of logged API calls (cache hits are free) from token counts and .env prices.
+
+    Returns "not set" if a call's provider has no price, "no data" if tokens are missing.
+    """
+    prices = prices_from_env()
+    total = 0.0
+    for r in rows:
+        if r["cache_hit"] or (r["input_tokens"] is None and r["output_tokens"] is None):
+            continue  # cache hit, or a failed request that returned no usage
+        price = prices.get((r["provider"], r["model"]))
+        if price is None:
+            return "not set"
+        if r["input_tokens"] is None or r["output_tokens"] is None:
+            return "no data"
+        total += r["input_tokens"] / 1e6 * price[0] + r["output_tokens"] / 1e6 * price[1]
+    return round(total, 6)

@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS llm_calls (
     duration_ms REAL NOT NULL,
     ok INTEGER NOT NULL,
     cache_hit INTEGER NOT NULL DEFAULT 0,
+    cache_key TEXT,
     error TEXT,
     created_at TEXT NOT NULL
 );
@@ -110,6 +111,10 @@ def init_db(path: Path | str | None = None) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
     with connect(target) as conn:
         conn.executescript(SCHEMA)
+        # Migrations for databases created by earlier versions of the schema.
+        cols = {r["name"] for r in conn.execute("PRAGMA table_info(llm_calls)")}
+        if "cache_key" not in cols:
+            conn.execute("ALTER TABLE llm_calls ADD COLUMN cache_key TEXT")
 
 
 def _ts(value: datetime) -> str:
@@ -226,10 +231,11 @@ def llm_cache_put(conn: sqlite3.Connection, key: str, provider: str, model: str,
 
 def log_llm_call(conn: sqlite3.Connection, *, provider: str, model: str,
                  input_tokens: int | None, output_tokens: int | None, duration_ms: float,
-                 ok: bool, cache_hit: bool, error: str | None = None) -> None:
+                 ok: bool, cache_hit: bool, error: str | None = None,
+                 cache_key: str | None = None) -> None:
     conn.execute(
         "INSERT INTO llm_calls (provider, model, input_tokens, output_tokens, duration_ms, "
-        "ok, cache_hit, error, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "ok, cache_hit, cache_key, error, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (provider, model, input_tokens, output_tokens, duration_ms, int(ok), int(cache_hit),
-         error, _ts(utcnow())),
+         cache_key, error, _ts(utcnow())),
     )
