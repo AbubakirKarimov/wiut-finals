@@ -1,29 +1,86 @@
 # Registry of source legal documents (lex.uz).
-# status: verified only after the title and number on the lex.uz page match the expectation.
+# status: verified only after the title and number on the lex.uz page match the expectation
+#         (checked against the saved page, not inferred from the id).
+# role:   primary   - text we split into clauses and check against
+#         amendment - amends a primary document; kept for reference
+#         reference - related act, not a check source
+# has_text_on_page: whether the fetched (Russian) page contains the act's body text.
 # Do not guess doc IDs: leave lex_uz_doc_id / url empty until confirmed.
 
 sources:
   - id: cbu_reg_3030
-    title_original: "О минимальных требованиях к деятельности коммерческих банков при осуществлении взаимоотношений с потребителями банковских услуг"
-    title_en: "On minimum requirements for commercial banks' activities in relations with consumers of banking services"
-    lex_uz_doc_id: "3593543"
-    url: "https://lex.uz/ru/docs/3593543"
+    title_original: "Об утверждении Положения о минимальных требованиях к деятельности коммерческих банков при осуществлении взаимоотношений с потребителями банковских услуг"
+    title_en: "On approval of the Regulation on minimum requirements for commercial banks' activities in relations with consumers of banking services"
+    lex_uz_doc_id: "3819160"
+    url: "https://lex.uz/ru/docs/3819160"
     expected_regulation_number: "3030"
-    status: unverified
+    status: verified
     language: ru
-    # Checked 2026-10-10 against data/raw/lex/3593543.html (fetched once, HTTP 200):
-    # the page is NOT Regulation No. 3030. It is Presidential Resolution PP-3620 of
-    # 23.03.2018 "О дополнительных мерах по повышению доступности банковских услуг".
-    # Its clause 6 "в" (block id 3594409) instructs the CBU to develop and approve this
-    # Regulation; the page contains no link to it and no "3030". Correct doc id: unknown.
-    verification_note: "Doc 3593543 is PP-3620 (23.03.2018), not Regulation 3030; correct lex.uz doc id unknown."
+    role: primary
+    has_text_on_page: false
+    # Checked 2026-10-10 against data/raw/lex/3819160.html: ACT_TITLE matches; DEPARTMENTAL block
+    # 3819232 reads "Зарегистрировано Министерством юстиции ... 2 июля 2018 г. Регистрационный № 3030".
+    # CBU Board resolution No. 16/18 of 28.04.2018. The Russian page is a card only:
+    # COMMENT_FOR_WARNING says the act text is given in Uzbek (link /ru/docs/3804290).
+    # Uzbek versions from the page header: Cyrillic 3804290, Latin -3804290. No English link.
+    verification_note: "Title and No. 3030 match. Russian page has no body text; Uzbek original is doc 3804290 (Cyrl) / -3804290 (Latn), not fetched yet."
+
+  - id: cbu_reg_3030_amend_3
+    title_original: "О внесении дополнений в Положение о минимальных требованиях к деятельности коммерческих банков при осуществлении взаимоотношений с потребителями банковских услуг"
+    title_en: "On amendments (additions) to the Regulation on minimum requirements for commercial banks' activities in relations with consumers of banking services"
+    lex_uz_doc_id: "4603325"
+    url: "https://lex.uz/ru/docs/4603325"
+    expected_regulation_number: "3030-3"
+    status: verified
+    language: ru
+    role: amendment
+    amends: cbu_reg_3030
+    has_text_on_page: false
+    # Registration No. 3030-3 of 22.11.2019; CBU Board resolution No. 26/2 of 26.10.2019.
+    # Uzbek original: 4602547 (Cyrl) / -4602547 (Latn).
+    verification_note: "Title and No. 3030-3 match. Russian page has no body text; Uzbek original is doc 4602547."
+
+  - id: cbu_reg_3030_amend_8
+    title_original: "О внесении изменений и дополнений в Положение о минимальных требованиях к деятельности коммерческих банков при осуществлении взаимоотношений с потребителями банковских услуг"
+    title_en: "On amendments and additions to the Regulation on minimum requirements for commercial banks' activities in relations with consumers of banking services"
+    lex_uz_doc_id: "6371973"
+    url: "https://lex.uz/ru/docs/6371973"
+    expected_regulation_number: "3030-8"
+    status: verified
+    language: ru
+    role: amendment
+    amends: cbu_reg_3030
+    has_text_on_page: false
+    # Registration No. 3030-8 of 26.01.2023; CBU Board resolution No. 30/10 of 04.01.2023.
+    # Uzbek original: 6371971 (Cyrl) / -6371971 (Latn).
+    verification_note: "Title and No. 3030-8 match. Russian page has no body text; Uzbek original is doc 6371971."
 
   - id: law_state_language
     title_original: "О государственном языке"
     title_en: "On the State Language"
-    lex_uz_doc_id: ""
-    url: ""
-    expected_regulation_number: ""
+    lex_uz_doc_id: "121635"
+    url: "https://lex.uz/ru/docs/121635"
+    expected_regulation_number: "168-I"
     status: unverified
     language: ru
-    verification_note: "lex.uz doc id not provided yet."
+    role: primary
+    has_text_on_page: false
+    # Checked 2026-10-10 against data/raw/lex/121635.html: this is NOT the Law itself. It is the
+    # Oliy Majlis Resolution No. 168-I of 21.12.1995 "О порядке введения в действие Закона
+    # Республики Узбекистан «О государственном языке» в новой редакции" (4 clauses). Its clause 1
+    # (block 121682) links to the Law as /ru/docs/121433. Correct doc id for the Law: unconfirmed.
+    verification_note: "Doc 121635 is Oliy Majlis Resolution 168-I on bringing the Law into force, not the Law; the page links to the Law as doc 121433."
+
+  - id: pp_3620
+    title_original: "О дополнительных мерах по повышению доступности банковских услуг"
+    title_en: "On additional measures to increase the accessibility of banking services"
+    lex_uz_doc_id: "3593543"
+    url: "https://lex.uz/ru/docs/3593543"
+    expected_regulation_number: "ПП-3620"
+    status: verified
+    language: ru
+    role: reference
+    has_text_on_page: true
+    # Earlier candidate for Regulation 3030; it is Presidential Resolution PP-3620 of 23.03.2018,
+    # whose clause 6 "в" (block 3594409) instructs the CBU to adopt the Regulation.
+    verification_note: "Title and No. ПП-3620 match the page. Not Regulation 3030; kept as reference."
