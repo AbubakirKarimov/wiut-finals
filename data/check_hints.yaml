@@ -18,10 +18,15 @@
 # sections: where the evidence is expected (backend/crawl/sections.py names, plus
 #   "homepage"). A possible_gap needs at least one page of these sections read; otherwise
 #   not_checkable "relevant section not reached" (audit B7).
+# title: short English name shown in the UI (not a legal text).
 # location: homepage -> LLM path sends the home page first; evidence only on an inner page is
 #   not_checkable (audit B2). Deterministic rules express the same with where: homepage.
 requirements:
+  req:cbu_reg_3030:main:7:      # Uzbek (state language) version of the website
+    title: "Uzbek-language version"
+
   req:cbu_reg_3030:main:14:     # section describing the site structure (site map)
+    title: "Site map / site structure section"
     sections: [homepage]
     rule:
       kind: link
@@ -30,6 +35,7 @@ requirements:
                       "карта сайта", "структура сайта", sitemap, "site map"]
 
   req:cbu_reg_3030:main:17:     # homepage link to information about the bank and its services
+    title: "Homepage link to bank information"
     sections: [homepage]
     rule:
       kind: link
@@ -39,6 +45,7 @@ requirements:
       ok_note: "Whether the linked section also covers the terms of the bank's services is not verified."
 
   req:cbu_reg_3030:main:18^1:   # loan full-cost calculator for natural persons
+    title: "Loan full-cost calculator"
     sections: [loan]
     rule:
       kind: link
@@ -47,6 +54,7 @@ requirements:
       ok_note: "Presence only: whether the calculator shows the full cost of the loan (all interest and fees) is not verified."
 
   req:cbu_reg_3030:main:28^1:   # procedure for applications to change loan terms (LLM-assisted)
+    title: "Procedure to change loan terms"
     sections: [loan, document, restructuring]
     keywords:
       uz_latn: [restrukturizatsiya, "kredit shartlarini o'zgartirish", "shartnoma shartlarini o'zgartirish",
@@ -58,6 +66,7 @@ requirements:
       en: [restructuring, "change of loan terms", "loan term change"]
 
   req:cbu_reg_3030:main:37^5:   # procedure for releasing or replacing collateral (LLM-assisted)
+    title: "Collateral release procedure"
     sections: [loan, document]
     keywords:
       uz_latn: ["garovdan ozod qilish", "garovni almashtirish", "garov mulkini qaytarish",
@@ -69,6 +78,7 @@ requirements:
       en: ["collateral release", "release of collateral", "pledge release", "collateral substitution"]
 
   req:cbu_reg_3030:main:40^4:   # "Your deposits are guaranteed" link on the deposit page
+    title: '"Your deposits are guaranteed" link'
     sections: [deposit]
     rule:
       kind: link
@@ -83,6 +93,7 @@ requirements:
       link_domains: [fgd.uz]
 
   req:cbu_reg_3030:main:49:     # complaint page linked from the homepage or top navigation
+    title: "Complaints link on the homepage"
     sections: [homepage, complaint]
     location: homepage
     rule:
@@ -92,6 +103,7 @@ requirements:
                       "virtualnaya priemnaya", feedback, complaint, appeal]
 
   req:cbu_reg_3030:main:51:     # call-centre numbers on the homepage
+    title: "Call-centre numbers on the homepage"
     sections: [homepage]
     location: homepage
     rule:

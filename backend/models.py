@@ -14,7 +14,7 @@ Verdict = Literal["confirmed", "rejected"]
 # "code": the status was decided by deterministic code alone; "llm_assisted": an LLM answer
 # influenced the status (its quote still verified by code). Translation does not count.
 DecidedBy = Literal["code", "llm_assisted"]
-JobStatus = Literal["queued", "running", "done", "error"]
+JobStatus = Literal["queued", "running", "done", "error", "cancelled"]
 
 
 def utcnow() -> datetime:

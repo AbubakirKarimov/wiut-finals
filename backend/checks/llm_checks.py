@@ -118,6 +118,11 @@ def _hint_entry(req: Requirement, path: Path | None = None) -> dict:
     return (data.get("requirements") or {}).get(req.id) or {}
 
 
+def hint_title(req: Requirement, path: Path | None = None) -> str | None:
+    """Short English name for the UI (data/check_hints.yaml `title:`)."""
+    return _hint_entry(req, path).get("title") or None
+
+
 def hint_sections(req: Requirement, path: Path | None = None) -> list[str]:
     """Site sections where evidence for the requirement is expected (data/check_hints.yaml)."""
     return [s for s in (_hint_entry(req, path).get("sections") or []) if s]

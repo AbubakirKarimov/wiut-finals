@@ -18,9 +18,10 @@ from backend import db, metrics, precomputed
 from backend.api.cors import cors_origins
 from backend.api.ratelimit import limiter_from_env, rate_limit_dependency
 from backend.api.urlcheck import allow_private, validate_public_url
+from backend.checks.llm_checks import hint_title
 from backend.crawl.banks import load_banks
 from backend.crawl.crawler import CrawlConfig, Crawler
-from backend.models import Decision, Job
+from backend.models import Decision, Job, Requirement
 from backend.pipeline import check_site, sync_requirements_yaml
 
 MT_LABEL = "machine translation"
@@ -81,13 +82,26 @@ def _finding_rows(conn, where: str = "", args: tuple = ()) -> list[dict]:
     for d in conn.execute("SELECT * FROM decisions ORDER BY decided_at, id"):
         decisions[d["finding_id"]] = dict(d)
     names = _bank_names()
+    langs: dict[tuple[str, str], str] = {}
+    for b in {r["bank_id"] for r in rows}:
+        for p in conn.execute("SELECT url, language FROM pages WHERE bank_id = ?", (b,)):
+            langs[(b, p["url"])] = p["language"]
+    titles: dict[str, str | None] = {}
     out = []
     for r in rows:
         f = db._finding(r)  # parses urls_read
+        if f.requirement_id not in titles:
+            titles[f.requirement_id] = hint_title(Requirement(
+                id=f.requirement_id, text_original="", source_doc="", source_clause_id="",
+                source_url="", check_type="uz_version"))
         out.append({
             **f.model_dump(mode="json"),
             "bank_name": names.get(f.bank_id, f.bank_id),
+            # Language as stored for the URL now (the page store keeps one row per URL).
+            "pages_detail": [{"url": u, "language": langs.get((f.bank_id, u), "no data")}
+                             for u in f.urls_read],
             "requirement": {"text_en": r["req_text_en"], "text_en_label": MT_LABEL,
+                            "short_title": titles[f.requirement_id],
                             "text_original": r["req_text_original"],
                             "source_url": r["req_source_url"],
                             "clause_id": r["req_clause_id"],
@@ -137,17 +151,35 @@ def _set_job(job_id: str, **fields) -> None:
         db.upsert_job(conn, job.model_copy(update=fields))
 
 
+class JobCancelled(Exception):
+    pass
+
+
+_cancel_requests: set[str] = set()
+
+
 def run_job(job_id: str, url: str) -> None:
+    def progress(message: str) -> None:
+        # Progress events are frequent (every page, every check): a cancel request stops
+        # the job at the next one.
+        if job_id in _cancel_requests:
+            raise JobCancelled()
+        _set_job(job_id, progress=message)
+
     with _check_slots:
+        if job_id in _cancel_requests:
+            _set_job(job_id, status="cancelled", progress="cancelled by user")
+            return
         _set_job(job_id, status="running", progress="starting")
         try:
-            crawler = Crawler(CrawlConfig.from_env(),
-                              progress=lambda m: _set_job(job_id, progress=m))
+            crawler = Crawler(CrawlConfig.from_env(), progress=progress)
             if not allow_private():
                 crawler.fetcher.url_guard = validate_public_url
-            run = check_site(url, crawler=crawler,
+            run = check_site(url, crawler=crawler, progress=progress,
                              on_run=lambda rid: _set_job(job_id, result_ref=rid))
             _set_job(job_id, status="done", result_ref=run.id, progress="done")
+        except JobCancelled:
+            _set_job(job_id, status="cancelled", progress="cancelled by user")
         except Exception as e:
             _set_job(job_id, status="error", error=f"{type(e).__name__}: {str(e)[:300]}",
                      progress="failed")
@@ -165,6 +197,18 @@ def check(body: CheckRequest, background: BackgroundTasks) -> dict:
         db.upsert_job(conn, job)
     background.add_task(run_job, job.id, url)
     return {"job_id": job.id, "status": job.status}
+
+
+@app.post("/jobs/{job_id}/cancel")
+def cancel_job(job_id: str) -> dict:
+    with db.connect() as conn:
+        job = db.get_job(conn, job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found.")
+    if job.status in ("queued", "running"):
+        _cancel_requests.add(job_id)
+    return {"job_id": job_id, "status": job.status,
+            "cancel_requested": job.status in ("queued", "running")}
 
 
 @app.get("/jobs/{job_id}")

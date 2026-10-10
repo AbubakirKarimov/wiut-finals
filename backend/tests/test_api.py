@@ -189,3 +189,46 @@ def test_metrics_decided_by_and_llm_usage(tmp_db, monkeypatch):
     assert u["tokens_per_run"] == 2_000_000
     assert u["cost_usd_per_run"] == 0.75 and u["cost_usd_per_check"] == 0.1875
     assert u["median_call_latency_ms"] == 400
+
+
+def test_findings_carry_short_title_and_page_languages(client, monkeypatch):
+    from backend.checks import llm_checks
+    monkeypatch.setattr(llm_checks, "HINTS_PATH", llm_checks.Path(llm_checks.__file__)
+                        .resolve().parents[2] / "data" / "check_hints.yaml")
+    r = client.post("/check", json={"url": "https://ru-only.example/ru/"})
+    [f] = client.get(f"/jobs/{r.json()['job_id']}").json()["findings"]
+    assert f["requirement"]["short_title"] is None          # req:law:20 has no hints entry
+    assert len(f["pages_detail"]) == 6
+    assert {p["language"] for p in f["pages_detail"]} == {"ru"}
+
+
+def test_cancel_job(client):
+    assert client.post("/jobs/missing/cancel").status_code == 404
+    from backend.models import Job
+    with db.connect() as conn:
+        db.upsert_job(conn, Job(id="j1", url="https://ru-only.example/ru/", status="queued"))
+    r = client.post("/jobs/j1/cancel").json()
+    assert r["cancel_requested"] is True
+    main.run_job("j1", "https://ru-only.example/ru/")   # stops at the first progress event
+    job = client.get("/jobs/j1").json()
+    assert job["status"] == "cancelled" and job["progress"] == "cancelled by user"
+
+
+def test_cancel_while_running_stops_at_next_progress_event(client):
+    from backend.models import Job
+    with db.connect() as conn:
+        db.upsert_job(conn, Job(id="j2", url="https://ru-only.example/ru/", status="queued"))
+    real_set = main._set_job
+
+    def set_and_cancel(job_id, **fields):
+        real_set(job_id, **fields)
+        if fields.get("progress", "").startswith("fetching page 2"):
+            main._cancel_requests.add(job_id)
+    main._set_job = set_and_cancel
+    try:
+        main.run_job("j2", "https://ru-only.example/ru/")
+    finally:
+        main._set_job = real_set
+    job = client.get("/jobs/j2").json()
+    assert job["status"] == "cancelled"
+    assert job["run"]["status"] == "error"   # the partial run is never shown as a result
