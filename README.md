@@ -100,6 +100,22 @@ e2e suite is run locally.
 .venv/bin/python scripts/crawl_all.py [bank_id ...]          # crawl + check banks.yaml (batch runs)
 ```
 
+### Batch run and pre-computed results
+
+```bash
+.venv/bin/python scripts/crawl_all.py            # all banks with a website_url
+.venv/bin/python -m backend.precomputed export   # -> data/precomputed/findings.json
+```
+
+`crawl_all.py` prints progress and a summary table (pages, fetch errors, ok / possible gap /
+not checkable, duration, LLM calls, cache hits, tokens, cost from `LLM_PRICE_*`) and writes it
+to `data/precomputed/batch_summary.md`. A re-run is resumable: stored pages and cached LLM
+answers are reused, so only the missing calls are made.
+`findings.json` contains no page text: bank, requirement, status, reason, verified quote,
+machine translation, evidence URL, URLs read, timestamps and model. At startup the API loads
+it into an **empty** database (hosted demo); the UI labels those rows "pre-computed on <date>".
+Live checks via `POST /check` work as before.
+
 ### Consistency metric
 
 ```bash
@@ -225,9 +241,11 @@ passages, not whole pages.
   each finding lists the URLs read.
 - `uz_version` is site-level (any Uzbek page counts), not a per-page pairing of every key
   page.
-- Precision is computed only from the team's labels in `data/labels/labels.csv`; without
-  labels `/metrics` says "no data". The "analyst confirmation rate" comes from logged
-  decisions only.
+- Precision of `possible_gap` is computed from analyst decisions (Confirm = correct,
+  Reject = false positive; latest decision per finding) and from the team's labels in
+  `data/labels/labels.csv`. Each value is shown with its count ("precision 62% on 13 decided
+  findings"); below `METRICS_MIN_DECISIONS` (10) decisions it says "too few decisions to be
+  meaningful". Without labels the label-based value is "no data".
 - Jobs run in the API process (one worker); a restart marks running jobs as failed. On
   Render's free plan the SQLite file is lost on redeploy (see `DEPLOY.md`).
 - The DNS check of `POST /check` does not pin the resolved address (DNS rebinding is not

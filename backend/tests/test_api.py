@@ -70,7 +70,9 @@ def test_check_job_to_findings_to_decision(client):
 
     m = client.get("/metrics").json()
     assert m["checks_completed"] == 1 and m["latency_seconds"]["p50"] != "no data"
-    assert m["analyst_confirmation_rate"]["value"] == 1.0
+    dp = m["precision_possible_gap_from_decisions"]
+    assert dp["decided"] == 1 and dp["confirmed"] == 1
+    assert dp["value"] == "too few decisions to be meaningful"
     assert m["llm"]["api_calls"] == 0
 
 
@@ -132,3 +134,25 @@ def test_validate_public_url_accepts_public_host(monkeypatch):
                         lambda *a, **k: [(2, 1, 6, "", ("10.0.0.5", 443))])
     with pytest.raises(ValueError, match="non-public"):
         validate_public_url("https://internal.example/")
+
+
+def test_decision_precision_threshold(tmp_db, monkeypatch):
+    from backend.models import Decision, Finding
+    with db.connect(tmp_db) as conn:
+        for i in range(13):
+            db.upsert_finding(conn, Finding(id=f"f{i}", bank_id="b", requirement_id="r",
+                                            status="possible_gap"))
+        db.upsert_finding(conn, Finding(id="ok1", bank_id="b", requirement_id="r", status="ok"))
+        for i in range(13):
+            db.add_decision(conn, Decision(finding_id=f"f{i}", analyst="a",
+                                           verdict="confirmed" if i < 8 else "rejected"))
+        # Latest decision wins; decisions on non-gap findings are ignored.
+        db.add_decision(conn, Decision(finding_id="f0", analyst="a", verdict="rejected"))
+        db.add_decision(conn, Decision(finding_id="ok1", analyst="a", verdict="confirmed"))
+        p = metrics.decision_precision(conn)
+        assert p["decided"] == 13 and p["confirmed"] == 7
+        assert p["value"] == round(7 / 13, 3)
+        assert p["label"] == "precision 54% on 13 decided findings"
+        monkeypatch.setenv("METRICS_MIN_DECISIONS", "20")
+        p = metrics.decision_precision(conn)
+        assert p["value"] == "too few decisions to be meaningful" and p["decided"] == 13

@@ -24,7 +24,7 @@ function Stat({ label, value, note }) {
 
 function Metrics({ m }) {
   const p = m.precision_possible_gap_vs_labels;
-  const a = m.analyst_confirmation_rate;
+  const a = m.precision_possible_gap_from_decisions;
   const cost = m.llm.avg_cost_usd_per_check;
   const c = m.consistency;
   return (
@@ -36,10 +36,13 @@ function Metrics({ m }) {
             note={`${m.llm.api_calls} API call(s), ${m.llm.cache_hits} cache hit(s)`} />
       <Stat label="Avg cost per check" value={typeof cost === "number" ? `$${cost}` : cost}
             note={cost === "not set" ? "LLM prices are not set in the server config" : "from token logs × configured prices"} />
-      <Stat label="Precision (possible gap vs. team labels)" value={pct(p.value)}
-            note={p.detail || (p.predicted_gaps != null ? `${p.true_positives}/${p.predicted_gaps} flagged gaps labelled as gaps` : "")} />
-      <Stat label="Analyst confirmation rate" value={pct(a.value)}
-            note={`${a.decided} possible gap(s) decided`} />
+      <Stat label="Precision from analyst decisions" value={pct(a.value)}
+            note={a.decided
+              ? `${a.decided} decided possible gap(s): ${a.confirmed} confirmed, ${a.rejected} rejected` +
+                (typeof a.value === "number" ? "" : ` (need ${a.min_decisions})`)
+              : "Confirm = correct, Reject = false positive"} />
+      <Stat label="Precision vs. team labels" value={pct(p.value)}
+            note={p.detail || (p.predicted_gaps != null ? `on ${p.predicted_gaps} labelled possible gap(s)` : "")} />
       <Stat label="Consistency (repeat runs agree on status)" value={pct(c.value)}
             note={c.requirements
               ? `${c.requirements} requirement(s) on ${c.banks} bank(s), same pages, fresh LLM answers; evidence quotes identical ${pct(c.quote_agreement)}${c.not_measured ? `; ${c.not_measured} not measured (rate limit)` : ""}`

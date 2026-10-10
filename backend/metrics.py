@@ -5,6 +5,7 @@ never estimated."""
 import csv
 import json
 import math
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -13,6 +14,7 @@ from backend.llm.provider import cost_of
 
 LABELS_PATH = Path(__file__).resolve().parents[1] / "data" / "labels" / "labels.csv"
 NO_DATA = "no data"
+TOO_FEW = "too few decisions to be meaningful"
 
 
 def percentile(values: list[float], q: float) -> float | None:
@@ -46,22 +48,36 @@ def label_precision(conn: sqlite3.Connection, path: Path = LABELS_PATH) -> dict:
         return {"value": NO_DATA, "labelled_pairs": len(labels), "matched": len(pairs),
                 "detail": "no labelled pair has a possible_gap finding"}
     tp = sum(e == "possible_gap" for _, e in flagged)
-    return {"value": round(tp / len(flagged), 3), "true_positives": tp,
+    value = round(tp / len(flagged), 3)
+    return {"value": value, "true_positives": tp,
             "predicted_gaps": len(flagged), "labelled_pairs": len(labels),
-            "matched": len(pairs)}
+            "matched": len(pairs),
+            "label": f"precision {value:.0%} on {len(flagged)} labelled possible gaps"}
 
 
-def analyst_confirmation(conn: sqlite3.Connection) -> dict:
-    """Share of possible_gap findings confirmed by analysts (latest decision per finding)."""
+def min_decisions() -> int:
+    return int(os.getenv("METRICS_MIN_DECISIONS") or 10)
+
+
+def decision_precision(conn: sqlite3.Connection) -> dict:
+    """Precision of possible_gap from analyst decisions: Confirm = correct, Reject = false
+    positive (latest decision per finding). Below METRICS_MIN_DECISIONS the value is not
+    reported as a percentage."""
     rows = conn.execute(
         "SELECT d.finding_id, d.verdict FROM decisions d JOIN findings f ON f.id = d.finding_id "
         "WHERE f.status = 'possible_gap' ORDER BY d.decided_at, d.id")
     latest = {r["finding_id"]: r["verdict"] for r in rows}
-    if not latest:
-        return {"value": NO_DATA, "decided": 0}
+    n = len(latest)
     confirmed = sum(v == "confirmed" for v in latest.values())
-    return {"value": round(confirmed / len(latest), 3), "confirmed": confirmed,
-            "decided": len(latest)}
+    out = {"decided": n, "confirmed": confirmed, "rejected": n - confirmed,
+           "min_decisions": min_decisions()}
+    if n == 0:
+        return {**out, "value": NO_DATA, "label": "no decided possible gaps yet"}
+    if n < min_decisions():
+        return {**out, "value": TOO_FEW,
+                "label": f"{n} decided finding(s): {TOO_FEW} (need {min_decisions()})"}
+    value = round(confirmed / n, 3)
+    return {**out, "value": value, "label": f"precision {value:.0%} on {n} decided findings"}
 
 
 def consistency(conn: sqlite3.Connection) -> dict:
@@ -138,7 +154,7 @@ def compute(conn: sqlite3.Connection, labels_path: Path = LABELS_PATH) -> dict:
                 "avg_cost_usd_per_check": avg_cost,
                 "total_cost_usd": cost if per_run else (0.0 if n else NO_DATA)},
         "precision_possible_gap_vs_labels": label_precision(conn, labels_path),
-        "analyst_confirmation_rate": analyst_confirmation(conn),
+        "precision_possible_gap_from_decisions": decision_precision(conn),
         "consistency": consistency(conn),
         "findings_by_status": status_counts,
     }
