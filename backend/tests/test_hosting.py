@@ -126,3 +126,27 @@ def test_javascript_only_site_is_not_checkable_on_the_hosted_demo(tmp_db, monkey
     assert {x.status for x in fs} == {"not_checkable"}
     assert all(x.reason.startswith("page needs JavaScript rendering; not available on this "
                                    "hosted demo") for x in fs)
+
+
+def test_health_is_fast_and_touches_no_network_or_llm(tmp_db, monkeypatch):
+    import socket
+    import time
+
+    from backend.api import main
+    from backend.llm.provider import LLMProvider
+
+    def no_network(*a, **k):
+        raise AssertionError("/health must not open network connections")
+
+    def no_llm(*a, **k):
+        raise AssertionError("/health must not call the LLM")
+
+    with TestClient(main.app) as c:
+        monkeypatch.setattr(socket.socket, "connect", no_network)
+        monkeypatch.setattr(socket, "create_connection", no_network)
+        monkeypatch.setattr(LLMProvider, "complete_json", no_llm)
+        t = time.perf_counter()
+        r = c.get("/health")
+        elapsed = time.perf_counter() - t
+    assert r.status_code == 200 and r.json() == {"status": "ok"}
+    assert elapsed < 1.0
