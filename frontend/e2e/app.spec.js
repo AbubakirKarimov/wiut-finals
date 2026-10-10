@@ -1,4 +1,3 @@
-/* global document, window -- used inside page.evaluate, which runs in the browser */
 import { expect, test } from "@playwright/test";
 
 const SITE = "http://127.0.0.1:18765/index.html";

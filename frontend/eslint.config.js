@@ -25,7 +25,16 @@ export default [
     },
   },
   {
-    files: ["e2e/**/*.js", "*.config.js"],
+    files: ["*.config.js"],
     languageOptions: { ecmaVersion: "latest", sourceType: "module", globals: globals.node },
+  },
+  {
+    // Playwright specs run in Node, but code passed to page.evaluate runs in the browser.
+    files: ["e2e/**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: { ...globals.node, ...globals.browser },
+    },
   },
 ];
