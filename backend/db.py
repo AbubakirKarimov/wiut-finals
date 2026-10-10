@@ -1,5 +1,7 @@
-"""SQLite storage for requirements, pages, findings, decisions, jobs and LLM call logs."""
+"""SQLite storage: requirements, pages, findings, decisions, jobs, LLM call log and cache."""
 
+import hashlib
+import json
 import os
 import sqlite3
 from contextlib import contextmanager
@@ -9,7 +11,7 @@ from typing import Iterator
 
 from dotenv import load_dotenv
 
-from backend.models import Decision, Finding, Job, Page, Requirement
+from backend.models import Decision, Finding, Job, Page, Requirement, utcnow
 
 load_dotenv()
 
@@ -19,7 +21,8 @@ DEFAULT_DB_PATH = ROOT / "data" / "compliance.sqlite"
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS requirements (
     id TEXT PRIMARY KEY,
-    text TEXT NOT NULL,
+    text_original TEXT NOT NULL,
+    text_en TEXT,
     source_doc TEXT NOT NULL,
     source_clause_id TEXT NOT NULL,
     source_url TEXT NOT NULL,
@@ -43,6 +46,7 @@ CREATE TABLE IF NOT EXISTS findings (
     status TEXT NOT NULL,
     evidence_url TEXT,
     evidence_quote TEXT,
+    evidence_quote_en TEXT,
     confidence REAL,
     created_at TEXT NOT NULL
 );
@@ -71,7 +75,15 @@ CREATE TABLE IF NOT EXISTS llm_calls (
     output_tokens INTEGER,
     duration_ms REAL NOT NULL,
     ok INTEGER NOT NULL,
+    cache_hit INTEGER NOT NULL DEFAULT 0,
     error TEXT,
+    created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS llm_cache (
+    key TEXT PRIMARY KEY,
+    provider TEXT NOT NULL,
+    model TEXT NOT NULL,
+    response_json TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
 """
@@ -108,9 +120,9 @@ def _ts(value: datetime) -> str:
 
 def upsert_requirement(conn: sqlite3.Connection, req: Requirement) -> None:
     conn.execute(
-        "INSERT OR REPLACE INTO requirements VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (req.id, req.text, req.source_doc, req.source_clause_id, req.source_url,
-         req.check_type, int(req.approved)),
+        "INSERT OR REPLACE INTO requirements VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (req.id, req.text_original, req.text_en, req.source_doc, req.source_clause_id,
+         req.source_url, req.check_type, int(req.approved)),
     )
 
 
@@ -138,9 +150,10 @@ def list_pages(conn: sqlite3.Connection, bank_id: str) -> list[Page]:
 
 def upsert_finding(conn: sqlite3.Connection, finding: Finding) -> None:
     conn.execute(
-        "INSERT OR REPLACE INTO findings VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT OR REPLACE INTO findings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (finding.id, finding.bank_id, finding.requirement_id, finding.status,
-         finding.evidence_url, finding.evidence_quote, finding.confidence,
+         finding.evidence_url, finding.evidence_quote, finding.evidence_quote_en,
+         finding.confidence,
          _ts(finding.created_at)),
     )
 
@@ -189,3 +202,34 @@ def upsert_job(conn: sqlite3.Connection, job: Job) -> None:
 def get_job(conn: sqlite3.Connection, job_id: str) -> Job | None:
     row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
     return Job(**dict(row)) if row else None
+
+
+# --- LLM call log and response cache ---
+
+def llm_cache_key(provider: str, model: str, prompt: str, schema: dict) -> str:
+    payload = json.dumps([provider, model, prompt, schema], sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def llm_cache_get(conn: sqlite3.Connection, key: str) -> dict | None:
+    row = conn.execute("SELECT response_json FROM llm_cache WHERE key = ?", (key,)).fetchone()
+    return json.loads(row["response_json"]) if row else None
+
+
+def llm_cache_put(conn: sqlite3.Connection, key: str, provider: str, model: str,
+                  response: dict) -> None:
+    conn.execute(
+        "INSERT OR REPLACE INTO llm_cache VALUES (?, ?, ?, ?, ?)",
+        (key, provider, model, json.dumps(response, ensure_ascii=False), _ts(utcnow())),
+    )
+
+
+def log_llm_call(conn: sqlite3.Connection, *, provider: str, model: str,
+                 input_tokens: int | None, output_tokens: int | None, duration_ms: float,
+                 ok: bool, cache_hit: bool, error: str | None = None) -> None:
+    conn.execute(
+        "INSERT INTO llm_calls (provider, model, input_tokens, output_tokens, duration_ms, "
+        "ok, cache_hit, error, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (provider, model, input_tokens, output_tokens, duration_ms, int(ok), int(cache_hit),
+         error, _ts(utcnow())),
+    )

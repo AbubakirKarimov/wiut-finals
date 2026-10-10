@@ -20,7 +20,8 @@ def utcnow() -> datetime:
 
 class Requirement(BaseModel):
     id: str
-    text: str
+    text_original: str  # clause wording in the source language (ru/uz)
+    text_en: str | None = None
     source_doc: str
     source_clause_id: str
     source_url: str
@@ -44,7 +45,10 @@ class Finding(BaseModel):
     requirement_id: str
     status: FindingStatus
     evidence_url: str | None = None
+    # Verbatim quote in the page's original language; verified against page text.
     evidence_quote: str | None = None
+    # Machine translation of evidence_quote; never used for verification.
+    evidence_quote_en: str | None = None
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     created_at: datetime = Field(default_factory=utcnow)
 
