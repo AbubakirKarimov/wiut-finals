@@ -1,33 +1,49 @@
 # Registry of source legal documents (lex.uz).
-# status: verified only after the title and number on the lex.uz page match the expectation
-#         (checked against the saved page, not inferred from the id).
-# role:   primary   - text we split into clauses and check against
-#         amendment - amends a primary document; kept for reference
-#         reference - related act, not a check source
-# has_text_on_page: whether the fetched (Russian) page contains the act's body text.
+# status:   verified only after the title and number on the saved lex.uz page match the
+#           expectation (checked against the page, not inferred from the id).
+# role:     regulation - CBU regulation we split into clauses and check against
+#           law        - law we split into articles and check against
+#           amendment  - amends a regulation/law; kept for reference (amendments are already
+#                        consolidated into the canonical text on lex.uz)
+#           reference  - related act, not a check source
+# language: canonical text language (uz_cyrl | uz_latn | ru). The official text is canonical.
+# parallel: other language versions of the same act; block ids map one-to-one when noted.
 # Do not guess doc IDs: leave lex_uz_doc_id / url empty until confirmed.
 
 sources:
   - id: cbu_reg_3030
-    title_original: "Об утверждении Положения о минимальных требованиях к деятельности коммерческих банков при осуществлении взаимоотношений с потребителями банковских услуг"
+    title_original: "Банк хизматлари истеъмолчилари билан ўзаро муносабатларни амалга оширишда тижорат банкларининг фаолиятига қўйиладиган минимал талаблар тўғрисидаги низомни тасдиқлаш ҳақида"
     title_en: "On approval of the Regulation on minimum requirements for commercial banks' activities in relations with consumers of banking services"
-    lex_uz_doc_id: "3819160"
-    url: "https://lex.uz/ru/docs/3819160"
+    lex_uz_doc_id: "3804290"
+    url: "https://lex.uz/ru/docs/3804290"
     expected_regulation_number: "3030"
     status: verified
-    language: ru
-    role: primary
-    has_text_on_page: false
-    # Checked 2026-10-10 against data/raw/lex/3819160.html: ACT_TITLE matches; DEPARTMENTAL block
-    # 3819232 reads "Зарегистрировано Министерством юстиции ... 2 июля 2018 г. Регистрационный № 3030".
-    # CBU Board resolution No. 16/18 of 28.04.2018. The Russian page is a card only:
-    # COMMENT_FOR_WARNING says the act text is given in Uzbek (link /ru/docs/3804290).
-    # Uzbek versions from the page header: Cyrillic 3804290, Latin -3804290. No English link.
-    verification_note: "Title and No. 3030 match. Russian page has no body text; Uzbek original is doc 3804290 (Cyrl) / -3804290 (Latn), not fetched yet."
+    language: uz_cyrl
+    role: regulation
+    has_text_on_page: true
+    parallel:
+      - lex_uz_doc_id: "-3804290"
+        url: "https://lex.uz/ru/docs/-3804290"
+        language: uz_latn
+        status: verified
+        has_text_on_page: true
+        block_ids: "one-to-one: Latin id = '-' + Cyrillic id (928/928 blocks)"
+      - lex_uz_doc_id: "3819160"
+        url: "https://lex.uz/ru/docs/3819160"
+        language: ru
+        status: verified
+        has_text_on_page: false
+        note: "Russian registration card only; text given in Uzbek. lex.uz 'Онлайн-перевод' is unofficial and NOT used."
+    # Checked 2026-10-10 against data/raw/lex/3804290.html and -3804290.html:
+    # DEPARTMENTAL block 3804905: "... 2018 йил 2 июлда рўйхатдан ўтказилди, рўйхат рақами 3030".
+    # CBU Board resolution No. 16/18 of 28.04.2018. Consolidated text: 116 CHANGES_ORIGINS notes
+    # referencing 3030-1, -3 ... -12 and Ministry of Justice order No. 3313; latest amendment
+    # 3030-12 (registered 01.08.2026, in force 04.09.2026). No English version in the header.
+    verification_note: "Title and No. 3030 match (Cyrillic and Latin). Consolidated text current as of amendment 3030-12."
 
   - id: cbu_reg_3030_amend_3
     title_original: "О внесении дополнений в Положение о минимальных требованиях к деятельности коммерческих банков при осуществлении взаимоотношений с потребителями банковских услуг"
-    title_en: "On amendments (additions) to the Regulation on minimum requirements for commercial banks' activities in relations with consumers of banking services"
+    title_en: "On additions to the Regulation on minimum requirements for commercial banks' activities in relations with consumers of banking services"
     lex_uz_doc_id: "4603325"
     url: "https://lex.uz/ru/docs/4603325"
     expected_regulation_number: "3030-3"
@@ -37,8 +53,8 @@ sources:
     amends: cbu_reg_3030
     has_text_on_page: false
     # Registration No. 3030-3 of 22.11.2019; CBU Board resolution No. 26/2 of 26.10.2019.
-    # Uzbek original: 4602547 (Cyrl) / -4602547 (Latn).
-    verification_note: "Title and No. 3030-3 match. Russian page has no body text; Uzbek original is doc 4602547."
+    # Uzbek original: 4602547 (Cyrl) / -4602547 (Latn). Not fetched.
+    verification_note: "Title and No. 3030-3 match. Russian page is a card; Uzbek original is doc 4602547."
 
   - id: cbu_reg_3030_amend_8
     title_original: "О внесении изменений и дополнений в Положение о минимальных требованиях к деятельности коммерческих банков при осуществлении взаимоотношений с потребителями банковских услуг"
@@ -52,24 +68,54 @@ sources:
     amends: cbu_reg_3030
     has_text_on_page: false
     # Registration No. 3030-8 of 26.01.2023; CBU Board resolution No. 30/10 of 04.01.2023.
-    # Uzbek original: 6371971 (Cyrl) / -6371971 (Latn).
-    verification_note: "Title and No. 3030-8 match. Russian page has no body text; Uzbek original is doc 6371971."
+    # Uzbek original: 6371971 (Cyrl) / -6371971 (Latn). Not fetched.
+    verification_note: "Title and No. 3030-8 match. Russian page is a card; Uzbek original is doc 6371971."
 
   - id: law_state_language
     title_original: "О государственном языке"
     title_en: "On the State Language"
+    lex_uz_doc_id: "121433"
+    url: "https://lex.uz/ru/docs/121433"
+    expected_regulation_number: "167-I"
+    status: verified
+    language: ru
+    role: law
+    has_text_on_page: true
+    parallel:
+      - lex_uz_doc_id: "121051"
+        url: "https://lex.uz/ru/docs/121051"
+        language: uz_cyrl
+        status: unverified
+        has_text_on_page: null
+      - lex_uz_doc_id: "-121051"
+        url: "https://lex.uz/ru/docs/-121051"
+        language: uz_latn
+        status: unverified
+        has_text_on_page: null
+      - lex_uz_doc_id: "6813902"
+        url: "https://lex.uz/ru/docs/6813902"
+        language: en
+        status: unverified
+        has_text_on_page: null
+    # Checked 2026-10-10 against data/raw/lex/121433.html: page act is Law No. 167-I of 21.12.1995
+    # "О внесении изменений и дополнений в Закон «О государственном языке Республики Узбекистан»",
+    # which sets out the full Law "О ГОСУДАРСТВЕННОМ ЯЗЫКЕ (новая редакция)" (blocks 121452-121584,
+    # articles 1-24). Consolidated: 5 CHANGES_ORIGINS notes (714-II, ЗРУ-255, ЗРУ-304, ЗРУ-446,
+    # ЗРУ-653); LexUz comment 8473255 marks art. 3 part 3 (ЗРУ-1158, 13.07.2026) as an
+    # unofficial Russian translation.
+    verification_note: "Page contains the full Law 'О государственном языке' (new edition, No. 167-I)."
+
+  - id: law_state_language_enactment
+    title_original: "О порядке введения в действие Закона Республики Узбекистан «О государственном языке» в новой редакции"
+    title_en: "On the procedure for bringing into force the Law 'On the State Language' in the new edition"
     lex_uz_doc_id: "121635"
     url: "https://lex.uz/ru/docs/121635"
     expected_regulation_number: "168-I"
-    status: unverified
+    status: verified
     language: ru
-    role: primary
-    has_text_on_page: false
-    # Checked 2026-10-10 against data/raw/lex/121635.html: this is NOT the Law itself. It is the
-    # Oliy Majlis Resolution No. 168-I of 21.12.1995 "О порядке введения в действие Закона
-    # Республики Узбекистан «О государственном языке» в новой редакции" (4 clauses). Its clause 1
-    # (block 121682) links to the Law as /ru/docs/121433. Correct doc id for the Law: unconfirmed.
-    verification_note: "Doc 121635 is Oliy Majlis Resolution 168-I on bringing the Law into force, not the Law; the page links to the Law as doc 121433."
+    role: reference
+    has_text_on_page: true
+    verification_note: "Oliy Majlis Resolution No. 168-I of 21.12.1995 bringing the Law into force (arts. 9-10 from 01.09.2005)."
 
   - id: pp_3620
     title_original: "О дополнительных мерах по повышению доступности банковских услуг"
@@ -81,6 +127,4 @@ sources:
     language: ru
     role: reference
     has_text_on_page: true
-    # Earlier candidate for Regulation 3030; it is Presidential Resolution PP-3620 of 23.03.2018,
-    # whose clause 6 "в" (block 3594409) instructs the CBU to adopt the Regulation.
-    verification_note: "Title and No. ПП-3620 match the page. Not Regulation 3030; kept as reference."
+    verification_note: "Presidential Resolution PP-3620 of 23.03.2018; clause 6 'в' (block 3594409) instructs the CBU to adopt Regulation 3030."
