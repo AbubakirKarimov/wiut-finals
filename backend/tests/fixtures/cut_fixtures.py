@@ -103,6 +103,16 @@ def reg3030() -> None:
     _write("reg3030_annex_latn.html", lat, idx)
 
 
+def reg3030_list() -> None:
+    """Clause 58^13 (in-clause list "1)" ... "8)") and the next clause 58^14."""
+    kids = _children("3804290")
+    start = _find(kids, lambda k: 'id="7170643"' in str(k))
+    end = _find(kids, lambda k: _cls(k) == "ACT_TEXT" and _text(k).startswith("58 14"), start)
+    banner = _find(kids, lambda k: _cls(k) == "APPL_BANNER_LANDSCAPE_TITLE")
+    idx = [banner] + [i for i in range(start, end + 1) if _cls(kids[i]) == "ACT_TEXT"]
+    _write("reg3030_list_cyrl.html", kids, idx)
+
+
 def law() -> None:
     kids = _children("121051")
     end = _find(kids, lambda k: _text(k).startswith("3-модда."))
@@ -119,5 +129,6 @@ def pp3620_ru() -> None:
 
 if __name__ == "__main__":
     reg3030()
+    reg3030_list()
     law()
     pp3620_ru()

@@ -141,6 +141,47 @@ def test_latin_misalignment_raises():
                            language="uz_cyrl", latin_html=lat)
 
 
+def _parse_list(html: str) -> dict:
+    return lex.parse_document(html, source_id="cbu_reg_3030", doc_id="3804290",
+                              role="regulation", language="uz_cyrl")
+
+
+def test_in_clause_list_items_are_not_clauses():
+    # Real page: clause 58^13 contains items "1)" ... "8)", followed by clause 58^14.
+    doc = _parse_list(_read("reg3030_list_cyrl.html"))
+    assert [c["number"] for c in doc["clauses"]] == ["58^13", "58^14"]
+    lines = by_id(doc)["cbu_reg_3030:main:58^13"]["text_original"].split("\n")
+    assert [ln[:2] for ln in lines if ln[:1].isdigit() and ln[1] == ")"] == [
+        f"{i})" for i in range(1, 9)]
+
+
+def test_in_clause_list_with_dotted_numbers_after_small_clause_number():
+    # Same real blocks, renumbered so that the list uses "1." ... "8." inside clause 1:
+    # "2." ... "8." would pass the increasing-number rule, so list mode must hold them.
+    html = _read("reg3030_list_cyrl.html")
+    html = html.replace(">58<sup>13</sup>. ", ">1. ").replace(">58<sup>14</sup>. ", ">2. ")
+    for i in range(1, 9):
+        html = html.replace(f">{i}) ", f">{i}. ")
+    doc = _parse_list(html)
+    assert [c["number"] for c in doc["clauses"]] == ["1", "2"]
+    c1 = by_id(doc)["cbu_reg_3030:main:1"]
+    assert c1["text_original"].startswith("1. Банк мурожаатларни")
+    assert sum(1 for ln in c1["text_original"].split("\n")[1:] if ln[:2] in
+               {f"{i}." for i in range(1, 9)}) == 8
+    assert by_id(doc)["cbu_reg_3030:main:2"]["text_original"].startswith("2. Банк")
+    assert doc["warnings"] == []
+
+
+def test_committed_main_numbering_is_complete_and_ordered():
+    doc = json.loads((REGULATIONS / "cbu_reg_3030.json").read_text(encoding="utf-8"))
+    nums = [c["number"] for c in doc["clauses"] if c["section"] == "main"
+            and c["number"][0].isdigit()]
+    keys = [lex._clause_key(n) for n in nums]
+    assert keys == sorted(keys) and len(set(keys)) == len(keys)
+    assert {k[0] for k in keys} == set(range(1, 61))
+    assert doc["warnings"] == []
+
+
 def test_law_articles(law):
     ids = by_id(law)
     assert "law_state_language:enactment:preamble" in ids

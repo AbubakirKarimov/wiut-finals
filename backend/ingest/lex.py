@@ -276,6 +276,7 @@ def parse_document(html: str, *, source_id: str, doc_id: str, role: str, languag
         current: dict | None = None
         by_number: dict[str, dict] = {}
         last_key: tuple[int, int] | None = None
+        list_next: int | None = None  # next expected item number of an in-clause list
         article_mode = False
         text_counter = 0
 
@@ -336,6 +337,7 @@ def parse_document(html: str, *, source_id: str, doc_id: str, role: str, languag
                 else:
                     chapter, paragraph = b.text, None
                 current = None
+                list_next = None
                 continue
             if b.cls == "CLAUSE_DEFAULT":
                 m = ARTICLE_RE.match(b.text)
@@ -350,10 +352,18 @@ def parse_document(html: str, *, source_id: str, doc_id: str, role: str, languag
             if m:
                 number = m.group(1) + (f"^{m.group(2)}" if m.group(2) else "")
                 key = _clause_key(number)
+                # A "1." inside an open clause starts a numbered list within that clause;
+                # "2.", "3." ... continue it until a number breaks the sequence.
+                if current is not None and last_key is not None and (
+                        key == (1, 0) or (list_next is not None and key == (list_next, 0))):
+                    list_next = key[0] + 1
+                    add_block(current, b)
+                    continue
                 if last_key is None or key > last_key:
                     current = new_clause(section, number, chapter, paragraph, b.block_id)
                     by_number[number] = current
                     last_key = key
+                    list_next = None
                     add_block(current, b)
                     continue
                 warnings.append(f"{section.key}: block {b.block_id} starts with {number}. "
