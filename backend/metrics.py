@@ -80,6 +80,28 @@ def decision_precision(conn: sqlite3.Connection) -> dict:
     return {**out, "value": value, "label": f"precision {value:.0%} on {n} decided findings"}
 
 
+TEAM_MIN_REVIEWED = 5
+
+
+def team_review(conn: sqlite3.Connection) -> dict:
+    """Possible gaps reviewed by the team (decisions.json, source="team"): latest decision
+    per finding. Below TEAM_MIN_REVIEWED reviewed gaps the result is "not enough data"."""
+    rows = conn.execute(
+        "SELECT d.finding_id, d.verdict, d.decided_at FROM decisions d JOIN findings f "
+        "ON f.id = d.finding_id WHERE d.source = 'team' AND f.status = 'possible_gap' "
+        "ORDER BY d.decided_at, d.id").fetchall()
+    latest = {r["finding_id"]: r for r in rows}
+    n = len(latest)
+    confirmed = sum(r["verdict"] == "confirmed" for r in latest.values())
+    reviewed_on = max((r["decided_at"][:10] for r in latest.values()), default=None)
+    out = {"n": n, "confirmed": confirmed, "rejected": n - confirmed,
+           "reviewed_on": reviewed_on or NO_DATA, "min_reviewed": TEAM_MIN_REVIEWED}
+    if n < TEAM_MIN_REVIEWED:
+        return {**out, "label": "not enough data",
+                "detail": f"n = {n} possible gap(s) reviewed by the team"}
+    return {**out, "label": f"{confirmed} of {n} confirmed (reviewed by team on {reviewed_on})"}
+
+
 def consistency(conn: sqlite3.Connection) -> dict:
     """Latest consistency measurement per bank (python -m backend.consistency)."""
     rows = [dict(r) for r in conn.execute("SELECT * FROM consistency ORDER BY created_at")]
@@ -223,6 +245,7 @@ def compute(conn: sqlite3.Connection, labels_path: Path = LABELS_PATH) -> dict:
         "precision_possible_gap_from_decisions": decision_precision(conn),
         "consistency": consistency(conn),
         "findings_by_status": status_counts,
+        "team_review": team_review(conn),
         "decided_by": decided_by(conn),
         "decided_by_replay": replay_summary(),
         "llm_usage": llm_usage(conn),

@@ -13,6 +13,8 @@ services:
         value: "3.11.9"
       - key: DB_PATH
         value: data/compliance.sqlite
+      - key: LIVE_DECISIONS_EPHEMERAL   # free plan: the SQLite file resets on restart
+        value: "1"
       - key: BROWSER_FALLBACK
         value: "0"
       - key: CRAWLER_MAX_PAGES_PER_BANK

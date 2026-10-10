@@ -92,6 +92,7 @@ test("decision persists after reload and appears in the audit log", async ({ pag
   await row.getByPlaceholder("Comment (optional)").fill(comment);
   await row.getByRole("button", { name: "Confirm" }).click();
   await expect(row.getByTestId("decision-state")).toContainText("Confirmed by E2E Analyst");
+  await expect(row.getByTestId("storage-note")).toContainText("live session, may reset on restart");
 
   await page.reload();
   const again = page.getByTestId("finding-row").first();
@@ -104,6 +105,8 @@ test("decision persists after reload and appears in the audit log", async ({ pag
   await expect(page.getByTestId("decision-log")).toContainText("code");
   await expect(page.getByTestId("metrics")).toContainText("Checks completed");
   await expect(page.getByTestId("precision")).toContainText(/confirmed|n\/a/);
+  await expect(page.getByTestId("team-precision")).toContainText("not enough data");
+  await expect(page.getByTestId("decision-log")).toContainText("live session, may reset on restart");
   await expect(page.getByTestId("decided-split")).toContainText("decided by code");
   await expect(page.getByTestId("known-failures")).toContainText("Prompt injection");
   await noHorizontalScroll(page);

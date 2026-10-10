@@ -41,6 +41,7 @@ const AUDIT_FAILURES = [
 
 function Metrics({ m }) {
   const a = m.precision_possible_gap_from_decisions;
+  const t = m.team_review;
   const d = m.decided_by;
   const r = m.decided_by_replay || {};
   const u = m.llm_usage;
@@ -50,7 +51,12 @@ function Metrics({ m }) {
     <>
       <h2>Analyst review</h2>
       <div className="stats">
-        <Stat testid="precision" label="Possible gaps confirmed by analysts"
+        <Stat testid="team-precision" label="Possible gaps confirmed by the team"
+              value={t.n >= t.min_reviewed ? `${t.confirmed} of ${t.n} confirmed` : "not enough data"}
+              note={t.n >= t.min_reviewed
+                ? `reviewed by team on ${t.reviewed_on} (n = ${t.n}; data/precomputed/decisions.json)`
+                : `n = ${t.n} reviewed by the team; at least ${t.min_reviewed} needed`} />
+        <Stat testid="precision" label="Live decisions on this server"
               value={n ? `${a.confirmed} of ${n} confirmed` : "n/a"}
               note={n < MIN_REVIEWED
                 ? `not enough data (n = ${n} reviewed; at least ${MIN_REVIEWED} needed)`
@@ -135,7 +141,7 @@ export default function AuditPage() {
             <thead>
               <tr>
                 <th>When</th><th>Analyst</th><th>Verdict</th><th>Bank</th>
-                <th>Requirement</th><th>Finding</th><th>Decided by</th><th>Comment</th>
+                <th>Requirement</th><th>Finding</th><th>Decided by</th><th>Source</th><th>Comment</th>
               </tr>
             </thead>
             <tbody>
@@ -150,6 +156,7 @@ export default function AuditPage() {
                   <td data-label="Requirement">{d.req_text_en || d.requirement_id || "no data"}</td>
                   <td data-label="Finding">{d.finding_status ? <StatusBadge status={d.finding_status} /> : "no data"}</td>
                   <td data-label="Decided by">{d.decided_by === "llm_assisted" ? "LLM-assisted" : d.decided_by || "not recorded"}</td>
+                  <td data-label="Source">{d.source === "team" ? "team review" : "live"}{d.storage_note ? ` (${d.storage_note})` : ""}</td>
                   <td data-label="Comment">{d.comment || "—"}</td>
                 </tr>
               ))}

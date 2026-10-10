@@ -115,7 +115,14 @@ e2e suite is run locally.
 ```bash
 .venv/bin/python scripts/crawl_all.py            # all banks with a website_url
 .venv/bin/python -m backend.precomputed export   # -> data/precomputed/findings.json
+.venv/bin/python -m backend.team_decisions export   # team's analyst decisions -> decisions.json
 ```
+
+At startup the API loads `findings.json` into an empty database and the team's decisions
+from `data/precomputed/decisions.json` (idempotent). The Audit & Metrics screen shows "x of n
+confirmed (reviewed by team on <date>)" from those decisions, or "not enough data" below 5.
+Decisions made on the hosted demo are labelled "live session, may reset on restart"
+(`LIVE_DECISIONS_EPHEMERAL=1` in `render.yaml`).
 
 `crawl_all.py` prints progress and a summary table (pages, fetch errors, ok / possible gap /
 not checkable, duration, LLM calls, cache hits, tokens, cost from `LLM_PRICE_*`) and writes it

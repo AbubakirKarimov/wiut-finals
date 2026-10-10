@@ -159,6 +159,7 @@ MIGRATIONS = [
     ("findings", "reason", "TEXT"),
     ("findings", "context_quote", "TEXT"),
     ("findings", "decided_by", "TEXT"),
+    ("decisions", "source", "TEXT NOT NULL DEFAULT 'live'"),
     ("jobs", "progress", "TEXT NOT NULL DEFAULT ''"),
 ]
 
@@ -283,10 +284,10 @@ def list_findings(conn: sqlite3.Connection, bank_id: str | None = None,
 
 def add_decision(conn: sqlite3.Connection, decision: Decision) -> None:
     conn.execute(
-        "INSERT INTO decisions (finding_id, analyst, verdict, comment, decided_at) "
-        "VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO decisions (finding_id, analyst, verdict, comment, decided_at, source) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
         (decision.finding_id, decision.analyst, decision.verdict, decision.comment,
-         _ts(decision.decided_at)),
+         _ts(decision.decided_at), decision.source),
     )
 
 

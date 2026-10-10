@@ -77,6 +77,8 @@ class Decision(BaseModel):
     verdict: Verdict
     comment: str = ""
     decided_at: datetime = Field(default_factory=utcnow)
+    # team = loaded from data/precomputed/decisions.json; live = made on the running site
+    source: Literal["live", "team"] = "live"
 
 
 class Job(BaseModel):

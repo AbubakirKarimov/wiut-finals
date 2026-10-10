@@ -14,7 +14,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from backend import db, metrics, precomputed
+from backend import db, metrics, precomputed, team_decisions
 from backend.api.cors import cors_origins
 from backend.api.ratelimit import limiter_from_env, rate_limit_dependency
 from backend.api.urlcheck import allow_private, validate_public_url
@@ -33,6 +33,7 @@ async def lifespan(_: FastAPI):
     sync_requirements_yaml()
     # Hosted demo: an empty database starts with the committed pre-computed results.
     precomputed.load_if_empty()
+    team_decisions.load()  # the team's decisions on those findings (idempotent)
     with db.connect() as conn:
         # Jobs cannot survive a restart (they run in this process).
         conn.execute("UPDATE jobs SET status = 'error', error = 'server restarted' "
@@ -80,7 +81,7 @@ def _finding_rows(conn, where: str = "", args: tuple = ()) -> list[dict]:
         " ORDER BY ru.finished_at DESC, f.bank_id, f.requirement_id", args).fetchall()
     decisions: dict[str, dict] = {}
     for d in conn.execute("SELECT * FROM decisions ORDER BY decided_at, id"):
-        decisions[d["finding_id"]] = dict(d)
+        decisions[d["finding_id"]] = _decision_dict(d)
     names = _bank_names()
     langs: dict[tuple[str, str], str] = {}
     for b in {r["bank_id"] for r in rows}:
@@ -113,6 +114,14 @@ def _finding_rows(conn, where: str = "", args: tuple = ()) -> list[dict]:
             "decision": decisions.get(f.id),
         })
     return out
+
+
+def _decision_dict(row) -> dict:
+    d = dict(row)
+    ephemeral = os.getenv("LIVE_DECISIONS_EPHEMERAL", "").strip() in ("1", "true", "yes")
+    d["storage_note"] = ("live session, may reset on restart"
+                         if d.get("source", "live") == "live" and ephemeral else None)
+    return d
 
 
 # --- banks ---
@@ -275,7 +284,7 @@ def add_decision(body: DecisionRequest) -> dict:
         d = Decision(finding_id=body.finding_id, analyst=analyst, verdict=body.verdict,
                      comment=body.comment.strip())
         db.add_decision(conn, d)
-    return d.model_dump(mode="json")
+    return _decision_dict(d.model_dump(mode="json"))
 
 
 @app.get("/decisions")
@@ -289,7 +298,8 @@ def decisions() -> list[dict]:
             "LEFT JOIN findings f ON f.id = d.finding_id "
             "LEFT JOIN requirements r ON r.id = f.requirement_id "
             "ORDER BY d.decided_at DESC, d.id DESC").fetchall()
-    return [{**dict(r), "bank_name": names.get(r["bank_id"], r["bank_id"])} for r in rows]
+    return [{**_decision_dict(r), "bank_name": names.get(r["bank_id"], r["bank_id"])}
+            for r in rows]
 
 
 # --- metrics ---

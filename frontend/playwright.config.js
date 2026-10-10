@@ -38,6 +38,8 @@ export default defineConfig({
         // Isolated from the team's data/requirements.yaml; seed.py adds one test requirement.
         REQUIREMENTS_PATH: "frontend/e2e/.tmp/no-requirements.yaml",
         PRECOMPUTED_PATH: "frontend/e2e/.tmp/no-precomputed.json",
+        PRECOMPUTED_DECISIONS_PATH: "frontend/e2e/.tmp/no-decisions.json",
+        LIVE_DECISIONS_EPHEMERAL: "1",
         CHECK_ALLOW_PRIVATE_URLS: "1",
         CHECK_RATE_LIMIT_PER_MINUTE: "100",
         CRAWLER_MIN_DELAY_SECONDS: "0.2",
