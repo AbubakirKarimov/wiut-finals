@@ -113,7 +113,7 @@ def test_required_link_text_is_no_gap_with_reviewed_hints(tmp_db, monkeypatch):
                         .resolve().parents[2] / "data" / "check_hints.yaml")
     pages = pages_with("Omonatlaringiz kafolatlangan")
     pages[0].links = [("https://fgd.uz/uz", "Omonatlaringiz kafolatlangan")]
-    c = crawl(pages)
+    c = crawl(pages[1:] + pages[:1])   # the crawl's first page is the homepage
     out = finalize(run_one(req(rid="req:cbu_reg_3030:main:40^4"), c, None), c)
     assert out.status == "ok" and out.page.url == "https://b.uz/omonatlar"
     assert not out.llm_used

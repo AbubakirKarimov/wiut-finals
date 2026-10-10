@@ -98,6 +98,15 @@ requirements:
       # pages: "Omonatlaringiz kafolatlangan" -> fgd.uz; garantbank.uz: "Агентство по
       # гарантированию вкладов" -> fgd.uz). Verify against the CBU website.
       link_domains: [fgd.uz]
+      # A link only to the law text is not the Agency link: not_checkable, never ok or gap.
+      law_domains: [lex.uz]
+      # "Text found but not a link" only when a keyword's words are adjacent and in order.
+      text_match: phrase
+      # A gap needs at least one deposit PRODUCT page read, not only the section index, and
+      # its reason lists every deposit page read. Index = last URL segment is one of these.
+      require_product_page: true
+      index_segments: [deposit, deposits, depozit, depozitlar, vklad, vklady, vkladi,
+                       omonat, omonatlar]
 
   req:cbu_reg_3030:main:49:     # complaint page linked from the homepage or top navigation
     title: "Complaints link on the homepage"

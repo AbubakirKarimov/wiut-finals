@@ -50,6 +50,29 @@ def _quote_around(text: str, needle: str) -> str | None:
     return t[s:e].strip()
 
 
+def _phrase_at(tokens: _Tokens, stems: list[str]) -> int | None:
+    """Word index where the stems occur as ADJACENT words in this order (a phrase), or None."""
+    if not stems:
+        return None
+    for i in tokens.positions(stems[0]):
+        if all(i + j < len(tokens.words) and tokens.words[i + j].startswith(st)
+               for j, st in enumerate(stems[1:], 1)):
+            return i
+    return None
+
+
+def _host_in(url: str, domains: list[str]) -> bool:
+    host = urlsplit(url).netloc.lower()
+    return any(host == d or host.endswith("." + d) for d in domains)
+
+
+def _is_index_page(url: str, index_segments: list[str]) -> bool:
+    """A section index (e.g. /ru/vklady, /uz/private/deposit/): the last path segment is one
+    of the configured bare section words, not a product name."""
+    parts = [x for x in urlsplit(url).path.lower().split("/") if x]
+    return bool(parts) and parts[-1] in {s.lower() for s in index_segments}
+
+
 def _link_match(url: str, anchor: str, stems: list[list[str]], domains: list[str]
                 ) -> str | None:
     """'anchor' if the link text names the topic (or the link goes to a listed domain),
@@ -68,7 +91,10 @@ def _where_pages(pages: list[Page], where: str, sections: list[str]) -> list[Pag
     if where == "homepage":
         return [p for p in pages if is_homepage(p.url, home)]
     if where == "section":
-        return [p for p in pages if page_in_section(p.url, p.title, sections, home)]
+        # A homepage title often names every section ("loans and deposits"); it is not a
+        # section page unless the rule's sections include "homepage".
+        return [p for p in pages if page_in_section(p.url, p.title, sections, home)
+                and ("homepage" in sections or not is_homepage(p.url, home))]
     return list(pages)
 
 
@@ -97,10 +123,17 @@ def check_link(pages: list[Page], rule: dict, sections: list[str]) -> CheckOutco
     if not any(p.links for p in readable):
         return CheckOutcome("not_checkable", reason="no link data stored for the pages read; "
                                                     "re-crawl the site")
-    found_elsewhere, unquotable, by_url = None, None, None
+    law_domains = [d.lower() for d in rule.get("law_domains") or []]
+    found_elsewhere, unquotable, by_url, law_link = None, None, None, None
     target_urls = {p.url for p in targets}
     for p in sorted(readable, key=lambda p: p.url not in target_urls):
         kinds = [(u, a, _link_match(u, a, stems, domains)) for u, a in p.links]
+        if law_domains:
+            # A link to the law text (e.g. lex.uz) is not the required link: kept apart.
+            if p.url in target_urls and law_link is None:
+                law_link = next(((p, u, a) for u, a, k in kinds
+                                 if k and _host_in(u, law_domains)), None)
+            kinds = [(u, a, k) for u, a, k in kinds if not _host_in(u, law_domains)]
         # Shortest anchors first: navigation items, not long teaser texts.
         named = sorted(((u, a) for u, a, k in kinds if k == "anchor"),
                        key=lambda x: (len(x[1]) == 0, len(x[1])))
@@ -137,9 +170,17 @@ def check_link(pages: list[Page], rule: dict, sections: list[str]) -> CheckOutco
                             reason=f"Code: a link on {p.url} goes to {u}, whose address matches, "
                                    f"but its text \"{a or 'no text'}\" does not name the topic; "
                                    "check manually.")
+    if law_link:
+        p, u, a = law_link
+        return CheckOutcome("not_checkable", page=p,
+                            reason=f"Code: links the law, not the Agency: \"{a}\" ({u}) on "
+                                   f"{p.url}; no link to {', '.join(domains) or 'the Agency'} "
+                                   "found; check manually.")
+    phrase = rule.get("text_match") == "phrase"
     for p in targets:  # the words are on the page, but not as a link the crawler could read
         words = _Tokens(p.text)
-        hit = next((k for k, st in named_stems if words.find(st) is not None), None)
+        hit = next((k for k, st in named_stems
+                    if (_phrase_at(words, st) if phrase else words.find(st)) is not None), None)
         if hit:
             return CheckOutcome("not_checkable", page=p,
                                 reason=f"Code: \"{hit}\" appears in the text of {p.url} but "
@@ -147,6 +188,20 @@ def check_link(pages: list[Page], rule: dict, sections: list[str]) -> CheckOutco
                                        "script?); check manually.")
     what = ("links matching " + ", ".join(rule.get("link_keywords") or [])
             + (f" or linking to {', '.join(domains)}" if domains else ""))
+    if rule.get("require_product_page"):
+        index = rule.get("index_segments") or []
+        products = [p for p in targets if not _is_index_page(p.url, index)]
+        listed = "; ".join(f"{p.url} ({'index' if p not in products else 'product'})"
+                           for p in targets)
+        if not products:
+            return CheckOutcome("not_checkable", page=targets[0],
+                                reason=f"relevant section not reached: only the section index "
+                                       f"was read, no product page (read {len(readable)} "
+                                       f"pages; section pages read: {listed})")
+        return CheckOutcome(
+            "possible_gap", page=products[0], absence=True,
+            reason=f"No evidence found on {len(readable)} pages read. Code checked {what} on "
+                   f"all {len(targets)} section page(s) read: {listed}. Nothing matched.")
     return _no_evidence(readable, targets, what)
 
 

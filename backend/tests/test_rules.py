@@ -104,7 +104,7 @@ def test_40_4_statement_without_link_is_not_a_gap():
 
 
 def test_no_link_data_at_all_is_not_checkable():
-    dep = Page(bank_id="b", url="https://x.uz/uz/omonatlar", language="uz_latn",
+    dep = Page(bank_id="b", url="https://x.uz/uz/omonatlar/jamgarma", language="uz_latn",
                source_type="html", text="Omonat foiz stavkasi. " * 20)
     pages = [Page(**{**p.model_dump(), "links": []}) for p in filler("https://x.uz", 5)] + [dep]
     out, _, _ = check("40^4", pages)
@@ -117,7 +117,7 @@ def test_40_4_no_deposit_page_read_is_not_checkable():
 
 
 def test_40_4_deposit_page_without_link_or_statement_is_code_gap():
-    dep = Page(bank_id="b", url="https://x.uz/uz/omonatlar", language="uz_latn",
+    dep = Page(bank_id="b", url="https://x.uz/uz/omonatlar/jamgarma", language="uz_latn",
                source_type="html", text="Omonat foiz stavkasi 20 foiz. " * 20,
                links=[("https://x.uz/uz/omonat/1", "Jamg'arma omonati")])
     out, _, _ = check("40^4", [*filler("https://x.uz", 5), dep])
@@ -217,7 +217,7 @@ def test_short_homepage_keeps_verified_evidence():
 
 
 def test_short_homepage_does_not_affect_section_rule_40_4():
-    dep = Page(bank_id="b", url="https://x.uz/uz/omonatlar", language="uz_latn",
+    dep = Page(bank_id="b", url="https://x.uz/uz/omonatlar/jamgarma", language="uz_latn",
                source_type="html", text="Omonat foiz stavkasi 20 foiz. " * 20,
                links=[("https://x.uz/uz/omonat/1", "Jamg'arma omonati")])
     out, _, _ = check("40^4", [thin_home(300), *filler("https://x.uz", 5), dep])
@@ -278,3 +278,86 @@ def test_stored_page_without_link_metadata_is_fetched_again(tmp_db):
         _, meta = db.get_cached_page(conn, "mkbank", dep.url,
                                      __import__("datetime").datetime(2000, 1, 1))
     assert ["https://fgd.uz/ru", "Ваши вклады гарантированы"] in meta["links"]
+
+
+# --- 40^4 (approved 2026-10-11): phrase fallback, law-only link, product page required ---
+
+def dep_page(url, text, links=()):
+    return Page(bank_id="b", url=url, language="ru", source_type="html", text=text,
+                links=list(links) or [("https://x.uz/ru/kredity", "Кредиты")])
+
+
+def run_40_4(*deposit_pages):
+    out, _, _ = check("40^4", [*filler("https://x.uz", 5), *deposit_pages])
+    return out
+
+
+def test_40_4_scattered_words_are_not_the_statement():
+    """Anor Bank's case: "Гарантированная надежность ..." near "вклад" is not the phrase."""
+    p = dep_page("https://x.uz/ru/vklady/onlajn",
+                 "Вклад Онлайн. Гарантированная надежность и сохранность средств. " * 10)
+    out = run_40_4(p)
+    assert out.status == "possible_gap"
+
+
+def test_40_4_adjacent_phrase_without_link_is_not_checkable():
+    p = dep_page("https://x.uz/ru/vklady/onlajn", "Вклад Онлайн. Ваши вклады гарантированы. " * 10)
+    out = run_40_4(p)
+    assert out.status == "not_checkable" and "not as a link" in out.reason
+
+
+def test_40_4_link_only_to_the_law_is_not_checkable():
+    law = ("https://lex.uz/ru/docs/7389439", "О гарантиях защиты вкладов в банках")
+    p = dep_page("https://x.uz/ru/vklady/onlajn",
+                 "Вклад Онлайн. Закон О гарантиях защиты вкладов в банках. " * 10, [law])
+    out = run_40_4(p)
+    assert out.status == "not_checkable"
+    assert "links the law, not the Agency" in out.reason and "lex.uz" in out.reason
+
+
+def test_40_4_agency_link_wins_over_law_link():
+    """MKBANK's page links both the Agency (fgd.uz) and the law (lex.uz)."""
+    dep = fixture_page("mkbank_ru_deposit_guarantee")
+    out = run_40_4(dep)
+    assert out.status == "ok" and "fgd.uz" in out.reason
+
+
+def test_40_4_only_the_section_index_read_is_not_checkable():
+    idx = dep_page("https://x.uz/ru/vklady", "Все вклады банка: Онлайн, Срочный. " * 10)
+    out = run_40_4(idx)
+    assert out.status == "not_checkable"
+    assert out.reason.startswith("relevant section not reached: only the section index")
+    assert "https://x.uz/ru/vklady (index)" in out.reason
+
+
+def test_40_4_gap_lists_every_deposit_page_read():
+    idx = dep_page("https://x.uz/ru/vklady", "Все вклады банка. " * 20)
+    prod = dep_page("https://x.uz/ru/vklad-srochnyj", "Вклад Срочный: ставка 20% годовых. " * 10)
+    out = run_40_4(idx, prod)
+    assert out.status == "possible_gap" and out.page.url == prod.url
+    assert "https://x.uz/ru/vklady (index); https://x.uz/ru/vklad-srochnyj (product)" in out.reason
+
+
+def test_40_4_homepage_is_not_a_deposit_page():
+    """Anor Bank: the homepage title "... kreditlar va omonatlar" made it a deposit page."""
+    home = Page(bank_id="b", url="https://x.uz/uz/", language="uz_latn", source_type="html",
+                title="Raqamli bank: kreditlar va omonatlar", text="Bosh sahifa. " * 200,
+                links=[("https://x.uz/uz/kredit", "Kredit")])
+    idx = dep_page("https://x.uz/uz/deposit/", "Omonatlar ro'yxati. " * 20)
+    out, _, _ = check("40^4", [home, *filler("https://x.uz", 5), idx])
+    assert out.status == "not_checkable" and "only the section index" in out.reason
+    assert "https://x.uz/uz/ " not in out.reason
+
+
+def test_40_4_styled_text_that_is_not_a_link():
+    """Garant Bank: "Подробнее: Агентство по гарантированию вкладов." is red and underlined
+    (<span><u>) but has no <a href>; it must not count as the link."""
+    raw = ("<html><body><a href='/ru/kredity'>Кредиты</a><p>Вклад «Orzu sari». "
+           + "Ставка 18 процентов годовых. " * 30 + "Подробнее: <span style='color:#c0392b'>"
+           "<u>Агентство по гарантированию вкладов.</u></span></p></body></html>")
+    url = "https://x.uz/ru/vklad-orzu-sari"
+    p = Page(bank_id="b", url=url, language="ru", source_type="html", text=visible_text(raw),
+             links=links(raw, url))
+    assert not any("fgd" in u for u, _ in p.links)
+    out = run_40_4(p)
+    assert out.status == "not_checkable" and "not as a link" in out.reason
