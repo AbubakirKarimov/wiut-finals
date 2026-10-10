@@ -1,0 +1,549 @@
+{
+ "source_id": "law_state_language",
+ "doc_id": "121051",
+ "url": "https://lex.uz/ru/docs/121051",
+ "language": "uz_cyrl",
+ "title": "«ЎЗБЕКИСТОН РЕСПУБЛИКАСИНИНГ ДАВЛАТ ТИЛИ ҲАҚИДА»ГИ ҚОНУНГА ЎЗГАРТИШЛАР ВА ҚЎШИМЧАЛАР КИРИТИШ ТЎҒРИСИДА",
+ "fetched_at": "2026-10-10T11:00:52.933078+00:00",
+ "source_snapshot_date": "2026-10-10",
+ "parallel": {
+  "doc_id": "-121051",
+  "language": "uz_latn",
+  "url": "https://lex.uz/ru/docs/-121051"
+ },
+ "annexes": [],
+ "unattached_notes": [],
+ "warnings": [],
+ "clauses": [
+  {
+   "clause_id": "law_state_language:enactment:preamble",
+   "number": "preamble",
+   "section": "enactment",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121074",
+    "121077"
+   ],
+   "text_original": "Давлат тилини изчил жорий этиш жараёнини такомиллаштириш ва лотин ёзувига асосланган ўзбек алифбосига мукаммал ўтишини таъминлаш мақсадида Ўзбекистон Республикаси Олий Мажлиси қарор қилади:\nЎзбекистон Республикасининг 1989 йил 21 октябрда қабул қилинган «Ўзбекистон Республикасининг давлат тили ҳақида»ги Қонунига (Ўзбекистон Республикаси Олий Советининг Ведомостлари, 1989 йил, № 26-28, 453-модда) ўзгартиш ва қўшимчалар киритиб, унинг янги таҳрири тасдиқлансин (илова қилинади).",
+   "url": "https://lex.uz/ru/docs/121051#121074",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "Davlat tilini izchil joriy etish jarayonini takomillashtirish va lotin yozuviga asoslangan oʻzbek alifbosiga mukammal oʻtishini taʼminlash maqsadida Oʻzbekiston Respublikasi Oliy Majlisi qaror qiladi:\nOʻzbekiston Respublikasining 1989-yil 21-oktabrda qabul qilingan “Oʻzbekiston Respublikasining davlat tili haqida”gi Qonuniga (Oʻzbekiston Respublikasi Oliy Sovetining Vedomostlari, 1989-yil, № 26-28, 453-modda) oʻzgartish va qoʻshimchalar kiritib, uning yangi tahriri tasdiqlansin (ilova qilinadi)."
+  },
+  {
+   "clause_id": "law_state_language:art:1",
+   "number": "1",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121102",
+    "121103"
+   ],
+   "text_original": "1-модда.\nЎзбекистон Республикасининг давлат тили ўзбек тилидир.",
+   "url": "https://lex.uz/ru/docs/121051#121102",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "1-modda.\nOʻzbekiston Respublikasining davlat tili oʻzbek tilidir."
+  },
+  {
+   "clause_id": "law_state_language:art:2",
+   "number": "2",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121104",
+    "121105"
+   ],
+   "text_original": "2-модда.\nЎзбек тилига давлат тили мақомининг берилиши республика ҳудудида яшовчи миллат ва элатларнинг ўз она тилини қўллашдан иборат конституциявий ҳуқуқларига монелик қилмайди.",
+   "url": "https://lex.uz/ru/docs/121051#121104",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "2-modda.\nOʻzbek tiliga davlat tili maqomining berilishi respublika hududida yashovchi millat va elatlarning oʻz ona tilini qoʻllashdan iborat konstitutsiyaviy huquqlariga monelik qilmaydi."
+  },
+  {
+   "clause_id": "law_state_language:art:3",
+   "number": "3",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121106",
+    "5439257",
+    "5439275",
+    "8334747",
+    "121109",
+    "121111"
+   ],
+   "text_original": "3-модда.\nЎзбек тилининг Ўзбекистон Республикаси ҳудудида давлат тили сифатида амал қилишининг ҳуқуқий асослари ушбу Қонун ва бошқа қонун ҳужжатлари билан белгилаб берилади.\nТилнинг Қорақалпоғистон Республикасида амал қилишига боғлиқ масалалар, шунингдек Қорақалпоғистон Республикасининг қонунчилиги билан белгиланади.\nЎзбекистон Республикасининг Конституциявий Қонуни билан махсус ҳуқуқий режим ўрнатилган ҳудудда ушбу Қонунда белгиланганидан бошқача иш юритиш ва расмий ҳужжатларни қабул қилиш тили белгиланиши мумкин.\nУшбу Қонун тилларнинг турмушда, шахслараро муомалада ҳамда диний ва ибодат билан боғлиқ удумларни адо этишда қўлланишини тартибга солмайди.\nФуқаролар миллатлараро муомала тилини ўз хоҳишларига кўра танлаш ҳуқуқига эгадирлар.",
+   "url": "https://lex.uz/ru/docs/121051#121106",
+   "amendment_notes": [
+    {
+     "block_id": "5439268",
+     "text": "(3-модданинг биринчи қисми Ўзбекистон Республикасининг 2021 йил 21 апрелдаги ЎРҚ-683-сонли Қонуни таҳририда — Қонунчилик маълумотлари миллий базаси, 21.04.2021 й., 03/21/683/0375-сон)",
+     "amending_act": "ЎРҚ-683",
+     "change": "amended"
+    },
+    {
+     "block_id": "5439284",
+     "text": "(3-модданинг иккинчи қисми Ўзбекистон Республикасининг 2021 йил 21 апрелдаги ЎРҚ-683-сонли Қонуни таҳририда — Қонунчилик маълумотлари миллий базаси, 21.04.2021 й., 03/21/683/0375-сон)",
+     "amending_act": "ЎРҚ-683",
+     "change": "amended"
+    },
+    {
+     "block_id": "8334748",
+     "text": "(3-модда Ўзбекистон Республикасининг 2026 йил 13 июлдаги ЎРҚ-1158-сонли Қонунига асосан учинчи қисм билан тўлдирилган — Қонунчилик маълумотлари миллий базаси, 14.07.2026 й., 03/26/1158/0727-сон. Кучга кириш санаси — 2026 йил 25 июль)",
+     "amending_act": "ЎРҚ-1158",
+     "change": "added"
+    }
+   ],
+   "repealed": false,
+   "text_parallel_latn": "3-modda.\nOʻzbek tilining Oʻzbekiston Respublikasi hududida davlat tili sifatida amal qilishining huquqiy asoslari ushbu Qonun va boshqa qonun hujjatlari bilan belgilab beriladi.\nTilning Qoraqalpogʻiston Respublikasida amal qilishiga bogʻliq masalalar, shuningdek Qoraqalpogʻiston Respublikasining qonunchiligi bilan belgilanadi.\nOʻzbekiston Respublikasining Konstitutsiyaviy Qonuni bilan maxsus huquqiy rejim oʻrnatilgan hududda ushbu Qonunda belgilanganidan boshqacha ish yuritish va rasmiy hujjatlarni qabul qilish tili belgilanishi mumkin.\nUshbu Qonun tillarning turmushda, shaxslararo muomalada hamda diniy va ibodat bilan bogʻliq udumlarni ado etishda qoʻllanishini tartibga solmaydi.\nFuqarolar millatlararo muomala tilini oʻz xohishlariga koʻra tanlash huquqiga egadirlar."
+  },
+  {
+   "clause_id": "law_state_language:art:4",
+   "number": "4",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121112",
+    "121113",
+    "121114"
+   ],
+   "text_original": "4-модда.\nЎзбекистон Республикасида давлат тилини ўрганиш учун барча фуқароларга шарт-шароит ҳамда унинг ҳудудида яшовчи миллатлар ва элатларнинг тилларига иззат-ҳурмат билан муносабатда бўлиш таъминланади, бу тилларни ривожлантириш учун шарт-шароит яратилади.\nФуқароларга давлат тилини ўқитиш бепул амалга оширилади.",
+   "url": "https://lex.uz/ru/docs/121051#121112",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "4-modda.\nOʻzbekiston Respublikasida davlat tilini oʻrganish uchun barcha fuqarolarga shart-sharoit hamda uning hududida yashovchi millatlar va elatlarning tillariga izzat-hurmat bilan munosabatda boʻlish taʼminlanadi, bu tillarni rivojlantirish uchun shart-sharoit yaratiladi.\nFuqarolarga davlat tilini oʻqitish bepul amalga oshiriladi."
+  },
+  {
+   "clause_id": "law_state_language:art:5",
+   "number": "5",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121115",
+    "5155728"
+   ],
+   "text_original": "5-модда.\nЎзбекистон Республикасида давлат тилида фаолият кўрсатадиган, миллий гуруҳлар зич яшайдиган жойларда эса — уларнинг тилларида фаолият кўрсатадиган мактабгача таълим ташкилотларини ташкил этиш таъминланади.",
+   "url": "https://lex.uz/ru/docs/121051#121115",
+   "amendment_notes": [
+    {
+     "block_id": "5155733",
+     "text": "(5-модда Ўзбекистон Республикасининг 2020 йил 3 декабрдаги ЎРҚ-653-сонли Қонуни таҳририда — Қонун ҳужжатлари маълумотлари миллий базаси, 04.12.2020 й., 03/20/653/1592-сон)",
+     "amending_act": "ЎРҚ-653",
+     "change": "amended"
+    }
+   ],
+   "repealed": false,
+   "text_parallel_latn": "5-modda.\nOʻzbekiston Respublikasida davlat tilida faoliyat koʻrsatadigan, milliy guruhlar zich yashaydigan joylarda esa — ularning tillarida faoliyat koʻrsatadigan maktabgacha taʼlim tashkilotlarini tashkil etish taʼminlanadi."
+  },
+  {
+   "clause_id": "law_state_language:art:6",
+   "number": "6",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121117",
+    "121118",
+    "121119"
+   ],
+   "text_original": "6-модда.\nЎзбекистон Республикасида яшовчи шахсларга таълим олиш тилини эркин танлаш ҳуқуқи берилади.\nЎзбекистон Республикаси давлат тилида, шунингдек бошқа тилларда ҳам умумий, ҳунар-техника, ўрта махсус ва олий маълумот олишни таъминлайди.",
+   "url": "https://lex.uz/ru/docs/121051#121117",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "6-modda.\nOʻzbekiston Respublikasida yashovchi shaxslarga taʼlim olish tilini erkin tanlash huquqi beriladi.\nOʻzbekiston Respublikasi davlat tilida, shuningdek boshqa tillarda ham umumiy, hunar-texnika, oʻrta maxsus va oliy maʼlumot olishni taʼminlaydi."
+  },
+  {
+   "clause_id": "law_state_language:art:7",
+   "number": "7",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121120",
+    "121121",
+    "121122",
+    "407551"
+   ],
+   "text_original": "7-модда.\nДавлат тили расмий амал қиладиган доираларда ўзбек адабий тилининг амалдаги илмий қоидалари ва нормаларига риоя этилади.\nДавлат ўзбек тилининг бойитилиши ва такомиллаштирилишини таъминлайди, шу жумладан унга ҳамма эътироф қилган илмий-техникавий ва ижтимоий-сиёсий атамаларни жорий этиш ҳисобига таъминлайди.\nЯнги илмий асосланган атамалар жамоатчилик муҳокамасидан кейин ва Олий Мажлис палаталари тегишли қўмиталарининг розилиги билан ўзбек тилига жорий этилади.",
+   "url": "https://lex.uz/ru/docs/121051#121120",
+   "amendment_notes": [
+    {
+     "block_id": "407559",
+     "text": "(7-модданинг учинчи қисми Ўзбекистон Республикасининг 2004 йил 3 декабрдаги 714-II-сон Қонуни таҳририда — ЎР ҚҲТ, 2004 й., 51-сон, 514-модда)",
+     "amending_act": "714-II",
+     "change": "amended"
+    }
+   ],
+   "repealed": false,
+   "text_parallel_latn": "7-modda.\nDavlat tili rasmiy amal qiladigan doiralarda oʻzbek adabiy tilining amaldagi ilmiy qoidalari va normalariga rioya etiladi.\nDavlat oʻzbek tilining boyitilishi va takomillashtirilishini taʼminlaydi, shu jumladan unga hamma eʼtirof qilgan ilmiy-texnikaviy va ijtimoiy-siyosiy atamalarni joriy etish hisobiga taʼminlaydi.\nYangi ilmiy asoslangan atamalar jamoatchilik muhokamasidan keyin va Oliy Majlis palatalari tegishli qoʻmitalarining roziligi bilan oʻzbek tiliga joriy etiladi."
+  },
+  {
+   "clause_id": "law_state_language:art:8",
+   "number": "8",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121126",
+    "5439295",
+    "121130"
+   ],
+   "text_original": "8-модда.\nЎзбекистон Республикасининг қонун ҳужжатлари, давлат ҳокимияти ва бошқарув органларининг бошқа ҳужжатлари давлат тилида қабул қилинади ва эълон этилади. Бу ҳужжатларнинг таржималари бошқа тилларда ҳам эълон қилинади.\nМаҳаллий ҳокимият ва бошқарув органларининг ҳужжатлари давлат тилида қабул қилинади ва эълон этилади. Муайян миллат вакиллари зич яшайдиган жойларда маҳаллий ҳокимият ва бошқарув органларининг ҳужжатлари республика давлат тилида ҳамда мазкур миллат тилида қабул қилинади ва эълон этилади.",
+   "url": "https://lex.uz/ru/docs/121051#121126",
+   "amendment_notes": [
+    {
+     "block_id": "5439302",
+     "text": "(8-модданинг биринчи қисми Ўзбекистон Республикасининг 2021 йил 21 апрелдаги ЎРҚ-683-сонли Қонуни таҳририда — Қонунчилик маълумотлари миллий базаси, 21.04.2021 й., 03/21/683/0375-сон)",
+     "amending_act": "ЎРҚ-683",
+     "change": "amended"
+    }
+   ],
+   "repealed": false,
+   "text_parallel_latn": "8-modda.\nOʻzbekiston Respublikasining qonun hujjatlari, davlat hokimiyati va boshqaruv organlarining boshqa hujjatlari davlat tilida qabul qilinadi va eʼlon etiladi. Bu hujjatlarning tarjimalari boshqa tillarda ham eʼlon qilinadi.\nMahalliy hokimiyat va boshqaruv organlarining hujjatlari davlat tilida qabul qilinadi va eʼlon etiladi. Muayyan millat vakillari zich yashaydigan joylarda mahalliy hokimiyat va boshqaruv organlarining hujjatlari respublika davlat tilida hamda mazkur millat tilida qabul qilinadi va eʼlon etiladi."
+  },
+  {
+   "clause_id": "law_state_language:art:9",
+   "number": "9",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121133",
+    "121134",
+    "121135"
+   ],
+   "text_original": "9-модда.\nДавлат ҳокимияти ва бошқарув органларида иш давлат тилида юритилади ва заруриятга қараб бошқа тилларга таржима қилиниши таъминланади.\nЎзбекистонда ўтказиладиган халқаро анжуманларда давлат тили, шунингдек қатнашчиларнинг ўзлари танлаган тиллар анжуманнинг иш тили ҳисобланади.",
+   "url": "https://lex.uz/ru/docs/121051#121133",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "9-modda.\nDavlat hokimiyati va boshqaruv organlarida ish davlat tilida yuritiladi va zaruriyatga qarab boshqa tillarga tarjima qilinishi taʼminlanadi.\nOʻzbekistonda oʻtkaziladigan xalqaro anjumanlarda davlat tili, shuningdek qatnashchilarning oʻzlari tanlagan tillar anjumanning ish tili hisoblanadi."
+  },
+  {
+   "clause_id": "law_state_language:art:10",
+   "number": "10",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121137",
+    "121138"
+   ],
+   "text_original": "10-модда.\nКорхоналар, муассасалар, ташкилотлар ва жамоат бирлашмаларида иш юритиш, ҳисоб-китоб, статистика ва молия ҳужжатлари давлат тилида юритилади, ишловчиларининг кўпчилиги ўзбек тилини билмайдиган жамоаларда давлат тили билан бир қаторда бошқа тилларда ҳам амалга оширилиши мумкин.",
+   "url": "https://lex.uz/ru/docs/121051#121137",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "10-modda.\nKorxonalar, muassasalar, tashkilotlar va jamoat birlashmalarida ish yuritish, hisob-kitob, statistika va moliya hujjatlari davlat tilida yuritiladi, ishlovchilarining koʻpchiligi oʻzbek tilini bilmaydigan jamoalarda davlat tili bilan bir qatorda boshqa tillarda ham amalga oshirilishi mumkin."
+  },
+  {
+   "clause_id": "law_state_language:art:11",
+   "number": "11",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121140",
+    "121141",
+    "3365104"
+   ],
+   "text_original": "11-модда.\nСудлов ишларини юритиш давлат тилида ёки ўша жойдаги кўпчилик аҳоли тилида олиб борилади. Ишда иштирок этаётган, суд ишлари юритилаётган тилни билмайдиган шахсларга таржимон орқали ишга оид материаллар билан танишиш, суд жараёнида иштирок этиш ҳуқуқи ҳамда судда она тилида сўзлаш ҳуқуқи таъминланади.\nКорхоналар, ташкилотлар ва муассасалар ўртасидаги иқтисодий низоларни кўриб чиқиш ва ҳал қилишда давлат тили қўлланилади. Иқтисодий низолар тарафларнинг розилиги билан бошқа тилда ҳам кўриб чиқилиши мумкин.",
+   "url": "https://lex.uz/ru/docs/121051#121140",
+   "amendment_notes": [
+    {
+     "block_id": "3365105",
+     "text": "(11-модданинг иккинчи қисми Ўзбекистон Республикасининг 2017 йил 14 сентябрдаги ЎРҚ-446-сонли Қонуни таҳририда — ЎР ҚҲТ, 2017 й., 37-сон, 978-модда)",
+     "amending_act": "ЎРҚ-446",
+     "change": "amended"
+    }
+   ],
+   "repealed": false,
+   "text_parallel_latn": "11-modda.\nSudlov ishlarini yuritish davlat tilida yoki oʻsha joydagi koʻpchilik aholi tilida olib boriladi. Ishda ishtirok etayotgan, sud ishlari yuritilayotgan tilni bilmaydigan shaxslarga tarjimon orqali ishga oid materiallar bilan tanishish, sud jarayonida ishtirok etish huquqi hamda sudda ona tilida soʻzlash huquqi taʼminlanadi.\nKorxonalar, tashkilotlar va muassasalar oʻrtasidagi iqtisodiy nizolarni koʻrib chiqish va hal qilishda davlat tili qoʻllaniladi. Iqtisodiy nizolar taraflarning roziligi bilan boshqa tilda ham koʻrib chiqilishi mumkin."
+  },
+  {
+   "clause_id": "law_state_language:art:12",
+   "number": "12",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121144",
+    "1680014"
+   ],
+   "text_original": "12-модда.\nЎзбекистон Республикасида нотариал ҳаракатлар давлат тилида амалга оширилади. Фуқароларнинг талабига кўра расмийлаштирилган ҳужжат матни нотариус ёки нотариал ҳаракатни бажараётган шахс томонидан рус тилида ёки имконият бўлган тақдирда — бошқа мақбул тилда берилади.",
+   "url": "https://lex.uz/ru/docs/121051#121144",
+   "amendment_notes": [
+    {
+     "block_id": "1680015",
+     "text": "(12-модданинг матни Ўзбекистон Республикасининг 2010 йил 14 сентябрдаги ЎРҚ-255-сонли Қонуни таҳририда — ЎР ҚҲТ, 2010 й., 37-сон, 313-модда)",
+     "amending_act": "ЎРҚ-255",
+     "change": "amended"
+    }
+   ],
+   "repealed": false,
+   "text_parallel_latn": "12-modda.\nOʻzbekiston Respublikasida notarial harakatlar davlat tilida amalga oshiriladi. Fuqarolarning talabiga koʻra rasmiylashtirilgan hujjat matni notarius yoki notarial harakatni bajarayotgan shaxs tomonidan rus tilida yoki imkoniyat boʻlgan taqdirda — boshqa maqbul tilda beriladi."
+  },
+  {
+   "clause_id": "law_state_language:art:13",
+   "number": "13",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121151",
+    "121152"
+   ],
+   "text_original": "13-модда.\nФуқаролик ҳолатини қайд этувчи ҳужжатлар, шахснинг ким эканлигини ва унинг ҳуқуқларини тасдиқловчи ҳужжатлар давлат тилида расмийлаштирилади, заруриятга қараб бошқа тилда таржимаси такрорланиши мумкин.",
+   "url": "https://lex.uz/ru/docs/121051#121151",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "13-modda.\nFuqarolik holatini qayd etuvchi hujjatlar, shaxsning kim ekanligini va uning huquqlarini tasdiqlovchi hujjatlar davlat tilida rasmiylashtiriladi, zaruriyatga qarab boshqa tilda tarjimasi takrorlanishi mumkin."
+  },
+  {
+   "clause_id": "law_state_language:art:14",
+   "number": "14",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121154",
+    "121155"
+   ],
+   "text_original": "14-модда.\nЎзбекистон Республикаси ҳудудида яшовчи шахсларга давлат ташкилотлари ва муассасаларига, жамоат бирлашмаларига аризалар, таклифлар, шикоятлар билан давлат тилида ва бошқа тилларда мурожаат қилиш ҳуқуқи таъминланади.",
+   "url": "https://lex.uz/ru/docs/121051#121154",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "14-modda.\nOʻzbekiston Respublikasi hududida yashovchi shaxslarga davlat tashkilotlari va muassasalariga, jamoat birlashmalariga arizalar, takliflar, shikoyatlar bilan davlat tilida va boshqa tillarda murojaat qilish huquqi taʼminlanadi."
+  },
+  {
+   "clause_id": "law_state_language:art:15",
+   "number": "15",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121229",
+    "121231"
+   ],
+   "text_original": "15-модда.\nЎзбекистон Республикасида яшовчи шахслар, ўз миллатидан қатъи назар, ўз исмини, ота исми ва фамилиясини миллий-тарихий анъаналарга мувофиқ ёзиш ҳуқуқига эгадирлар.",
+   "url": "https://lex.uz/ru/docs/121051#121229",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "15-modda.\nOʻzbekiston Respublikasida yashovchi shaxslar, oʻz millatidan qatʼi nazar, oʻz ismini, ota ismi va familiyasini milliy-tarixiy anʼanalarga muvofiq yozish huquqiga egadirlar."
+  },
+  {
+   "clause_id": "law_state_language:art:16",
+   "number": "16",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121232",
+    "121234"
+   ],
+   "text_original": "16-модда.\nТелевидение ва радио эшиттиришлари давлат тилида, шунингдек бошқа тилларда олиб борилади.",
+   "url": "https://lex.uz/ru/docs/121051#121232",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "16-modda.\nTelevideniye va radio eshittirishlari davlat tilida, shuningdek boshqa tillarda olib boriladi."
+  },
+  {
+   "clause_id": "law_state_language:art:17",
+   "number": "17",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121236",
+    "121238"
+   ],
+   "text_original": "17-модда.\nНоширлик фаолияти давлат тилида, эҳтиёжларни ҳисобга олган ҳолда эса, бошқа тилларда ҳам амалга оширилади.",
+   "url": "https://lex.uz/ru/docs/121051#121236",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "17-modda.\nNoshirlik faoliyati davlat tilida, ehtiyojlarni hisobga olgan holda esa, boshqa tillarda ham amalga oshiriladi."
+  },
+  {
+   "clause_id": "law_state_language:art:18",
+   "number": "18",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121242",
+    "121243"
+   ],
+   "text_original": "18-модда.\nПочта-телеграф жўнатмалари давлат тилида ёки фуқароларнинг хоҳишига кўра — бошқа тилда амалга оширилади.",
+   "url": "https://lex.uz/ru/docs/121051#121242",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "18-modda.\nPochta-telegraf joʻnatmalari davlat tilida yoki fuqarolarning xohishiga koʻra — boshqa tilda amalga oshiriladi."
+  },
+  {
+   "clause_id": "law_state_language:art:19",
+   "number": "19",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121245",
+    "121246",
+    "121248"
+   ],
+   "text_original": "19-модда.\nМуассасалар, ташкилотлар ва жамоат бирлашмалари муҳрлари, тамғалари, иш қоғозларининг матнлари давлат тилида бўлади.\nЎзбекистон Республикаси ҳудудида жойлашган халқаро ташкилотлар ва муассасалар, қўшма корхоналарнинг, шунингдек миллий маданият жамиятлари ва марказларининг муҳрлари, тамғалари, иш қоғозлари матнларининг таржимаси давлат тилида такрорланади.",
+   "url": "https://lex.uz/ru/docs/121051#121245",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "19-modda.\nMuassasalar, tashkilotlar va jamoat birlashmalari muhrlari, tamgʻalari, ish qogʻozlarining matnlari davlat tilida boʻladi.\nOʻzbekiston Respublikasi hududida joylashgan xalqaro tashkilotlar va muassasalar, qoʻshma korxonalarning, shuningdek milliy madaniyat jamiyatlari va markazlarining muhrlari, tamgʻalari, ish qogʻozlari matnlarining tarjimasi davlat tilida takrorlanadi."
+  },
+  {
+   "clause_id": "law_state_language:art:20",
+   "number": "20",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121250",
+    "121251"
+   ],
+   "text_original": "20-модда.\nЛавҳалар, эълонлар, нархномалар ва бошқа кўргазмали ҳамда оғзаки ахборот матнлари давлат тилида расмийлаштирилади ва эълон қилинади ҳамда бошқа тилларда таржимаси берилиши мумкин.",
+   "url": "https://lex.uz/ru/docs/121051#121250",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "20-modda.\nLavhalar, eʼlonlar, narxnomalar va boshqa koʻrgazmali hamda ogʻzaki axborot matnlari davlat tilida rasmiylashtiriladi va eʼlon qilinadi hamda boshqa tillarda tarjimasi berilishi mumkin."
+  },
+  {
+   "clause_id": "law_state_language:art:21",
+   "number": "21",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121254",
+    "121256"
+   ],
+   "text_original": "21-модда.\nКорхоналарда ишлаб чиқариладиган маҳсулот давлат тилидаги ва бошқа тиллардаги ёрлиқлар, йўриқномалар, этикеткалар билан таъминланади.",
+   "url": "https://lex.uz/ru/docs/121051#121254",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "21-modda.\nKorxonalarda ishlab chiqariladigan mahsulot davlat tilidagi va boshqa tillardagi yorliqlar, yoʻriqnomalar, etiketkalar bilan taʼminlanadi."
+  },
+  {
+   "clause_id": "law_state_language:art:22",
+   "number": "22",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "1883413",
+    "1883414"
+   ],
+   "text_original": "22-модда.\nГеографик объектларнинг номлари давлат тилида акс эттирилади.",
+   "url": "https://lex.uz/ru/docs/121051#1883413",
+   "amendment_notes": [
+    {
+     "block_id": "1883418",
+     "text": "(22-модда Ўзбекистон Республикасининг 2011 йил 12 октябрдаги ЎРҚ-304-сонли Қонуни таҳририда — ЎР ҚҲТ, 2011 й., 41-сон, 449-модда)",
+     "amending_act": "ЎРҚ-304",
+     "change": "amended"
+    }
+   ],
+   "repealed": false,
+   "text_parallel_latn": "22-modda.\nGeografik obyektlarning nomlari davlat tilida aks ettiriladi."
+  },
+  {
+   "clause_id": "law_state_language:art:23",
+   "number": "23",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121262",
+    "121263"
+   ],
+   "text_original": "23-модда.\nЎзбекистон Республикасининг халқаро шартномаси матнлари, агар шартноманинг ўзида бошқача қоида назарда тутилмаган бўлса, давлат тилида ва аҳдлашувчи томоннинг (томонларнинг) тилида ёзилади.",
+   "url": "https://lex.uz/ru/docs/121051#121262",
+   "amendment_notes": [],
+   "repealed": false,
+   "text_parallel_latn": "23-modda.\nOʻzbekiston Respublikasining xalqaro shartnomasi matnlari, agar shartnomaning oʻzida boshqacha qoida nazarda tutilmagan boʻlsa, davlat tilida va ahdlashuvchi tomonning (tomonlarning) tilida yoziladi."
+  },
+  {
+   "clause_id": "law_state_language:art:24",
+   "number": "24",
+   "section": "art",
+   "chapter": null,
+   "paragraph": null,
+   "annex": null,
+   "kind": "text",
+   "block_ids": [
+    "121264",
+    "5439344"
+   ],
+   "text_original": "24-модда.\nЎзбекистон Республикасида давлат тилига ёки бошқа тилларга менсимай ёки хусумат билан қараш тақиқланади. Фуқароларнинг ўзаро муомала, тарбия ва таълим олиш тилини эркин танлаш ҳуқуқини амалга оширишга тўсқинлик қилувчи шахслар қонунчиликка мувофиқ жавобгар бўладилар.",
+   "url": "https://lex.uz/ru/docs/121051#121264",
+   "amendment_notes": [
+    {
+     "block_id": "5439352",
+     "text": "(24-модда Ўзбекистон Республикасининг 2021 йил 21 апрелдаги ЎРҚ-683-сонли Қонуни таҳририда — Қонунчилик маълумотлари миллий базаси, 21.04.2021 й., 03/21/683/0375-сон)",
+     "amending_act": "ЎРҚ-683",
+     "change": "amended"
+    }
+   ],
+   "repealed": false,
+   "text_parallel_latn": "24-modda.\nOʻzbekiston Respublikasida davlat tiliga yoki boshqa tillarga mensimay yoki xusumat bilan qarash taqiqlanadi. Fuqarolarning oʻzaro muomala, tarbiya va taʼlim olish tilini erkin tanlash huquqini amalga oshirishga toʻsqinlik qiluvchi shaxslar qonunchilikka muvofiq javobgar boʻladilar."
+  }
+ ]
+}

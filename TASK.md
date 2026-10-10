@@ -48,7 +48,7 @@ LLM only through the LLMProvider interface:
 
 ## 4. Structure
 CLAUDE.md, TASK.md, README.md, .env.example, data/{sources.yaml,banks.yaml,regulations/,raw/,
-requirements.draft.yaml,requirements.yaml,labels/}, backend/{models.py,db.py,ingest/lexuz.py,
+requirements.draft.yaml,requirements.yaml,labels/}, backend/{models.py,db.py,ingest/lex.py,
 extract/requirements.py,crawl/crawler.py,checks/,llm/provider.py,api/main.py,tests/},
 eval/run_eval.py, scripts/{check_sites.py,crawl_all.py,bench_local.py}, frontend/.
 data/raw/ is in .gitignore. CLAUDE.md is built from section 2 of this file.
@@ -78,9 +78,16 @@ STAGE B. Laws from lex.uz.
  2. Download ONE document (Russian version) into data/raw/ and describe its markup: which
     blocks correspond to clauses, where the LexUz editorial comments are, whether blocks have
     ids. STOP: wait for confirmation.
- 3. After confirmation: backend/ingest/lexuz.py splits documents into clauses, keeps the block
-    id, clause number and lex.uz link, drops editorial comments ->
-    data/regulations/<doc>.json. Tests run on saved HTML without network.
+ 3. After confirmation: backend/ingest/lex.py (CLI: python -m backend.ingest.lex --source <id>)
+    parses saved pages offline (fetching is a separate polite function) into
+    data/regulations/<source_id>.json: source_snapshot_date, annexes, clauses with a unique
+    clause_id (<source>:<section>:<number>, e.g. cbu_reg_3030:resolution:1 vs
+    cbu_reg_3030:main:1), chapter/paragraph/annex, block ids, lex.uz anchor link,
+    text_original (canonical official text: Uzbek Cyrillic for Regulation 3030 and the State
+    Language Law), text_parallel_latn (Uzbek Latin, blocks paired as '-' + id), amendment notes
+    (raw text + amending act id such as 3030-10), repealed flag, kind (form annexes are
+    kind=form). Editorial comments are dropped. Repealed clauses and form annexes are kept but
+    excluded from requirement extraction. Tests run on small fixtures cut from real pages.
 
 STAGE C. LLM layer and requirements.
  1. backend/llm/provider.py: complete_json(prompt, schema) -> dict; the response is validated
