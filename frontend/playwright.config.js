@@ -18,7 +18,8 @@ export default defineConfig({
   reporter: [["list"]],
   use: { baseURL: `http://127.0.0.1:${WEB_PORT}` },
   projects: [
-    { name: "mobile-390", use: { browserName: "chromium", viewport: { width: 390, height: 844 } } },
+    { name: "mobile-375", use: { browserName: "chromium", viewport: { width: 375, height: 812 } } },
+    { name: "tablet-768", use: { browserName: "chromium", viewport: { width: 768, height: 1024 } } },
     { name: "desktop-1280", use: { browserName: "chromium", viewport: { width: 1280, height: 800 } } },
   ],
   webServer: [

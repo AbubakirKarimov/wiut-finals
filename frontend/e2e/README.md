@@ -8,4 +8,4 @@
   (`CHECK_ALLOW_PRIVATE_URLS=1`, LLM disabled),
 - the Vite dev server on http://127.0.0.1:5174.
 
-Screenshots are written to `e2e/screenshots/` at 390 px and 1280 px.
+Screenshots are written to `e2e/screenshots/` at 375, 768 and 1280 px; the 375 and 1280 px ones are also copied to `eval/ui_screens/`. Every page is checked for horizontal scroll, and the home page for tap targets of at least 44 px.

@@ -49,13 +49,17 @@ export function stageOf(progress, prev) {
 }
 
 function Stepper({ job, st, elapsed }) {
+  const done = job.status === "done";
+  // When finished, show the final counts from the run, not the last polled event.
+  const pages = done && job.run ? job.run.pages_read : st.pages;
+  const checks = done ? job.findings.length : st.checks;
+  const checksMax = done ? job.findings.length : st.checksMax;
   const steps = [
     { label: "Crawling site", detail: st.stage === 0 ? "fetching home page" : "" },
-    { label: "Reading pages", detail: st.pages != null ? `${st.pages}/${st.pagesMax || "?"}` : "" },
-    { label: "Running checks", detail: st.checksMax != null ? `${st.checks}/${st.checksMax}` : "" },
+    { label: "Reading pages", detail: pages != null ? (done ? `${pages} read` : `${pages}/${st.pagesMax || "?"}`) : "" },
+    { label: "Running checks", detail: checksMax != null ? `${checks}/${checksMax}` : "" },
     { label: "Done", detail: "" },
   ];
-  const done = job.status === "done";
   const current = done ? 4 : st.stage ?? 0;
   return (
     <ol className="stepper" aria-label="Check progress">

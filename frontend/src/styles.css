@@ -158,7 +158,7 @@ input[aria-invalid="true"] { border-color: var(--err-fg); }
 .req-id { display: inline-block; font-size: 12px; font-weight: 600; color: var(--muted);
   border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; }
 .req-text { font-size: 13px; color: var(--muted); }
-.req-text summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; }
+.req-text summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
 .req-text p { margin: 2px 0 6px; }
 .cell-status { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .decidedby { font-size: 12px; border-radius: 4px; padding: 1px 6px; border: 1px solid var(--border); color: var(--muted); }
@@ -168,7 +168,7 @@ input[aria-invalid="true"] { border-color: var(--err-fg); }
 .nc-lead { margin: 0 0 4px; font-weight: 600; }
 .urls .lang { display: inline-block; min-width: 9.5em; color: var(--muted); }
 .urls li { margin: 2px 0; }
-.urls summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; font-weight: 600; }
+.urls summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 600; }
 .quote {
   margin: 0 0 6px; padding: 6px 10px; border-left: 3px solid var(--accent);
   background: var(--bg); border-radius: 0 var(--radius) var(--radius) 0; white-space: pre-wrap;
@@ -251,3 +251,5 @@ input[aria-invalid="true"] { border-color: var(--err-fg); }
   .elapsed { margin-left: 0; width: 100%; }
   .analyst { min-width: 0; width: 100%; }
 }
+.failures { margin: 0 0 8px; padding-left: 20px; max-width: 90ch; }
+.failures li { margin: 4px 0; }
