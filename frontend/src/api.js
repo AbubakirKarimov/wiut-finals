@@ -1,4 +1,7 @@
-export const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
+// Production build: same origin as the page (the API serves the built frontend), unless
+// VITE_API_BASE_URL is set. Dev server: the local API on port 8000.
+const DEFAULT_BASE = import.meta.env.DEV ? "http://localhost:8000" : "";
+export const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? DEFAULT_BASE).replace(/\/$/, "");
 
 export class ApiError extends Error {
   constructor(status, message) {

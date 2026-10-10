@@ -8,10 +8,13 @@ import os
 import threading
 import uuid
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Literal
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from backend import db, metrics, precomputed, team_decisions
@@ -308,3 +311,23 @@ def decisions() -> list[dict]:
 def get_metrics() -> dict:
     with db.connect() as conn:
         return metrics.compute(conn)
+
+
+# --- built frontend (same origin: no CORS needed) ---
+# Registered last, so every API route above wins. The UI uses hash routes (#/findings), so
+# any other GET path returns index.html (SPA fallback). Absent in development (Vite serves
+# the UI), in which case nothing is mounted.
+
+FRONTEND_DIST = Path(os.getenv("FRONTEND_DIST") or
+                     Path(__file__).resolve().parents[2] / "frontend" / "dist")
+
+if (FRONTEND_DIST / "index.html").exists():
+    if (FRONTEND_DIST / "assets").is_dir():
+        app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str) -> FileResponse:
+        target = (FRONTEND_DIST / path).resolve()
+        if path and target.is_file() and FRONTEND_DIST.resolve() in target.parents:
+            return FileResponse(target)  # e.g. favicon
+        return FileResponse(FRONTEND_DIST / "index.html")
