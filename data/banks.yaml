@@ -10,32 +10,32 @@
 banks:
   - id: mkbank
     name: "MKBANK"
-    website_url: ""
+    website_url: "https://mkbank.uz/uz/"
     role: partner
     notes: ""
   - id: agrobank
     name: "Agrobank"
-    website_url: ""
+    website_url: "https://agrobank.uz/uz/person"
     role: fined_group
     notes: ""
   - id: anor_bank
     name: "Anor Bank"
-    website_url: ""
+    website_url: "https://www.anorbank.uz/uz/"
     role: fined_group
     notes: ""
   - id: hayot_bank
     name: "Hayot Bank"
-    website_url: ""
+    website_url: "https://hayotbank.uz/main/individual/home"
     role: fined_group
     notes: ""
   - id: universal_bank
     name: "Universal Bank"
-    website_url: ""
+    website_url: "https://universalbank.uz/"
     role: fined_group
     notes: ""
   - id: garant_bank
     name: "Garant Bank"
-    website_url: ""
+    website_url: "https://garantbank.uz/ru"
     role: fined_group
     notes: ""
   - id: asakabank
