@@ -1,0 +1,115 @@
+# Registry of banks whose public websites are checked.
+# id:          stable slug used as bank_id in pages, findings and reports.
+# name:        bank name as commonly written in English.
+# website_url: official home page, https only. Filled in manually by the user; do NOT guess.
+#              An empty website_url is allowed: the bank is listed but skipped by the crawler.
+# role:        partner     - project partner bank
+#              fined_group - bank in the group fined by the CBU
+# notes:       free text, optional.
+
+banks:
+  - id: mkbank
+    name: "MKBANK"
+    website_url: ""
+    role: partner
+    notes: ""
+  - id: agrobank
+    name: "Agrobank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: anor_bank
+    name: "Anor Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: hayot_bank
+    name: "Hayot Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: universal_bank
+    name: "Universal Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: garant_bank
+    name: "Garant Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: asakabank
+    name: "Asakabank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: turonbank
+    name: "Turonbank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: infinbank
+    name: "Infinbank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: trustbank
+    name: "Trustbank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: madad_invest_bank
+    name: "Madad Invest Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: saderat_bank
+    name: "Saderat Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: orient_finans_bank
+    name: "Orient Finans Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: ipoteka_bank
+    name: "Ipoteka-bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: tenge_bank
+    name: "Tenge Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: ziraat_bank_uzbekistan
+    name: "Ziraat Bank Uzbekistan"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: avo_bank
+    name: "AVO Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: open_bank
+    name: "Open Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: tbc_bank
+    name: "TBC Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: davr_bank
+    name: "Davr Bank"
+    website_url: ""
+    role: fined_group
+    notes: ""
+  - id: hamkorbank
+    name: "Hamkorbank"
+    website_url: ""
+    role: fined_group
+    notes: ""
