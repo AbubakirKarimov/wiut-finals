@@ -18,6 +18,8 @@ services:
         value: "0"
       - key: LIVE_DECISIONS_EPHEMERAL
         value: "1"
+      - key: RESET_DB_ON_START      # rebuild from data/precomputed/ on every start
+        value: "1"
       - key: CHECK_RATE_LIMIT_PER_MINUTE
         value: "5"
       - key: MAX_CONCURRENT_CHECKS

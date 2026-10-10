@@ -32,6 +32,12 @@ MT_LABEL = "machine translation"
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    if os.getenv("RESET_DB_ON_START", "").strip() in ("1", "true", "yes"):
+        # Hosted demo: state is rebuilt from data/precomputed/ on every start; live
+        # decisions and checks from the previous process are dropped (and labelled so).
+        path = db.db_path()
+        for suffix in ("", "-wal", "-shm"):
+            Path(str(path) + suffix).unlink(missing_ok=True)
     db.init_db()
     sync_requirements_yaml()
     # Hosted demo: an empty database starts with the committed pre-computed results.
