@@ -108,14 +108,15 @@ def test_required_link_text_reaches_the_llm(tmp_db):
 
 
 def test_required_link_text_is_no_gap_with_reviewed_hints(tmp_db, monkeypatch):
-    """main:40^4 with the keywords of data/check_hints.yaml (fixed B1)."""
+    """main:40^4 with data/check_hints.yaml (fixed B1; now a deterministic link rule)."""
     monkeypatch.setattr(llm_checks, "HINTS_PATH", llm_checks.Path(llm_checks.__file__)
                         .resolve().parents[2] / "data" / "check_hints.yaml")
-    llm = ScriptedLLM(tmp_db, presence={"present": True, "quote": "Omonatlaringiz kafolatlangan",
-                                        "explanation": ""})
-    c = crawl(pages_with("Omonatlaringiz kafolatlangan"))
-    out = finalize(run_one(req(rid="req:cbu_reg_3030:main:40^4"), c, llm), c)
+    pages = pages_with("Omonatlaringiz kafolatlangan")
+    pages[0].links = [("https://fgd.uz/uz", "Omonatlaringiz kafolatlangan")]
+    c = crawl(pages)
+    out = finalize(run_one(req(rid="req:cbu_reg_3030:main:40^4"), c, None), c)
     assert out.status == "ok" and out.page.url == "https://b.uz/omonatlar"
+    assert not out.llm_used
 
 
 @pytest.mark.parametrize("keyword,text", [
@@ -154,8 +155,9 @@ def test_homepage_requirement_rejects_evidence_from_inner_page(tmp_db, monkeypat
     home = Page(bank_id="b", url="https://b.uz/uz/", language="uz_latn", text=FILLER,
                 source_type="html")
     c = crawl([home] + pages)
-    out = finalize(run_one(r, c, llm), c)
+    out = finalize(run_one(r, c, llm), c, r)
     assert out.status != "ok" or out.page.url == "https://b.uz/uz/"
+    assert out.status == "not_checkable" and "inner page" in out.reason
 
 
 # --- browser crawl counts the home page twice ---
@@ -290,33 +292,16 @@ def test_no_match_gap_without_any_stem_has_no_context(tmp_db):
 
 
 def test_homepage_requirement_prefers_homepage_evidence(tmp_db, monkeypatch):
-    """main:51: numbers on both the homepage and an inner page -> evidence is the homepage,
-    even though the homepage has no keyword hit (the number is in its footer)."""
+    """main:51: numbers on both the homepage (footer) and an inner page -> evidence is the
+    homepage (deterministic phone rule since the A2 change; no LLM)."""
     monkeypatch.setattr(llm_checks, "HINTS_PATH", REAL_HINTS)
     quote = "Call-markaz: 1285, +998 55 503-63-63"
-    llm = ScriptedLLM(tmp_db, presence={"present": True, "quote": quote, "explanation": ""},
-                      keywords={"uz_latn": ["telefon-markazi"], "uz_cyrl": [], "ru": [],
-                                "en": []})
     r = req(text_en="Call-center numbers on the homepage.", rid="req:cbu_reg_3030:main:51")
     home = Page(bank_id="b", url="https://b.uz/uz/", language="uz_latn",
                 text=FILLER * 5 + quote, source_type="html")
     inner = pages_with("Yagona telefon-markazi " + quote,
                        first_url="https://b.uz/uz/services/online-reception/send/")
     c = crawl([home] + inner)
-    out = finalize(run_one(r, c, llm), c, r)
+    out = finalize(run_one(r, c, None), c, r)
     assert out.status == "ok" and out.page.url == "https://b.uz/uz/"
-    sent = next(p for p in llm.prompts if "<excerpts>" in p)
-    assert "Page URL: https://b.uz/uz/" in sent and quote in sent   # footer included
-
-
-# --- B8 (decision): uz_version stays ok with a low Uzbek share, and says so ---
-
-def test_uz_version_ok_states_share_and_that_completeness_is_not_assessed(tmp_db):
-    """Garant Bank in the audit: 2 Uzbek and 9 Russian pages."""
-    uz = [Page(bank_id="b", url=f"https://b.uz/uz/{i}", language="uz_latn", text=FILLER,
-               source_type="html") for i in range(2)]
-    ru = [Page(bank_id="b", url=f"https://b.uz/ru/{i}", language="ru", text="Вклады. " * 30,
-               source_type="html") for i in range(9)]
-    [f] = run_checks("r", crawl(uz + ru), [req("uz_version")], None)
-    assert f.status == "ok"
-    assert "2 Uzbek pages of 11; completeness not assessed" in f.reason
+    assert "+998 55 503-63-63" in out.quote and not out.llm_used

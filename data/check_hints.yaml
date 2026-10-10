@@ -1,49 +1,101 @@
-# Human-reviewable search hints per approved requirement (read by backend/checks/llm_checks.py).
+# Human-reviewable check configuration per approved requirement. The single source of
+# keywords, sections, homepage rules and deterministic rules: no requirement-specific list
+# lives in code. Read by backend/checks/llm_checks.py and backend/checks/rules.py.
 #
-# keywords: when present, used INSTEAD of the keywords the LLM proposes. Matching is by word
-#   stems (first 5 letters), Latin/Cyrillic and apostrophe variants unified, words of a keyword
-#   in any order within a short window (backend/checks/evidence.py).
-#   The two entries below are the LLM's cached keyword lists with spelling errors fixed
-#   (audit bug B1): "gipergavola" -> "giperhavola", "кфолатланган" -> "кафолатланган",
-#   "шикайот" -> "шикоят", "алока" -> "алоқа". For 40^4 the link text quoted in the
-#   regulation itself ("Омонатларингиз кафолатланган") was added. Review before relying on it.
+# Matching (everywhere): word stems (first 5 letters), Latin/Cyrillic and apostrophe variants
+#   unified, words of a keyword in any order within a short window (backend/checks/evidence.py).
 #
-# sections: where the evidence is expected (names from backend/crawl/sections.py, plus
-#   "homepage" = site root or a language root). A possible_gap is reported only if at least
-#   one page of these sections was read; otherwise not_checkable "relevant section not
-#   reached" (audit bug B7, approved). No entry = no section requirement.
-# location: homepage = the requirement names the homepage; the homepage is always sent to
-#   the LLM first and evidence found only on an inner page is not reported as ok (audit B2).
+# rule: a deterministic check, no LLM (backend/checks/rules.py). decided_by = "code".
+#   kind: link   -> a link whose anchor text or URL path matches link_keywords, or whose host
+#                   is in link_domains, on the pages named by `where`
+#                   (homepage | section | any). Found only on other pages -> not_checkable.
+#   kind: phone  -> a +998 number, or a short 1xxx number near a phone_context word, in the
+#                   homepage text (a bank's public call-centre number, required by 3030 §51).
+#   ok_note: appended to an ok explanation (what the code did NOT verify).
+# keywords: for requirements WITHOUT a rule (they need reading: LLM-assisted). Keyword
+#   candidates go to the LLM, which may confirm (ok, quote verified by code) but can never
+#   create a possible_gap; a gap needs code-level absence (no candidate in the read section).
+# sections: where the evidence is expected (backend/crawl/sections.py names, plus
+#   "homepage"). A possible_gap needs at least one page of these sections read; otherwise
+#   not_checkable "relevant section not reached" (audit B7).
+# location: homepage -> LLM path sends the home page first; evidence only on an inner page is
+#   not_checkable (audit B2). Deterministic rules express the same with where: homepage.
 requirements:
   req:cbu_reg_3030:main:14:     # section describing the site structure (site map)
     sections: [homepage]
+    rule:
+      kind: link
+      where: homepage
+      link_keywords: ["sayt xaritasi", "sayt kartasi", "sayt tuzilmasi", "сайт харитаси",
+                      "карта сайта", "структура сайта", sitemap, "site map"]
+
   req:cbu_reg_3030:main:17:     # homepage link to information about the bank and its services
     sections: [homepage]
+    rule:
+      kind: link
+      where: homepage
+      link_keywords: ["bank haqida", "biz haqimizda", "банк ҳақида", "о банке",
+                      about, "about us", "about bank"]
+      ok_note: "Whether the linked section also covers the terms of the bank's services is not verified."
+
   req:cbu_reg_3030:main:18^1:   # loan full-cost calculator for natural persons
     sections: [loan]
-  req:cbu_reg_3030:main:28^1:   # procedure for applications to change loan terms
+    rule:
+      kind: link
+      where: any
+      link_keywords: [kalkulyator, калькулятор, calculator, calc]
+      ok_note: "Presence only: whether the calculator shows the full cost of the loan (all interest and fees) is not verified."
+
+  req:cbu_reg_3030:main:28^1:   # procedure for applications to change loan terms (LLM-assisted)
     sections: [loan, document, restructuring]
-  req:cbu_reg_3030:main:37^5:   # procedure for releasing or replacing collateral
+    keywords:
+      uz_latn: [restrukturizatsiya, "kredit shartlarini o'zgartirish", "shartnoma shartlarini o'zgartirish",
+                "to'lov muddatini uzaytirish", "to'lov jadvalini o'zgartirish", "kredit ta'tili"]
+      uz_cyrl: [реструктуризация, "кредит шартларини ўзгартириш", "тўлов муддатини узайтириш",
+                "тўлов жадвалини ўзгартириш", "кредит таътили"]
+      ru: [реструктуризация, "изменение условий кредита", "изменения условий кредитного договора",
+           "кредитные каникулы", "изменение графика платежей"]
+      en: [restructuring, "change of loan terms", "loan term change"]
+
+  req:cbu_reg_3030:main:37^5:   # procedure for releasing or replacing collateral (LLM-assisted)
     sections: [loan, document]
+    keywords:
+      uz_latn: ["garovdan ozod qilish", "garovni almashtirish", "garov mulkini qaytarish",
+                "taqiqni olib tashlash", "taqiqdan chiqarish"]
+      uz_cyrl: ["гаровдан озод қилиш", "гаровни алмаштириш", "гаров мулкини қайтариш",
+                "тақиқни олиб ташлаш", "тақиқдан чиқариш"]
+      ru: ["освобождение от залога", "замена залога", "снятие залога", "снятие обременения",
+           "возврат залога"]
+      en: ["collateral release", "release of collateral", "pledge release", "collateral substitution"]
+
   req:cbu_reg_3030:main:40^4:   # "Your deposits are guaranteed" link on the deposit page
     sections: [deposit]
-    keywords:
-      uz_latn: ["omonatlaringiz kafolatlangan", "omonat kafolat", "kafolatlangan omonat",
-                "deposit kafolati", "guaranteed omonat", "omonatlar kafolati", "giperhavola"]
-      uz_cyrl: ["омонатларингиз кафолатланган", "омонат кафолат", "кафолатланган омонат",
-                "депозит кафолати", "гарантия омонат", "омонатлар кафолати", "гиперҳавола"]
-      ru: ["ваши вклады гарантированы", "гарантия вкладов", "депозит гарантирован",
-           "гарантированный вклад", "ссылка гарантии", "страница гарантии", "депозитная гарантия"]
-      en: ["deposit guarantee", "guaranteed deposits", "deposit guarantee link",
-           "guarantee hyperlink", "deposit protection", "guarantee page"]
+    rule:
+      kind: link
+      where: section
+      link_keywords: ["omonatlaringiz kafolatlangan", "omonat kafolat", "omonatlarni kafolatlash",
+                      "омонатларингиз кафолатланган", "омонат кафолат", "вклады гарантированы",
+                      "гарантирования вкладов", "гарантия вкладов", "deposits guaranteed",
+                      "deposit guarantee"]
+      # Deposit Guarantee Agency domain, as linked from stored bank pages (agrobank.uz deposit
+      # pages: "Omonatlaringiz kafolatlangan" -> fgd.uz; garantbank.uz: "Агентство по
+      # гарантированию вкладов" -> fgd.uz). Verify against the CBU website.
+      link_domains: [fgd.uz]
+
   req:cbu_reg_3030:main:49:     # complaint page linked from the homepage or top navigation
     sections: [homepage, complaint]
     location: homepage
-    keywords:
-      uz_latn: [shikoyat, murojaat, aloqa, telefon, onlayn, form]
-      uz_cyrl: [шикоят, мурожаат, алоқа, телефон, онлайн, форм]
-      ru: [жалоба, обращение, контакт, телефон, онлайн, форма]
-      en: [complaint, feedback, contact, support, online, form]
+    rule:
+      kind: link
+      where: homepage
+      link_keywords: [murojaat, shikoyat, мурожаат, шикоят, обращени, жалоб, "виртуальная приемная",
+                      "virtualnaya priemnaya", feedback, complaint, appeal]
+
   req:cbu_reg_3030:main:51:     # call-centre numbers on the homepage
     sections: [homepage]
     location: homepage
+    rule:
+      kind: phone
+      where: homepage
+      phone_context: [call, "call-markaz", "call-центр", "колл-центр", telefon, телефон, aloqa,
+                      алоқа, markaz, ishonch, справ, contact, контакт, "qo'ng'iroq", звонок]

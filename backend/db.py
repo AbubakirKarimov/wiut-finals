@@ -219,7 +219,8 @@ def get_cached_page(conn: sqlite3.Connection, bank_id: str, url: str,
     d = dict(row)
     links = json.loads(d.pop("links") or "{}")
     d.pop("request_url", None)
-    return Page(**{**d, "readable": bool(d["readable"])}), links
+    return Page(**{**d, "readable": bool(d["readable"])},
+                links=[tuple(x) for x in links.get("links") or []]), links
 
 
 def list_pages(conn: sqlite3.Connection, bank_id: str, run_id: str | None = None) -> list[Page]:
@@ -233,9 +234,10 @@ def list_pages(conn: sqlite3.Connection, bank_id: str, run_id: str | None = None
 
 def _page(row: sqlite3.Row) -> Page:
     d = dict(row)
-    d.pop("links", None)
+    meta = json.loads(d.pop("links", None) or "{}")
     d.pop("request_url", None)
-    return Page(**{**d, "readable": bool(d["readable"])})
+    return Page(**{**d, "readable": bool(d["readable"])},
+                links=[tuple(x) for x in meta.get("links") or []])
 
 
 # --- findings ---

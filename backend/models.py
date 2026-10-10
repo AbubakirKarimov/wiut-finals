@@ -42,6 +42,8 @@ class Page(BaseModel):
     readable: bool = True
     title: str = ""
     run_id: str | None = None
+    # (absolute URL, anchor text) of the links on the page, from the crawl metadata.
+    links: list[tuple[str, str]] = Field(default_factory=list)
 
 
 class Finding(BaseModel):

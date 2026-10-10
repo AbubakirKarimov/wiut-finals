@@ -123,6 +123,12 @@ def hint_sections(req: Requirement, path: Path | None = None) -> list[str]:
     return [s for s in (_hint_entry(req, path).get("sections") or []) if s]
 
 
+def hint_rule(req: Requirement, path: Path | None = None) -> dict | None:
+    """Deterministic rule for the requirement (data/check_hints.yaml `rule:`), if any."""
+    rule = _hint_entry(req, path).get("rule")
+    return rule if isinstance(rule, dict) else None
+
+
 def hint_location(req: Requirement, path: Path | None = None) -> str | None:
     """'homepage' when the requirement names the homepage (data/check_hints.yaml)."""
     return _hint_entry(req, path).get("location") or None
@@ -264,16 +270,21 @@ def check_presence(req: Requirement, pages: list[Page], llm: LLMProvider | None
         return CheckOutcome("not_checkable", llm_used=True,
                             reason="LLM said present but its quote was not found verbatim in "
                                    "the page text (answer rejected): " + ", ".join(rejected))
+    # A3: the LLM cannot create a gap. Code found related passages (keyword candidates), so
+    # code has no evidence of absence; the LLM's "not present" only leaves it for review.
+    note = ("Code found related passages on {n} candidate page(s) but the LLM did not confirm "
+            "the requirement there; a possible gap needs code-level evidence of absence, so "
+            "this is left for review").format(n=len(cands))
     if closest:
         page, quote, expl = closest
-        return CheckOutcome("possible_gap", page=page, quote=quote, llm_used=True,
-                            reason=f"LLM: not present on {len(cands)} candidate page(s); quote "
-                                   f"is the closest related passage. {expl} ({kw_note})")
+        return CheckOutcome("not_checkable", page=page, quote=quote, llm_used=True,
+                            reason=f"{note}. Quote: the closest related passage. {expl} "
+                                   f"({kw_note})")
     page, offs = cands[0]
-    return CheckOutcome("possible_gap", page=page, llm_used=True,
+    return CheckOutcome("not_checkable", page=page, llm_used=True,
                         quote=opening_quote(excerpt(page.text, offs[:1], 400, 0, 400)[0]),
-                        reason=f"LLM: not present on {len(cands)} candidate page(s); quote is "
-                               f"the keyword match on the best candidate ({kw_note})")
+                        reason=f"{note}. Quote: the keyword match on the best candidate "
+                               f"({kw_note})")
 
 
 def translate(quote: str, llm: LLMProvider | None) -> str | None:

@@ -9,7 +9,9 @@ import time
 from typing import Callable
 
 from backend.checks.evidence import verify_quote
-from backend.checks.llm_checks import TIMEOUT_REASON, check_presence, hint_sections, translate
+from backend.checks.llm_checks import (TIMEOUT_REASON, check_presence, hint_rule, hint_sections,
+                                       translate)
+from backend.checks.rules import run_rule
 from backend.checks.types import CheckOutcome
 from backend.checks.uz_version import check_uz_version
 from backend.crawl.crawler import CrawlResult
@@ -28,6 +30,9 @@ def run_one(req: Requirement, crawl: CrawlResult, llm: LLMProvider | None) -> Ch
     if req.check_type == "uz_version":
         return check_uz_version(req, crawl.pages, crawl.has_language_switcher)
     if req.check_type in ("required_document", "key_info"):
+        rule = hint_rule(req)
+        if rule:  # deterministic: no LLM call
+            return run_rule(rule, crawl.pages, hint_sections(req))
         return check_presence(req, crawl.pages, llm)
     return CheckOutcome("not_checkable", reason=f"unknown check type {req.check_type}")
 

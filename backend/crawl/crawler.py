@@ -184,7 +184,8 @@ class Crawler:
         if hit is None:
             return None
         page, meta = hit
-        page = page.model_copy(update={"run_id": run_id})
+        page = page.model_copy(update={"run_id": run_id,
+                                       "links": [tuple(x) for x in meta.get("links") or []]})
         self.store.put(page, meta, request_url=url)  # attach the page to this run
         return page, meta
 
@@ -297,6 +298,7 @@ class Crawler:
                         title=page_title(html), run_id=run_id)
             meta["links"] = [list(x) for x in links(html, r.final_url)]
             meta["lang"] = language_links(html, r.final_url)
+            page.links = [tuple(x) for x in meta["links"]]
         else:
             res.skipped.append(f"{r.final_url}: content type {r.content_type or 'unknown'}")
             return None, meta
@@ -367,7 +369,7 @@ class Crawler:
         text = visible_text(html)
         page = Page(bank_id=res.bank_id, url=url, source_type="html", text=text,
                     language=detect_language(text) or "other", readable=bool(text),
-                    title=page_title(html), run_id=run_id)
+                    title=page_title(html), run_id=run_id, links=links(html, url))
         res.pages.append(page)
         if self.store is not None:
             self.store.put(page, {"method": "browser", "links": [list(x) for x in links(html, url)],

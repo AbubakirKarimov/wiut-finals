@@ -150,12 +150,14 @@ def test_key_info_rejects_quote_not_in_page(tmp_db):
     assert f.evidence_quote is None and f.evidence_quote_en is None
 
 
-def test_required_document_gap_when_llm_says_absent(tmp_db):
+def test_llm_absent_cannot_create_a_gap(tmp_db):
+    """A3: keyword candidates exist, the LLM says absent -> not_checkable, never a gap."""
     closest = "Bank xizmatlari uchun komissiya miqdori"
     llm = ScriptedLLM(tmp_db, presence={"present": False, "quote": closest, "explanation": "no"})
     pages = [page("https://b.uz/tariflar", UZ_TARIFF)] + many(5, "ru", RU_HOME)
     [f] = run_checks("r", crawl(pages), [req("required_document")], llm)
-    assert f.status == "possible_gap" and f.evidence_quote == closest
+    assert f.status == "not_checkable" and f.evidence_quote == closest
+    assert "code-level evidence of absence" in f.reason and f.decided_by == "llm_assisted"
     assert f.pages_read == 6 and f.urls_read[0] == "https://b.uz/tariflar"
 
 
