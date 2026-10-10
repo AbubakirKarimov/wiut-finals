@@ -5,6 +5,7 @@ renderer for JavaScript-only pages. Nothing here bypasses bot protection."""
 import os
 import time
 from dataclasses import dataclass, field
+from typing import Callable
 from urllib.parse import urljoin, urlsplit
 from urllib.robotparser import RobotFileParser
 
@@ -118,6 +119,8 @@ class Fetcher:
         # host -> robots.txt text ("" = no restrictions), or None if it could not be read
         self._robots: dict[str, str | None] = {}
         self.notes: list[str] = []
+        # Optional check run on every URL before it is requested (raises ValueError).
+        self.url_guard: Callable[[str], object] | None = None
 
     def close(self) -> None:
         self.client.close()
@@ -176,6 +179,12 @@ class Fetcher:
         current = url
         try:
             for _ in range(MAX_REDIRECTS + 1):
+                if self.url_guard:
+                    try:
+                        self.url_guard(current)
+                    except ValueError as e:
+                        res.error, res.final_url = f"URL not allowed: {e}", current
+                        return res
                 ok = self.allowed(current)
                 if not ok:
                     res.robots_blocked = True
