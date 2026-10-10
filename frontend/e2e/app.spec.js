@@ -63,16 +63,52 @@ test("a check reaches results with stepper, badge and pages read", async ({ page
   await expect(results).toContainText("Possible gap for review");
   await expect(results.getByTestId("decided-by")).toHaveText("Decided by: code");
   const gap = results.getByTestId("gap-evidence");
-  await expect(gap).toContainText("No evidence found on 7 page(s) read. Closest page:");
-  await expect(gap.locator("blockquote")).toContainText("ТестБанк");
-  await expect(gap.getByTestId("pages-read")).toContainText("Pages read (7)");
-  await expect(gap.locator("details li")).toHaveCount(7);
-  await expect(gap.locator("details li").first()).toContainText("Russian");
+  // A gap shows only "No evidence found on N pages read." and the closest page: no passage.
+  await expect(gap.locator(".gap-lead")).toHaveText("No evidence found on 7 pages read.");
+  await expect(gap).toContainText("Closest page:");
+  await expect(gap.locator("blockquote")).toHaveCount(0);
+  await expect(gap).not.toContainText("Context from this page");
+  // Pages read: collapsed by default, language + URL when expanded.
+  const pagesRead = gap.getByTestId("pages-read");
+  await expect(pagesRead).toContainText("Pages read (7)");
+  await expect(pagesRead).not.toHaveAttribute("open", "");
+  await expect(pagesRead.locator("li").first()).toBeHidden();
+  await pagesRead.locator("summary").click();
+  await expect(pagesRead.locator("li")).toHaveCount(7);
+  await expect(pagesRead.locator("li").first()).toContainText("Russian");
+  // Technical text is in a collapsed "Details" section.
+  const details = gap.getByTestId("reason-details");
+  await expect(details).not.toHaveAttribute("open", "");
+  await details.locator("summary").click();
+  await expect(details).toContainText("no Uzbek-language page found");
   await expect(page.locator("body")).not.toContainText(/violation/i);
-  await expect(results).toContainText("machine translation");
   await expect(results).toContainText("checked just now");
   await noHorizontalScroll(page);
   await shot(page, testInfo, "check-results");
+});
+
+test("stored cards: ok keeps its quote, not checkable shows only a short reason", async ({ page }) => {
+  await page.goto("/#/findings");
+  const ok = page.getByTestId("finding-row").filter({ hasText: "e2e_ok_bank" });
+  const okEv = ok.getByTestId("ok-evidence");
+  await expect(okEv.locator("blockquote mark")).toHaveText("Davlat tilida e'lonlar va narxlar ro'yxati joylashtirilgan.");
+  await expect(okEv).toContainText("machine translation: Announcements and price lists are published in the state language.");
+  await expect(okEv.locator("a.pagelink")).toHaveAttribute("href", "https://e2e_ok_bank.example/p0");
+  await expect(okEv.locator(".reason-short")).toHaveText("Uzbek version present (5 Uzbek pages of 6; completeness not assessed).");
+
+  const nc = page.getByTestId("finding-row").filter({ hasText: "e2e_nc_bank" });
+  const ncEv = nc.getByTestId("nc-evidence");
+  await expect(ncEv.getByTestId("nc-reason")).toHaveText("LLM did not confirm it; manual review needed.");
+  await expect(ncEv.locator("blockquote")).toHaveCount(0);
+  await expect(nc).not.toContainText("This stored passage must not be shown");
+  await expect(nc).not.toContainText("Passage found");
+  await expect(nc).not.toContainText("machine translation of the hidden passage");
+  const details = ncEv.getByTestId("reason-details");
+  await expect(details.locator("p")).toBeHidden();
+  await details.locator("summary").click();
+  await expect(details).toContainText("Re-checked on 2026-10-10");
+  await expect(details).toContainText("keywords from hints: e2e, seed");
+  await expect(ncEv.getByTestId("nc-reason")).not.toContainText("re-checked");
 });
 
 test("decision persists after reload and appears in the audit log", async ({ page, request }, testInfo) => {

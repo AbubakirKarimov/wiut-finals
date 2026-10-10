@@ -173,45 +173,47 @@ function PageLink({ url, children }) {
   );
 }
 
+function Details({ f }) {
+  if (!f.reason_details) return null;
+  return (
+    <details className="tech" data-testid="reason-details">
+      <summary>Details</summary>
+      <p>{f.reason_details}</p>
+    </details>
+  );
+}
+
 function Evidence({ f }) {
+  const short = f.reason_short || reasonHeadline(f.reason);
   if (f.status === "possible_gap") {
-    // An absence cannot be quoted: any passage only shows the closest page that was read.
+    // An absence cannot be quoted: no passage is shown, only where the crawler looked.
     return (
       <div className="evidence" data-testid="gap-evidence">
-        <p className="gap-lead">
-          No evidence found on {f.pages_read ?? "no data"} page(s) read. Closest page:
-        </p>
-        <PageLink url={f.evidence_url} />
-        {f.evidence_quote && <Quote f={f} label="Passage from this page (context, not proof)" />}
-        {f.context_quote && (
-          <>
-            <p className="mt-label small">Context from this page (not evidence):</p>
-            <blockquote className="quote context" lang="uz"
-                        data-testid="context-quote">{f.context_quote}</blockquote>
-          </>
+        <p className="gap-lead">{short}</p>
+        {f.evidence_url && (
+          <p className="small closest">Closest page: <PageLink url={f.evidence_url} /></p>
         )}
-        <p className="muted small">Possible gap for review: a CBU analyst decides.</p>
-        {f.reason && <p className="reason">{f.reason}</p>}
-        <PagesRead f={f} open />
+        <Details f={f} />
+        <PagesRead f={f} />
       </div>
     );
   }
   if (f.status === "not_checkable") {
+    // Only the plain reason: any stored passage is not decisive and is not shown.
     return (
-      <div className="evidence">
-        <p className="nc-lead" data-testid="nc-reason">{reasonHeadline(f.reason)}</p>
-        {f.reason && <p className="reason">{f.reason}</p>}
-        {f.evidence_quote && <Quote f={f} label="Passage found (not decisive)" />}
-        <PageLink url={f.evidence_url} />
+      <div className="evidence" data-testid="nc-evidence">
+        <p className="nc-lead" data-testid="nc-reason">{short}</p>
+        <Details f={f} />
         <PagesRead f={f} />
       </div>
     );
   }
   return (
-    <div className="evidence">
+    <div className="evidence" data-testid="ok-evidence">
       {f.evidence_quote ? <Quote f={f} /> : <p className="muted">No verified quote.</p>}
       <PageLink url={f.evidence_url} />
-      {f.reason && <p className="reason">{f.reason}</p>}
+      <p className="reason-short">{short}</p>
+      <Details f={f} />
       <PagesRead f={f} />
     </div>
   );
