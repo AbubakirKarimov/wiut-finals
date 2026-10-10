@@ -1,12 +1,12 @@
 # ComplianceRadar
 
-Мониторинг публичных сайтов банков Узбекистана на возможные несоответствия Положению ЦБ №3030
-и Закону «О государственном языке». Находки — только «возможное несоответствие» с
-доказательством; решение принимает аналитик ЦБ.
+Monitoring of Uzbek banks' public websites for possible gaps against CBU Regulation No. 3030
+and the Law "On the State Language". Findings are only "possible gaps" with evidence; a CBU
+analyst makes the decision.
 
-> README будет заполнен по факту на этапе I.
+> This README will be completed from facts in Stage I. The full task is in `TASK.md`.
 
-## Запуск (dev)
+## Run (dev)
 
 ```bash
 python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
