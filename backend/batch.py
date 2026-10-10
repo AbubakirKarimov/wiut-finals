@@ -48,6 +48,29 @@ def summarize(conn, run_ids: list[str]) -> list[dict]:
     return rows
 
 
+def calls_by_purpose(conn, run_ids: list[str]) -> dict[str, dict]:
+    """LLM calls of these runs grouped by purpose, from the cached response of each call:
+    presence (decides a status), translation (machine translation of a verified quote,
+    decides nothing), keywords, or failed (no response, e.g. HTTP 429)."""
+    out: dict[str, dict] = {}
+    if not run_ids:
+        return out
+    marks = ",".join("?" for _ in run_ids)
+    for r in conn.execute(
+            f"SELECT l.cache_hit, l.input_tokens, l.output_tokens, k.response_json FROM llm_calls l "
+            f"LEFT JOIN llm_cache k ON k.key = l.cache_key WHERE l.run_id IN ({marks})", run_ids):
+        j = r["response_json"] or ""
+        kind = ("translation" if "translation_en" in j else "presence (decision)"
+                if '"present"' in j else "keywords" if "uz_latn" in j else "failed")
+        k = out.setdefault(kind, {"api_calls": 0, "cache_hits": 0, "tokens": 0})
+        if r["cache_hit"]:
+            k["cache_hits"] += 1
+        else:
+            k["api_calls"] += 1
+            k["tokens"] += (r["input_tokens"] or 0) + (r["output_tokens"] or 0)
+    return out
+
+
 def _fmt(v) -> str:
     if v is None:
         return "no data"

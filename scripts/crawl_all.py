@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from backend import db  # noqa: E402
-from backend.batch import markdown_table, summarize, text_table  # noqa: E402
+from backend.batch import calls_by_purpose, markdown_table, summarize, text_table  # noqa: E402
 from backend.crawl.banks import crawlable_banks, load_banks  # noqa: E402
 from backend.pipeline import check_site, llm_from_env, sync_requirements_yaml  # noqa: E402
 
@@ -40,7 +40,11 @@ def main(only: list[str]) -> int:
     sync_requirements_yaml()
     without_url = [b.id for b in load_banks() if not b.website_url]
     if only == ["--summary"]:  # rebuild the table from the latest stored batch runs
-        report(latest_batch_runs(), without_url)
+        runs = latest_batch_runs()
+        with db.connect() as conn:
+            done = {conn.execute("SELECT bank_id FROM runs WHERE id = ?", (r,)).fetchone()[0]
+                    for r in runs}
+        report(runs, without_url, [b.id for b in crawlable_banks() if b.id not in done])
         return 0
     banks = [b for b in crawlable_banks() if not only or b.id in only]
     not_selected = [b.id for b in crawlable_banks() if b not in banks]
@@ -65,6 +69,7 @@ def main(only: list[str]) -> int:
 def report(run_ids: list[str], without_url: list[str], not_selected: list[str] = ()) -> None:
     with db.connect() as conn:
         rows = summarize(conn, run_ids)
+        purposes = calls_by_purpose(conn, run_ids)
     llm = llm_from_env()
     model = f"{llm.name} / {llm.model}" if llm else "LLM not configured"
     print("\n" + text_table(rows))
@@ -81,7 +86,11 @@ def report(run_ids: list[str], without_url: list[str], not_selected: list[str] =
         f"- Not selected for this run (have a website_url): {', '.join(not_selected) or 'none'}\n"
         f"- Columns: by code / LLM-assisted = who decided each finding's status; $/check = "
         f"cost / requirement checks\n\n"
-        + markdown_table(rows) + "\n", encoding="utf-8")
+        + markdown_table(rows) + "\n\nLLM calls by purpose (presence decides a status; "
+        "translation only translates a verified quote):\n\n| purpose | API calls | cache hits | "
+        "tokens |\n|---|---|---|---|\n"
+        + "".join(f"| {k} | {v['api_calls']} | {v['cache_hits']} | {v['tokens']} |\n"
+                  for k, v in sorted(purposes.items())), encoding="utf-8")
     print(f"summary: {SUMMARY_PATH.relative_to(ROOT)}")
 
 

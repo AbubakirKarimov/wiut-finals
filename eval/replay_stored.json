@@ -1,117 +1,117 @@
 {
- "generated_at": "2026-10-10T19:08:36+00:00",
+ "generated_at": "2026-10-10T19:38:20+00:00",
  "summary": {
   "findings": 54,
   "decided_by": {
-   "code": 51,
-   "llm_assisted": 3
+   "code": 48,
+   "llm_assisted": 6
   },
   "by_status": {
-   "ok": 26,
-   "possible_gap": 16,
-   "not_checkable": 12
+   "ok": 30,
+   "not_checkable": 13,
+   "possible_gap": 11
   },
   "banks": 6,
-  "share_code": 0.944,
-  "llm_api_calls_attempted": 12,
+  "share_code": 0.889,
+  "llm_api_calls_attempted": 4,
   "note": "LLM-path checks not in llm_cache become not_checkable in this replay"
  },
  "rows": [
   {
    "bank_id": "agrobank",
    "requirement_id": "req:cbu_reg_3030:main:14",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://agrobank.uz/uz/person",
    "quote": "saytlari Sayt xaritasi Sayt",
    "reason": "Code: link \"Sayt xaritasi\" (https://agrobank.uz/uz/sitemap) found on https://agrobank.uz/uz/person (homepage page); anchor text quoted from the page.",
-   "pages_found": 11,
-   "pages_listed": 11
+   "pages_found": 4,
+   "pages_listed": 4
   },
   {
    "bank_id": "agrobank",
    "requirement_id": "req:cbu_reg_3030:main:17",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://agrobank.uz/uz/person",
    "quote": "maʼlumotlar Bank haqida Sotuvdagi",
    "reason": "Code: link \"Bank haqida\" (https://agrobank.uz/uz/about) found on https://agrobank.uz/uz/person (homepage page); anchor text quoted from the page. Whether the linked section also covers the terms of the bank's services is not verified.",
-   "pages_found": 11,
-   "pages_listed": 11
+   "pages_found": 4,
+   "pages_listed": 4
   },
   {
    "bank_id": "agrobank",
    "requirement_id": "req:cbu_reg_3030:main:18^1",
-   "old_status": "possible_gap",
-   "new_status": "possible_gap",
+   "old_status": "not_checkable",
+   "new_status": "not_checkable",
    "decided_by": "code",
    "evidence_url": "https://agrobank.uz/uz/person",
    "quote": null,
-   "reason": "No evidence found on 11 pages read. Code checked links matching kalkulyator, калькулятор, calculator, calc on 11 page(s) (https://agrobank.uz/uz/person, https://agrobank.uz/uz/about/bank, https://agrobank.uz/uz/contacts, ...): nothing matched.",
-   "pages_found": 11,
-   "pages_listed": 11
+   "reason": "only 4 page(s) read (at least 5 needed to report a possible gap): No evidence found on 4 pages read. Code checked links matching kalkulyator, калькулятор, calculator, calc on 4 page(s) (https://agrobank.uz/uz/person, https://agrobank.uz/uz/about/bank, https://agrobank.uz/uz/bank-tarifi, ...): nothin",
+   "pages_found": 4,
+   "pages_listed": 4
   },
   {
    "bank_id": "agrobank",
    "requirement_id": "req:cbu_reg_3030:main:28^1",
-   "old_status": "possible_gap",
-   "new_status": "possible_gap",
-   "decided_by": "code",
-   "evidence_url": "https://agrobank.uz/uz/person",
-   "quote": null,
-   "reason": "No evidence found on 11 pages read. No page matched the keywords (keywords from hints: restrukturizatsiya, kredit shartlarini o'zgartirish, shartnoma shartlarini o'zgartirish, to'lov muddatini uzaytirish, to'lov jadvalini o'zgartirish, kredit ta'tili, реструктуризация, кредит шартларини ўзгартириш, ",
-   "pages_found": 11,
-   "pages_listed": 11
+   "old_status": "not_checkable",
+   "new_status": "not_checkable",
+   "decided_by": "llm_assisted",
+   "evidence_url": "https://agrobank.uz/uz/saytdan-foydalanish-shartlari-va-qoidalari",
+   "quote": "shartlarini istalgan vaqtda o'zgartirish huquqiga ega. 6. XIZMATLARNI KAFOLATLASH VA JAVOBGARLIKNI CHEKLASH Saytda joylashgan barcha ma'lumot va kontent \"bunaqa holda\" taqdim etiladi. Bank hech",
+   "reason": "Code found related passages on 1 candidate page(s) but the LLM did not confirm the requirement there; a possible gap needs code-level evidence of absence, so this is left for review. Quote: the keyword match on the best candidate (keywords from hints: restrukturizatsiya, kredit shartlarini o'zgartir",
+   "pages_found": 4,
+   "pages_listed": 4
   },
   {
    "bank_id": "agrobank",
    "requirement_id": "req:cbu_reg_3030:main:37^5",
-   "old_status": "possible_gap",
-   "new_status": "possible_gap",
+   "old_status": "not_checkable",
+   "new_status": "not_checkable",
    "decided_by": "code",
-   "evidence_url": "https://agrobank.uz/uz/deposit-cell",
+   "evidence_url": "https://agrobank.uz/uz/saytdan-foydalanish-shartlari-va-qoidalari",
    "quote": null,
-   "reason": "No evidence found on 11 pages read. No page matched the keywords (keywords from hints: garovdan ozod qilish, garovni almashtirish, garov mulkini qaytarish, taqiqni olib tashlash, taqiqdan chiqarish, гаровдан озод қилиш, гаровни алмаштириш, гаров мулкини қайтариш, тақиқни олиб ташлаш, тақиқдан чиқари",
-   "pages_found": 11,
-   "pages_listed": 11
+   "reason": "only 4 page(s) read (at least 5 needed to report a possible gap): No evidence found on 4 pages read. No page matched the keywords (keywords from hints: garovdan ozod qilish, garovni almashtirish, garov mulkini qaytarish, taqiqni olib tashlash, taqiqdan chiqarish, гаровдан озод қилиш, гаровни алмашти",
+   "pages_found": 4,
+   "pages_listed": 4
   },
   {
    "bank_id": "agrobank",
    "requirement_id": "req:cbu_reg_3030:main:40^4",
-   "old_status": "possible_gap",
-   "new_status": "possible_gap",
+   "old_status": "not_checkable",
+   "new_status": "not_checkable",
    "decided_by": "code",
-   "evidence_url": "https://agrobank.uz/uz/deposit-cell",
+   "evidence_url": null,
    "quote": null,
-   "reason": "No evidence found on 11 pages read. Code checked links matching omonatlaringiz kafolatlangan, omonat kafolat, omonatlarni kafolatlash, омонатларингиз кафолатланган, омонат кафолат, вклады гарантированы, гарантирования вкладов, гарантия вкладов, deposits guaranteed, deposit guarantee or linking to fg",
-   "pages_found": 11,
-   "pages_listed": 11
+   "reason": "relevant section not reached (read 4 pages): no section page",
+   "pages_found": 4,
+   "pages_listed": 4
   },
   {
    "bank_id": "agrobank",
    "requirement_id": "req:cbu_reg_3030:main:49",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://agrobank.uz/uz/person",
    "quote": "Internet-bank Murojaat jo'natish Kartalar",
    "reason": "Code: link \"Murojaat jo'natish\" (https://agrobank.uz/uz/contacts/appeal) found on https://agrobank.uz/uz/person (homepage page); anchor text quoted from the page.",
-   "pages_found": 11,
-   "pages_listed": 11
+   "pages_found": 4,
+   "pages_listed": 4
   },
   {
    "bank_id": "agrobank",
    "requirement_id": "req:cbu_reg_3030:main:51",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://agrobank.uz/uz/person",
    "quote": "Aloqa markazi 1216 , Ishonch",
    "reason": "Code: call-centre number 1216 found in the text of the homepage https://agrobank.uz/uz/person.",
-   "pages_found": 11,
-   "pages_listed": 11
+   "pages_found": 4,
+   "pages_listed": 4
   },
   {
    "bank_id": "agrobank",
@@ -121,14 +121,14 @@
    "decided_by": "code",
    "evidence_url": "https://agrobank.uz/uz/person",
    "quote": "Jismoniy shaxslarga Yuridik shaxslarga Aksiyador va investorlarga Ochiq maʼlumotlar Bank haqida Sotuvdagi mulklar Bog‘lanish Filial va bankomatlar Antikorrupsiya FAQ Bank tarifi Bank xaridlari",
-   "reason": "Uzbek version present (11 Uzbek pages of 11; completeness not assessed): 11 Uzbek and 0 Russian pages of 11 HTML pages read (Uzbek share 100%); language switcher found",
-   "pages_found": 11,
-   "pages_listed": 11
+   "reason": "Uzbek version present (4 Uzbek pages of 4; completeness not assessed): 4 Uzbek and 0 Russian pages of 4 HTML pages read (Uzbek share 100%); language switcher found",
+   "pages_found": 4,
+   "pages_listed": 4
   },
   {
    "bank_id": "anor_bank",
    "requirement_id": "req:cbu_reg_3030:main:14",
-   "old_status": "not_checkable",
+   "old_status": "possible_gap",
    "new_status": "possible_gap",
    "decided_by": "code",
    "evidence_url": "https://www.anorbank.uz/uz/",
@@ -140,7 +140,7 @@
   {
    "bank_id": "anor_bank",
    "requirement_id": "req:cbu_reg_3030:main:17",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://www.anorbank.uz/uz/",
@@ -164,12 +164,12 @@
   {
    "bank_id": "anor_bank",
    "requirement_id": "req:cbu_reg_3030:main:28^1",
-   "old_status": "possible_gap",
-   "new_status": "not_checkable",
+   "old_status": "ok",
+   "new_status": "ok",
    "decided_by": "llm_assisted",
-   "evidence_url": null,
-   "quote": null,
-   "reason": "LLM timeout / rate limit: replay: not in llm_cache (no API call made)",
+   "evidence_url": "https://www.anorbank.uz/uz/about/documents/",
+   "quote": "Yuridik va jismoniy shaxslarga ajratilgan kreditlarni restrukturizatsiya qilish (kredit shartnomalari shartlarini o‘zgartirish) tartibi 783,07 KB",
+   "reason": "LLM: present, quote verified. The page lists a document titled as the restructuring procedure, indicating it is published.",
    "pages_found": 15,
    "pages_listed": 15
   },
@@ -188,19 +188,19 @@
   {
    "bank_id": "anor_bank",
    "requirement_id": "req:cbu_reg_3030:main:40^4",
-   "old_status": "possible_gap",
-   "new_status": "possible_gap",
+   "old_status": "not_checkable",
+   "new_status": "not_checkable",
    "decided_by": "code",
-   "evidence_url": "https://www.anorbank.uz/uz/",
+   "evidence_url": "https://www.anorbank.uz/deposit/",
    "quote": null,
-   "reason": "No evidence found on 15 pages read. Code checked links matching omonatlaringiz kafolatlangan, omonat kafolat, omonatlarni kafolatlash, омонатларингиз кафолатланган, омонат кафолат, вклады гарантированы, гарантирования вкладов, гарантия вкладов, deposits guaranteed, deposit guarantee or linking to fg",
+   "reason": "Code: \"вклады гарантированы\" appears in the text of https://www.anorbank.uz/deposit/ but not as a link the crawler could read (a button or script?); check manually.",
    "pages_found": 15,
    "pages_listed": 15
   },
   {
    "bank_id": "anor_bank",
    "requirement_id": "req:cbu_reg_3030:main:49",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://www.anorbank.uz/uz/",
@@ -212,7 +212,7 @@
   {
    "bank_id": "anor_bank",
    "requirement_id": "req:cbu_reg_3030:main:51",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://www.anorbank.uz/uz/",
@@ -229,14 +229,14 @@
    "decided_by": "code",
    "evidence_url": "https://www.anorbank.uz/uz/",
    "quote": "Anorbank Ilovani yuklab oling O'rnatish O'zbekistondagi birinchi mahalliy raqamli bank JISMONIY SHAXSLAR BIZNES BANK HAQIDA Ofis manzilari Valyutalar kursi Bankomatlar Maxsus qobiliyatlar Turi Oddiy",
-   "reason": "Uzbek version present (10 Uzbek pages of 15; completeness not assessed): 10 Uzbek and 2 Russian pages of 15 HTML pages read (Uzbek share 83%); language switcher found",
+   "reason": "Uzbek version present (6 Uzbek pages of 15; completeness not assessed): 6 Uzbek and 5 Russian pages of 15 HTML pages read (Uzbek share 55%); language switcher found",
    "pages_found": 15,
    "pages_listed": 15
   },
   {
    "bank_id": "garant_bank",
    "requirement_id": "req:cbu_reg_3030:main:14",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://garantbank.uz/ru",
@@ -248,7 +248,7 @@
   {
    "bank_id": "garant_bank",
    "requirement_id": "req:cbu_reg_3030:main:17",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://garantbank.uz/ru",
@@ -260,7 +260,7 @@
   {
    "bank_id": "garant_bank",
    "requirement_id": "req:cbu_reg_3030:main:18^1",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://garantbank.uz/ru",
@@ -272,7 +272,7 @@
   {
    "bank_id": "garant_bank",
    "requirement_id": "req:cbu_reg_3030:main:28^1",
-   "old_status": "possible_gap",
+   "old_status": "not_checkable",
    "new_status": "not_checkable",
    "decided_by": "llm_assisted",
    "evidence_url": null,
@@ -296,19 +296,19 @@
   {
    "bank_id": "garant_bank",
    "requirement_id": "req:cbu_reg_3030:main:40^4",
-   "old_status": "possible_gap",
+   "old_status": "not_checkable",
    "new_status": "not_checkable",
    "decided_by": "code",
-   "evidence_url": null,
+   "evidence_url": "https://garantbank.uz/ru/vklady",
    "quote": null,
-   "reason": "relevant section not reached (read 15 pages): no section page",
+   "reason": "Code: \"вклады гарантированы\" appears in the text of https://garantbank.uz/ru/vklady but not as a link the crawler could read (a button or script?); check manually.",
    "pages_found": 15,
    "pages_listed": 15
   },
   {
    "bank_id": "garant_bank",
    "requirement_id": "req:cbu_reg_3030:main:49",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://garantbank.uz/ru",
@@ -320,7 +320,7 @@
   {
    "bank_id": "garant_bank",
    "requirement_id": "req:cbu_reg_3030:main:51",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://garantbank.uz/ru",
@@ -344,38 +344,38 @@
   {
    "bank_id": "hayot_bank",
    "requirement_id": "req:cbu_reg_3030:main:14",
-   "old_status": "not_checkable",
-   "new_status": "not_checkable",
+   "old_status": "possible_gap",
+   "new_status": "possible_gap",
    "decided_by": "code",
    "evidence_url": "https://hayotbank.uz/main/individual/home",
    "quote": null,
-   "reason": "site had 1 fetch error(s), e.g. https://hayotbank.uz/main/about/history: browser render failed: No evidence found on 10 pages read. Code checked links matching sayt xaritasi, sayt kartasi, sayt tuzilmasi, сайт харитаси, карта сайта, структура сайта, sitemap, site map on 2 page(s) (https://hayotbank.",
-   "pages_found": 10,
-   "pages_listed": 10
+   "reason": "No evidence found on 11 pages read. Code checked links matching sayt xaritasi, sayt kartasi, sayt tuzilmasi, сайт харитаси, карта сайта, структура сайта, sitemap, site map on 1 page(s) (https://hayotbank.uz/main/individual/home): nothing matched.",
+   "pages_found": 11,
+   "pages_listed": 11
   },
   {
    "bank_id": "hayot_bank",
    "requirement_id": "req:cbu_reg_3030:main:17",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://hayotbank.uz/main/individual/home",
    "quote": "kurslari Bank haqida 1320",
    "reason": "Code: link \"Bank haqida\" (https://hayotbank.uz/main/about) found on https://hayotbank.uz/main/individual/home (homepage page); anchor text quoted from the page. Whether the linked section also covers the terms of the bank's services is not verified.",
-   "pages_found": 10,
-   "pages_listed": 10
+   "pages_found": 11,
+   "pages_listed": 11
   },
   {
    "bank_id": "hayot_bank",
    "requirement_id": "req:cbu_reg_3030:main:18^1",
-   "old_status": "not_checkable",
-   "new_status": "not_checkable",
+   "old_status": "possible_gap",
+   "new_status": "possible_gap",
    "decided_by": "code",
    "evidence_url": "https://hayotbank.uz/main/individual/home",
    "quote": null,
-   "reason": "site had 1 fetch error(s), e.g. https://hayotbank.uz/main/about/history: browser render failed: No evidence found on 10 pages read. Code checked links matching kalkulyator, калькулятор, calculator, calc on 10 page(s) (https://hayotbank.uz/main/individual/home, https://hayotbank.uz/main/exchange-rate",
-   "pages_found": 10,
-   "pages_listed": 10
+   "reason": "No evidence found on 11 pages read. Code checked links matching kalkulyator, калькулятор, calculator, calc on 11 page(s) (https://hayotbank.uz/main/individual/home, https://hayotbank.uz/main/individual/credit, https://hayotbank.uz/main/individual/tariff, ...): nothing matched.",
+   "pages_found": 11,
+   "pages_listed": 11
   },
   {
    "bank_id": "hayot_bank",
@@ -383,23 +383,23 @@
    "old_status": "not_checkable",
    "new_status": "not_checkable",
    "decided_by": "llm_assisted",
-   "evidence_url": null,
-   "quote": null,
-   "reason": "LLM timeout / rate limit: replay: not in llm_cache (no API call made)",
-   "pages_found": 10,
-   "pages_listed": 10
+   "evidence_url": "https://hayotbank.uz/main/about/press-center/view/111",
+   "quote": "Iste'molchi huquqlari",
+   "reason": "Code found related passages on 2 candidate page(s) but the LLM did not confirm the requirement there; a possible gap needs code-level evidence of absence, so this is left for review. Quote: the closest related passage. The page does not contain the required restructuring procedure. (keywords from hi",
+   "pages_found": 11,
+   "pages_listed": 11
   },
   {
    "bank_id": "hayot_bank",
    "requirement_id": "req:cbu_reg_3030:main:37^5",
-   "old_status": "not_checkable",
-   "new_status": "not_checkable",
-   "decided_by": "code",
-   "evidence_url": "https://hayotbank.uz/main/individual/home",
-   "quote": null,
-   "reason": "site had 1 fetch error(s), e.g. https://hayotbank.uz/main/about/history: browser render failed: No evidence found on 10 pages read. No page matched the keywords (keywords from hints: garovdan ozod qilish, garovni almashtirish, garov mulkini qaytarish, taqiqni olib tashlash, taqiqdan chiqarish, гаров",
-   "pages_found": 10,
-   "pages_listed": 10
+   "old_status": "ok",
+   "new_status": "ok",
+   "decided_by": "llm_assisted",
+   "evidence_url": "https://hayotbank.uz/main/about/docs",
+   "quote": "Ta'minotdan chiqarish yoki almashtirish to'g'risidagi tartib 29-yanvar, 2026",
+   "reason": "LLM: present, quote verified. The page lists a document titled with the required release/substitution procedure.",
+   "pages_found": 11,
+   "pages_listed": 11
   },
   {
    "bank_id": "hayot_bank",
@@ -409,33 +409,33 @@
    "decided_by": "code",
    "evidence_url": null,
    "quote": null,
-   "reason": "relevant section not reached (read 10 pages): no section page",
-   "pages_found": 10,
-   "pages_listed": 10
+   "reason": "relevant section not reached (read 11 pages): no section page",
+   "pages_found": 11,
+   "pages_listed": 11
   },
   {
    "bank_id": "hayot_bank",
    "requirement_id": "req:cbu_reg_3030:main:49",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://hayotbank.uz/main/individual/home",
    "quote": "Bankka murojaat qilish",
    "reason": "Code: link \"Bankka murojaat qilish\" (https://hayotbank.uz/main/about/contacting-bank) found on https://hayotbank.uz/main/individual/home (homepage page); anchor text quoted from the page.",
-   "pages_found": 10,
-   "pages_listed": 10
+   "pages_found": 11,
+   "pages_listed": 11
   },
   {
    "bank_id": "hayot_bank",
    "requirement_id": "req:cbu_reg_3030:main:51",
-   "old_status": "not_checkable",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://hayotbank.uz/main/individual/home",
    "quote": "Call-markazning +998 55 520 22 22 telefoni",
    "reason": "Code: call-centre number +998 55 520 22 22 found in the text of the homepage https://hayotbank.uz/main/individual/home.",
-   "pages_found": 10,
-   "pages_listed": 10
+   "pages_found": 11,
+   "pages_listed": 11
   },
   {
    "bank_id": "hayot_bank",
@@ -445,9 +445,9 @@
    "decided_by": "code",
    "evidence_url": "https://hayotbank.uz/main/individual/home",
    "quote": "Shrift hajmi A A Rang Qora va oq Kontrast Saytning oddiy versiyasi Jismoniy shaxslarga Biznes uchun Bo‘limlar va savdo nuqtalari Valyuta kurslari Bank haqida 1320 UZ UZ RU EN Kartalar Kreditlar",
-   "reason": "Uzbek version present (10 Uzbek pages of 10; completeness not assessed): 10 Uzbek and 0 Russian pages of 10 HTML pages read (Uzbek share 100%); no language switcher found",
-   "pages_found": 10,
-   "pages_listed": 10
+   "reason": "Uzbek version present (11 Uzbek pages of 11; completeness not assessed): 11 Uzbek and 0 Russian pages of 11 HTML pages read (Uzbek share 100%); no language switcher found",
+   "pages_found": 11,
+   "pages_listed": 11
   },
   {
    "bank_id": "mkbank",
@@ -476,7 +476,7 @@
   {
    "bank_id": "mkbank",
    "requirement_id": "req:cbu_reg_3030:main:18^1",
-   "old_status": "possible_gap",
+   "old_status": "ok",
    "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://mkbank.uz/uz/",
@@ -488,12 +488,12 @@
   {
    "bank_id": "mkbank",
    "requirement_id": "req:cbu_reg_3030:main:28^1",
-   "old_status": "possible_gap",
-   "new_status": "possible_gap",
-   "decided_by": "code",
-   "evidence_url": "https://mkbank.uz/uz/contacts/",
-   "quote": null,
-   "reason": "No evidence found on 15 pages read. No page matched the keywords (keywords from hints: restrukturizatsiya, kredit shartlarini o'zgartirish, shartnoma shartlarini o'zgartirish, to'lov muddatini uzaytirish, to'lov jadvalini o'zgartirish, kredit ta'tili, реструктуризация, кредит шартларини ўзгартириш, ",
+   "old_status": "ok",
+   "new_status": "ok",
+   "decided_by": "llm_assisted",
+   "evidence_url": "https://mkbank.uz/uz/about/regulations/",
+   "quote": "Kredit shartnoma shartlarini qayta ko‘rib chiqish va kreditning bir qismi qaytarilganligi munosabati bilan ta’minotdan chiqarish tartibi Hajmi: 5.53 МБ Format: pdf Yuklab olish",
+   "reason": "LLM: present, quote verified. The page lists a PDF titled as the procedure for reviewing loan contract changes, satisfying the requirement.",
    "pages_found": 15,
    "pages_listed": 15
   },
@@ -503,7 +503,7 @@
    "old_status": "possible_gap",
    "new_status": "possible_gap",
    "decided_by": "code",
-   "evidence_url": "https://mkbank.uz/uz/about/",
+   "evidence_url": "https://mkbank.uz/uz/about/regulations/",
    "quote": null,
    "reason": "No evidence found on 15 pages read. No page matched the keywords (keywords from hints: garovdan ozod qilish, garovni almashtirish, garov mulkini qaytarish, taqiqni olib tashlash, taqiqdan chiqarish, гаровдан озод қилиш, гаровни алмаштириш, гаров мулкини қайтариш, тақиқни олиб ташлаш, тақиқдан чиқари",
    "pages_found": 15,
@@ -512,12 +512,12 @@
   {
    "bank_id": "mkbank",
    "requirement_id": "req:cbu_reg_3030:main:40^4",
-   "old_status": "possible_gap",
+   "old_status": "not_checkable",
    "new_status": "not_checkable",
    "decided_by": "code",
-   "evidence_url": null,
+   "evidence_url": "https://mkbank.uz/uz/private/deposit/",
    "quote": null,
-   "reason": "relevant section not reached (read 15 pages): no section page",
+   "reason": "Code: \"omonatlaringiz kafolatlangan\" appears in the text of https://mkbank.uz/uz/private/deposit/ but not as a link the crawler could read (a button or script?); check manually.",
    "pages_found": 15,
    "pages_listed": 15
   },
@@ -553,14 +553,14 @@
    "decided_by": "code",
    "evidence_url": "https://mkbank.uz/uz/",
    "quote": "Shrift o‘lchami: A A A Masshtab: A A A A Rang: C C Rasmlar: Yoqish O‘chirish Saytning to‘liq versiyasi Jismoniy shaxslar Mikro va kichik biznes O‘rta va yirik biznes Bank haqida Aksiyadorlar va",
-   "reason": "Uzbek version present (13 Uzbek pages of 15; completeness not assessed): 13 Uzbek and 1 Russian pages of 15 HTML pages read (Uzbek share 93%); language switcher found",
+   "reason": "Uzbek version present (11 Uzbek pages of 15; completeness not assessed): 11 Uzbek and 2 Russian pages of 15 HTML pages read (Uzbek share 85%); language switcher found",
    "pages_found": 15,
    "pages_listed": 15
   },
   {
    "bank_id": "universal_bank",
    "requirement_id": "req:cbu_reg_3030:main:14",
-   "old_status": "not_checkable",
+   "old_status": "possible_gap",
    "new_status": "possible_gap",
    "decided_by": "code",
    "evidence_url": "https://universalbank.uz/",
@@ -572,7 +572,7 @@
   {
    "bank_id": "universal_bank",
    "requirement_id": "req:cbu_reg_3030:main:17",
-   "old_status": "not_checkable",
+   "old_status": "possible_gap",
    "new_status": "possible_gap",
    "decided_by": "code",
    "evidence_url": "https://universalbank.uz/",
@@ -587,9 +587,9 @@
    "old_status": "not_checkable",
    "new_status": "not_checkable",
    "decided_by": "code",
-   "evidence_url": "https://universalbank.uz/deposit/poydevor",
+   "evidence_url": "https://universalbank.uz/",
    "quote": null,
-   "reason": "Code: \"kalkulyator\" appears in the text of https://universalbank.uz/deposit/poydevor but not as a link the crawler could read (a button or script?); check manually.",
+   "reason": "Code: \"kalkulyator\" appears in the text of https://universalbank.uz/ but not as a link the crawler could read (a button or script?); check manually.",
    "pages_found": 15,
    "pages_listed": 15
   },
@@ -599,7 +599,7 @@
    "old_status": "possible_gap",
    "new_status": "possible_gap",
    "decided_by": "code",
-   "evidence_url": "https://universalbank.uz/credit",
+   "evidence_url": "https://universalbank.uz/credit/ipoteka-ikkilamchi-bozor-uchun",
    "quote": null,
    "reason": "No evidence found on 15 pages read. No page matched the keywords (keywords from hints: restrukturizatsiya, kredit shartlarini o'zgartirish, shartnoma shartlarini o'zgartirish, to'lov muddatini uzaytirish, to'lov jadvalini o'zgartirish, kredit ta'tili, реструктуризация, кредит шартларини ўзгартириш, ",
    "pages_found": 15,
@@ -611,7 +611,7 @@
    "old_status": "possible_gap",
    "new_status": "possible_gap",
    "decided_by": "code",
-   "evidence_url": "https://universalbank.uz/credit",
+   "evidence_url": "https://universalbank.uz/juristic/kreditlar",
    "quote": null,
    "reason": "No evidence found on 15 pages read. No page matched the keywords (keywords from hints: garovdan ozod qilish, garovni almashtirish, garov mulkini qaytarish, taqiqni olib tashlash, taqiqdan chiqarish, гаровдан озод қилиш, гаровни алмаштириш, гаров мулкини қайтариш, тақиқни олиб ташлаш, тақиқдан чиқари",
    "pages_found": 15,
@@ -644,12 +644,12 @@
   {
    "bank_id": "universal_bank",
    "requirement_id": "req:cbu_reg_3030:main:51",
-   "old_status": "not_checkable",
-   "new_status": "possible_gap",
+   "old_status": "ok",
+   "new_status": "ok",
    "decided_by": "code",
    "evidence_url": "https://universalbank.uz/",
-   "quote": null,
-   "reason": "No evidence found on 15 pages read. Code checked for +998 numbers and short 1xxx numbers near call, call-markaz, call-центр, колл-центр, telefon, телефон, aloqa, алоқа, markaz, ishonch, справ, contact, контакт, qo'ng'iroq, звонок on 4 page(s) (https://universalbank.uz/, https://universalbank.uz/uz/,",
+   "quote": "Center: +998 (71) 200-11-10 O'zR",
+   "reason": "Code: call-centre number +998 (71) 200-11-10 found in the text of the homepage https://universalbank.uz/.",
    "pages_found": 15,
    "pages_listed": 15
   },
@@ -661,7 +661,7 @@
    "decided_by": "code",
    "evidence_url": "https://universalbank.uz/",
    "quote": "Jismoniy shaxslar Yuridik shaxslar Moliyaviy institutlar ESG Filiallar va bankomatlar O'zb Omonatlar Kartalar Pul o'tkazmalari Kredit Yana Internet bank O'zb Kartalar Omonatlar Menyu Kredit Chat",
-   "reason": "Uzbek version present (10 Uzbek pages of 15; completeness not assessed): 10 Uzbek and 5 Russian pages of 15 HTML pages read (Uzbek share 67%); language switcher found",
+   "reason": "Uzbek version present (11 Uzbek pages of 15; completeness not assessed): 11 Uzbek and 4 Russian pages of 15 HTML pages read (Uzbek share 73%); language switcher found",
    "pages_found": 15,
    "pages_listed": 15
   }
