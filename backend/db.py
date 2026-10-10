@@ -157,6 +157,7 @@ MIGRATIONS = [
     ("findings", "pages_read", "INTEGER"),
     ("findings", "urls_read", "TEXT NOT NULL DEFAULT '[]'"),
     ("findings", "reason", "TEXT"),
+    ("findings", "context_quote", "TEXT"),
     ("jobs", "progress", "TEXT NOT NULL DEFAULT ''"),
 ]
 
@@ -247,7 +248,7 @@ def upsert_finding(conn: sqlite3.Connection, finding: Finding) -> None:
         "created_at": _ts(finding.created_at), "run_id": finding.run_id,
         "pages_read": finding.pages_read,
         "urls_read": json.dumps(finding.urls_read, ensure_ascii=False),
-        "reason": finding.reason})
+        "reason": finding.reason, "context_quote": finding.context_quote})
 
 
 def _finding(row: sqlite3.Row) -> Finding:

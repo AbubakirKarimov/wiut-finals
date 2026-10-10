@@ -11,3 +11,6 @@ class CheckOutcome:
     page: Page | None = None    # page the quote comes from
     quote: str | None = None    # must appear verbatim in page.text (verified by the runner)
     llm_used: bool = False
+    # Absence findings: a verbatim passage of `page` shown as context only, never as evidence.
+    context: str | None = None
+    absence: bool = False       # "no evidence found": possible_gap without an evidence quote

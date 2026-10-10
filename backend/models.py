@@ -51,6 +51,9 @@ class Finding(BaseModel):
     evidence_quote: str | None = None
     # Machine translation of evidence_quote; never used for verification.
     evidence_quote_en: str | None = None
+    # "No evidence found" findings: a verbatim passage of the closest page (evidence_url),
+    # verified like a quote but shown as context only. evidence_quote is then empty.
+    context_quote: str | None = None
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     created_at: datetime = Field(default_factory=utcnow)
     run_id: str | None = None

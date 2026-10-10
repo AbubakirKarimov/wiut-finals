@@ -14,7 +14,8 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, Field
 
-from backend.checks.evidence import excerpt, keyword_hits, opening_quote, verify_quote
+from backend.checks.evidence import (excerpt, keyword_hits, opening_quote, partial_hits,
+                                     verify_quote)
 from backend.checks.types import CheckOutcome
 from backend.llm.provider import LLMError, LLMProvider, LLMTransientError
 from backend.models import Page, Requirement
@@ -139,6 +140,23 @@ def candidate_pages(pages: list[Page], keywords: list[str], limit: int
     return [(p, offs) for _, p, offs in scored[:limit]]
 
 
+def absence_outcome(readable: list[Page], keywords: list[str], kw_note: str) -> CheckOutcome:
+    """No page matched the keywords: possible_gap with no evidence quote. The closest page
+    (most keyword stems anywhere in its text) and a passage around its first stem are kept
+    as context only; without any stem on any page there is no context passage."""
+    scored = [(partial_hits(p, keywords), i, p) for i, p in enumerate(readable)]
+    (n_stems, off), _, page = max(scored, key=lambda x: (x[0][0], -x[1]))
+    context = None
+    if off is not None:
+        context = opening_quote(excerpt(page.text, [off], 300, before=0, after=300)[0], 300)
+    closest = (f"closest page by keyword stems ({n_stems} stem(s)): {page.url}" if n_stems
+               else f"no keyword stem on any page; page shown: {page.url}")
+    return CheckOutcome("possible_gap", page=page, context=context, absence=True,
+                        reason=f"No evidence found on {len(readable)} pages read. No page "
+                               f"matched the keywords ({kw_note}); {closest}. Any passage "
+                               "shown is context, not evidence.")
+
+
 def check_presence(req: Requirement, pages: list[Page], llm: LLMProvider | None
                    ) -> CheckOutcome:
     """Shared flow of required_document and key_info."""
@@ -156,10 +174,7 @@ def check_presence(req: Requirement, pages: list[Page], llm: LLMProvider | None
     if not cands:
         if not readable:
             return CheckOutcome("not_checkable", reason="no readable pages")
-        home = readable[0]
-        return CheckOutcome("possible_gap", page=home, quote=opening_quote(home.text),
-                            reason=f"no page matched the keywords ({kw_note}); quote is the "
-                                   "opening of the first page read, shown for context")
+        return absence_outcome(readable, keywords, kw_note)
     if llm is None:
         return CheckOutcome("not_checkable",
                             reason=f"LLM not configured; {len(cands)} keyword candidate page(s): "

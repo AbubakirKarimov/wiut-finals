@@ -213,3 +213,37 @@ def test_ok_is_not_affected_by_the_section_gate(tmp_db, tmp_path, monkeypatch):
     pages = pages_with("Omonatlaringiz kafolatlangan", first_url="https://b.uz/uz/bosh")
     [f] = run_checks("r", crawl(pages), [req()], llm)
     assert f.status == "ok"
+
+
+# --- B6: "no page matched" findings carry no menu text as evidence_quote ---
+
+MENU = "Jismoniy shaxslarga Yuridik shaxslarga Kartalar Kreditlar Omonatlar Aloqa"
+
+
+def test_no_match_gap_has_no_evidence_quote_only_labelled_context(tmp_db):
+    pages = [Page(bank_id="b", url=f"https://b.uz/uz/p{i}", language="uz_latn",
+                  text=MENU + " " + FILLER, source_type="html") for i in range(5)]
+    pages.append(Page(bank_id="b", url="https://b.uz/uz/garov", language="uz_latn",
+                      text=MENU + " Garov ta'minoti bo'yicha umumiy ma'lumot va shartlar.",
+                      source_type="html"))
+    llm = ScriptedLLM(tmp_db, keywords={"uz_latn": ["garovdan ozod qilish tartibi"],
+                                        "uz_cyrl": [], "ru": [], "en": []})
+    [f] = run_checks("r", crawl(pages), [req("required_document")], llm)
+    assert f.status == "possible_gap" and f.evidence_quote is None
+    assert f.evidence_quote_en is None
+    assert f.reason.startswith("No evidence found on 6 pages read.")
+    assert f.evidence_url == "https://b.uz/uz/garov"          # closest page by stems
+    assert f.context_quote.startswith("Garov ta'minoti")      # not the menu
+    assert f.context_quote in pages[-1].text
+    assert "context, not evidence" in f.reason
+
+
+def test_no_match_gap_without_any_stem_has_no_context(tmp_db):
+    pages = [Page(bank_id="b", url=f"https://b.uz/uz/p{i}", language="uz_latn",
+                  text=MENU + " " + FILLER, source_type="html") for i in range(6)]
+    llm = ScriptedLLM(tmp_db, keywords={"uz_latn": ["ipoteka subsidiya"], "uz_cyrl": [],
+                                        "ru": [], "en": []})
+    [f] = run_checks("r", crawl(pages), [req("required_document")], llm)
+    assert f.status == "possible_gap"
+    assert f.evidence_quote is None and f.context_quote is None
+    assert f.evidence_url == "https://b.uz/uz/p0"

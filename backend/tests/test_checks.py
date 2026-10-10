@@ -158,8 +158,9 @@ def test_required_document_gap_without_keyword_match(tmp_db):
     llm = ScriptedLLM(tmp_db, keywords={"uz_latn": ["ommaviy oferta"], "uz_cyrl": [],
                                         "ru": ["публичная оферта"], "en": []})
     [f] = run_checks("r", crawl(many(6, "ru", RU_HOME)), [req("required_document")], llm)
-    assert f.status == "possible_gap" and "no page matched" in f.reason
-    assert verify_quote(f.evidence_quote, RU_HOME)
+    assert f.status == "possible_gap" and "No page matched" in f.reason
+    assert f.reason.startswith("No evidence found on 6 pages read.")
+    assert f.evidence_quote is None  # an absence is not quoted (audit B6)
 
 
 def test_llm_not_configured_is_not_checkable(tmp_db):

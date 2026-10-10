@@ -133,9 +133,18 @@ function Evidence({ f }) {
         </p>
         <PageLink url={f.evidence_url}>{f.evidence_url}</PageLink>
         {f.evidence_quote && <Quote f={f} />}
+        {f.context_quote && (
+          <>
+            <p className="mt-label small">Context from this page (not evidence):</p>
+            <blockquote className="quote context" lang="uz"
+                        data-testid="context-quote">{f.context_quote}</blockquote>
+          </>
+        )}
         <p className="muted small">
-          The passage above is context from the closest page, not proof. Possible gap for
-          review: a CBU analyst decides.
+          {f.evidence_quote || f.context_quote
+            ? "The passage above is context from the closest page, not proof. "
+            : ""}
+          Possible gap for review: a CBU analyst decides.
         </p>
         {f.reason && <p className="reason">{f.reason}</p>}
         <UrlsRead f={f} open />

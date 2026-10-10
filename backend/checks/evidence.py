@@ -94,6 +94,15 @@ class _Tokens:
         return None
 
 
+def partial_hits(page: Page, keywords: list[str]) -> tuple[int, int | None]:
+    """How many distinct keyword stems occur anywhere on the page, and the character offset
+    of the first one (None if none). Used only to pick the closest page for context."""
+    text = _Tokens(page.text)
+    stems = {s for kw in keywords for s in keyword_stems(kw)}
+    found = [text.offsets[ps[0]] for s in stems if (ps := text.positions(s))]
+    return len(found), (min(found) if found else None)
+
+
 def keyword_hits(page: Page, keywords: list[str]) -> tuple[int, list[int]]:
     """Score a page for keywords: title/URL hits weigh 3, text hits 1 per distinct keyword.
     A keyword matches by word stems (see keyword_stems), across Latin/Cyrillic script and

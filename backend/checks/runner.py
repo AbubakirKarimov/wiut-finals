@@ -35,7 +35,12 @@ def run_one(req: Requirement, crawl: CrawlResult, llm: LLMProvider | None) -> Ch
 def finalize(out: CheckOutcome, crawl: CrawlResult, req: Requirement | None = None
              ) -> CheckOutcome:
     """Enforce the evidence and gating rules on a raw outcome."""
-    if out.status in ("ok", "possible_gap"):
+    if out.status == "possible_gap" and out.absence and out.page is not None:
+        # "No evidence found": nothing to quote; a context passage must still be verbatim.
+        if out.context and not verify_quote(out.context, out.page.text):
+            out = CheckOutcome(out.status, reason=out.reason, page=out.page,
+                               llm_used=out.llm_used, absence=True)
+    elif out.status in ("ok", "possible_gap"):
         if out.page is None or not verify_quote(out.quote, out.page.text):
             return CheckOutcome("not_checkable", page=out.page, llm_used=out.llm_used,
                                 reason="evidence quote not found verbatim in the page text; "
@@ -44,12 +49,12 @@ def finalize(out: CheckOutcome, crawl: CrawlResult, req: Requirement | None = No
         n, need = len(crawl.pages), min_pages_for_gap()
         if n < need:
             return CheckOutcome("not_checkable", page=out.page, quote=out.quote,
-                                llm_used=out.llm_used,
+                                llm_used=out.llm_used, context=out.context,
                                 reason=f"only {n} page(s) read (at least {need} needed to "
                                        f"report a possible gap): {out.reason}")
         if crawl.fetch_errors:
             return CheckOutcome("not_checkable", page=out.page, quote=out.quote,
-                                llm_used=out.llm_used,
+                                llm_used=out.llm_used, context=out.context,
                                 reason=f"site had {len(crawl.fetch_errors)} fetch error(s), "
                                        f"e.g. {crawl.fetch_errors[0]}: {out.reason}")
         # A gap needs at least one page of the section where the evidence would be.
@@ -58,7 +63,7 @@ def finalize(out: CheckOutcome, crawl: CrawlResult, req: Requirement | None = No
         if sections and not any(p.readable and page_in_section(p.url, p.title, sections, home)
                                 for p in crawl.pages):
             return CheckOutcome("not_checkable", page=out.page, quote=out.quote,
-                                llm_used=out.llm_used,
+                                llm_used=out.llm_used, context=out.context,
                                 reason=f"relevant section not reached (read {n} pages); no page "
                                        f"of section {' / '.join(sections)} was read: "
                                        f"{out.reason}")
@@ -87,7 +92,8 @@ def run_checks(run_id: str, crawl: CrawlResult, requirements: list[Requirement],
         else:
             out = finalize(run_one(req, crawl, llm), crawl, req)
         quote_ok = out.page is not None and verify_quote(out.quote, out.page.text)
-        quote = out.quote if quote_ok else None
+        quote = out.quote if quote_ok and not out.absence else None
+        context_ok = out.page is not None and verify_quote(out.context, out.page.text)
         f = Finding(
             id=f"{run_id}:{req.id}", bank_id=crawl.bank_id, requirement_id=req.id,
             status=out.status, run_id=run_id, reason=out.reason or None,
@@ -95,6 +101,7 @@ def run_checks(run_id: str, crawl: CrawlResult, requirements: list[Requirement],
             evidence_quote=quote,
             # Translation only after the original quote has been verified.
             evidence_quote_en=translate(quote, llm) if quote else None,
+            context_quote=out.context if context_ok else None,
             pages_read=len(crawl.pages), urls_read=crawl.urls_read)
         findings.append(f)
         if on_finding:
