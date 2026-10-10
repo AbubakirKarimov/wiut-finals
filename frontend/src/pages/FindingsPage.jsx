@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api.js";
-import { AnalystField, FindingsList, Notice, useAnalystName } from "../components/Findings.jsx";
+import {
+  AnalystField, FindingsList, FindingsSkeleton, Notice, useAnalystName,
+} from "../components/Findings.jsx";
 
 const FILTERS = [
   ["", "All"],
@@ -55,7 +57,7 @@ export default function FindingsPage() {
           <button type="button" className="linkbtn" onClick={load}>Retry</button>
         </Notice>
       )}
-      {!error && findings === null && <Notice>Loading findings…</Notice>}
+      {!error && findings === null && <FindingsSkeleton />}
       {findings && findings.length === 0 && (
         <Notice>
           {status

@@ -7,8 +7,47 @@ const STATUS_TEXT = {
   not_checkable: "Not checkable",
 };
 
+const LANG_TEXT = { uz_latn: "Uzbek (Latin)", uz_cyrl: "Uzbek (Cyrillic)", ru: "Russian", other: "Other" };
+
+// Plain-language headline for a not_checkable reason. The full reason is always shown too.
+const REASONS = [
+  [/relevant section not reached/i, "Relevant section not reached"],
+  [/LLM timeout|rate limit|quota/i, "LLM quota exhausted or timed out – try again later"],
+  [/bot protection|blocked/i, "Site blocked crawling (protection not bypassed)"],
+  [/robots/i, "robots.txt does not allow crawling"],
+  [/needs browser|browser could not|js_shell/i, "Site needs a browser (JavaScript-only)"],
+  [/unreachable|timed out|connection/i, "Site unreachable"],
+  [/only \d+ page\(s\) read/i, "Too few pages read to judge"],
+  [/fetch error/i, "Some pages failed to load"],
+  [/inner page|not a homepage page/i, "Found on an inner page, not on the homepage"],
+  [/not as a link/i, "Text found, but not as a readable link"],
+  [/repeats our own instructions|not found verbatim|answer rejected/i, "LLM answer rejected: its quote is not on the page"],
+  [/code-level evidence of absence/i, "LLM did not confirm it – manual review needed"],
+  [/LLM not configured/i, "LLM not configured on the server"],
+  [/no link data/i, "No link data for these pages – re-crawl"],
+  [/text is not in the visible page text|does not name the topic/i, "Link found, but its text cannot be quoted"],
+];
+
+export function reasonHeadline(reason) {
+  if (!reason) return "No reason recorded";
+  const hit = REASONS.find(([re]) => re.test(reason));
+  return hit ? hit[1] : "Could not be decided automatically";
+}
+
 export function StatusBadge({ status }) {
   return <span className={`badge badge-${status}`}>{STATUS_TEXT[status] || status}</span>;
+}
+
+export function DecidedBy({ value }) {
+  const text = value === "code" ? "code" : value === "llm_assisted" ? "LLM-assisted" : "not recorded";
+  return (
+    <span className={`decidedby decidedby-${value || "none"}`} data-testid="decided-by"
+          title={value === "llm_assisted"
+            ? "An LLM answer influenced this status; its quote was verified by code"
+            : value === "code" ? "Decided by deterministic code, no LLM" : "Stored before this was recorded"}>
+      Decided by: {text}
+    </span>
+  );
 }
 
 export function Notice({ kind = "info", children }) {
@@ -92,24 +131,29 @@ function DecisionBox({ finding, analyst, onDecided }) {
   );
 }
 
-function UrlsRead({ f, open }) {
+function PagesRead({ f, open }) {
   if (f.pages_read == null) return null;
+  const pages = f.pages_detail || f.urls_read.map((url) => ({ url, language: "no data" }));
   return (
-    <details className="urls" open={open}>
-      <summary>{f.pages_read} page(s) read</summary>
+    <details className="urls" open={open} data-testid="pages-read">
+      <summary>Pages read ({f.pages_read})</summary>
       <ul>
-        {f.urls_read.map((u) => (
-          <li key={u}><a href={u} target="_blank" rel="noopener noreferrer">{u}</a></li>
+        {pages.map((p, i) => (
+          <li key={`${p.url}-${i}`}>
+            <span className="lang">{LANG_TEXT[p.language] || p.language}</span>
+            <a href={p.url} target="_blank" rel="noopener noreferrer">{p.url}</a>
+          </li>
         ))}
       </ul>
     </details>
   );
 }
 
-function Quote({ f }) {
+function Quote({ f, label = "Evidence (verbatim from the page)" }) {
   return (
     <>
-      <blockquote className="quote" lang="uz">{f.evidence_quote}</blockquote>
+      <p className="mt-label small">{label}:</p>
+      <blockquote className="quote" lang="uz"><mark>{f.evidence_quote}</mark></blockquote>
       <p className="mt">
         <span className="mt-label">{f.evidence_quote_en_label}:</span>{" "}
         {f.evidence_quote_en || "not available"}
@@ -118,21 +162,25 @@ function Quote({ f }) {
   );
 }
 
-function PageLink({ url, children = "Open bank page ↗" }) {
+function PageLink({ url, children }) {
   if (!url) return null;
-  return <a className="pagelink" href={url} target="_blank" rel="noopener noreferrer">{children}</a>;
+  return (
+    <a className="pagelink" href={url} target="_blank" rel="noopener noreferrer">
+      {children || url} ↗
+    </a>
+  );
 }
 
 function Evidence({ f }) {
   if (f.status === "possible_gap") {
-    // An absence cannot be quoted: the quote only shows the closest page that was read.
+    // An absence cannot be quoted: any passage only shows the closest page that was read.
     return (
       <div className="evidence" data-testid="gap-evidence">
         <p className="gap-lead">
           No evidence found on {f.pages_read ?? "no data"} page(s) read. Closest page:
         </p>
-        <PageLink url={f.evidence_url}>{f.evidence_url}</PageLink>
-        {f.evidence_quote && <Quote f={f} />}
+        <PageLink url={f.evidence_url} />
+        {f.evidence_quote && <Quote f={f} label="Passage from this page (context, not proof)" />}
         {f.context_quote && (
           <>
             <p className="mt-label small">Context from this page (not evidence):</p>
@@ -140,14 +188,20 @@ function Evidence({ f }) {
                         data-testid="context-quote">{f.context_quote}</blockquote>
           </>
         )}
-        <p className="muted small">
-          {f.evidence_quote || f.context_quote
-            ? "The passage above is context from the closest page, not proof. "
-            : ""}
-          Possible gap for review: a CBU analyst decides.
-        </p>
+        <p className="muted small">Possible gap for review: a CBU analyst decides.</p>
         {f.reason && <p className="reason">{f.reason}</p>}
-        <UrlsRead f={f} open />
+        <PagesRead f={f} open />
+      </div>
+    );
+  }
+  if (f.status === "not_checkable") {
+    return (
+      <div className="evidence">
+        <p className="nc-lead" data-testid="nc-reason">{reasonHeadline(f.reason)}</p>
+        {f.reason && <p className="reason">{f.reason}</p>}
+        {f.evidence_quote && <Quote f={f} label="Passage found (not decisive)" />}
+        <PageLink url={f.evidence_url} />
+        <PagesRead f={f} />
       </div>
     );
   }
@@ -156,53 +210,72 @@ function Evidence({ f }) {
       {f.evidence_quote ? <Quote f={f} /> : <p className="muted">No verified quote.</p>}
       <PageLink url={f.evidence_url} />
       {f.reason && <p className="reason">{f.reason}</p>}
-      <UrlsRead f={f} />
+      <PagesRead f={f} />
     </div>
   );
+}
+
+function shortClause(id) {
+  return (id || "").replace(/^cbu_reg_3030:/, "Reg. 3030 ").replace(/^law_state_language:/, "State Language Law ");
 }
 
 export function FindingsList({ findings, analyst, onDecided, liveRunId }) {
   return (
     <div className="findings" role="table" aria-label="Findings">
       <div className="frow fhead" role="row">
-        <div role="columnheader">Bank</div>
-        <div role="columnheader">Requirement</div>
+        <div role="columnheader">Bank and requirement</div>
         <div role="columnheader">Status</div>
         <div role="columnheader">Evidence</div>
         <div role="columnheader">Analyst decision</div>
       </div>
-      {findings.map((f) => (
-        <div className="frow" role="row" key={f.id} data-testid="finding-row">
-          <div role="cell" className="cell-bank">
-            <span className="cell-label">Bank</span>
-            <strong>{f.bank_name}</strong>
-            <RunLabel run={f.run} live={liveRunId && f.run && f.run.id === liveRunId} />
-          </div>
-          <div role="cell">
-            <span className="cell-label">Requirement</span>
-            <p className="req">{f.requirement.text_en || "no data"}</p>
-            <p className="muted small">
-              {f.requirement.text_en_label} ·{" "}
-              {f.requirement.source_url ? (
-                <a href={f.requirement.source_url} target="_blank" rel="noopener noreferrer">
-                  {f.requirement.clause_id} on lex.uz ↗
+      {findings.map((f) => {
+        const r = f.requirement;
+        return (
+          <article className={`frow frow-${f.status}`} role="row" key={f.id} data-testid="finding-row">
+            <div role="cell" className="cell-req">
+              <span className="bankname">{f.bank_name}</span>
+              <h3 className="req-title">
+                <span className="req-id">{shortClause(r.clause_id)}</span>{" "}
+                {r.short_title || r.text_en || "no data"}
+              </h3>
+              <details className="req-text">
+                <summary>Requirement text</summary>
+                <p>{r.text_en || "no data"} <span className="muted small">({r.text_en_label})</span></p>
+              </details>
+              {r.source_url && (
+                <a className="small" href={r.source_url} target="_blank" rel="noopener noreferrer">
+                  Clause on lex.uz ↗
                 </a>
-              ) : f.requirement.clause_id}
-              {" · "}{f.requirement.check_type}
-            </p>
-          </div>
-          <div role="cell">
-            <span className="cell-label">Status</span>
-            <StatusBadge status={f.status} />
-          </div>
-          <div role="cell">
-            <span className="cell-label">Evidence</span>
-            <Evidence f={f} />
-          </div>
-          <div role="cell">
-            <span className="cell-label">Analyst decision</span>
-            <DecisionBox finding={f} analyst={analyst} onDecided={onDecided} />
-          </div>
+              )}
+              <RunLabel run={f.run} live={liveRunId && f.run && f.run.id === liveRunId} />
+            </div>
+            <div role="cell" className="cell-status">
+              <span className="cell-label">Status</span>
+              <StatusBadge status={f.status} />
+              <DecidedBy value={f.decided_by} />
+            </div>
+            <div role="cell">
+              <span className="cell-label">Evidence</span>
+              <Evidence f={f} />
+            </div>
+            <div role="cell">
+              <span className="cell-label">Analyst decision</span>
+              <DecisionBox finding={f} analyst={analyst} onDecided={onDecided} />
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+export function FindingsSkeleton({ rows = 3 }) {
+  return (
+    <div className="findings" aria-busy="true" aria-label="Loading findings">
+      {Array.from({ length: rows }, (_, i) => (
+        <div className="frow skeleton" key={i}>
+          <div className="sk sk-line" /><div className="sk sk-chip" />
+          <div className="sk sk-block" /><div className="sk sk-block" />
         </div>
       ))}
     </div>
