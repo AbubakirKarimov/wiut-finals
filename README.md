@@ -79,8 +79,13 @@ cp .env.example .env                                  # then fill LLM_* (optiona
 
 # UI
 cd frontend && npm install && npm run dev            # http://localhost:5173
+npm run lint                                          # ESLint
 npx playwright test                                   # e2e (starts its own servers)
 ```
+
+CI (`.github/workflows/ci.yml`) runs the backend unit tests and the frontend lint and build
+on a clean machine without `.env`, secrets, real LLM calls or real bank sites. The Playwright
+e2e suite is run locally.
 
 `--reload` is fine for development; the deployed start command is the one above (see
 `DEPLOY.md`), so the per-IP rate limit sees the client address behind the proxy.

@@ -62,7 +62,7 @@ export default function CheckPage() {
     <section>
       <h1>Check a website</h1>
       <p className="lead">
-        Enter a bank's public https address. The crawler respects robots.txt, waits one second
+        Enter a bank&rsquo;s public https address. The crawler respects robots.txt, waits one second
         between requests and reads a limited number of pages.
       </p>
       <form className="checkform" onSubmit={submit}>
