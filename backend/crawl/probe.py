@@ -2,57 +2,42 @@
 
 For every bank with a website_url: fetch robots.txt and the home page with httpx (honest
 User-Agent, 1 request/second per domain, 15 s timeout) and classify the result as
-ok | js_shell | blocked | unreachable | other. js_shell pages get one retry in a plain
-Playwright Chromium (no stealth, no proxies). Protection is never bypassed: a block or a
-challenge is recorded and the site is left alone.
+ok | js_shell | js_shell_failed | blocked | unreachable | other. js_shell pages are rendered
+in a plain Playwright Chromium (no stealth, no proxies): network idle up to
+BROWSER_TIMEOUT_SECONDS, one retry; still empty -> js_shell_failed. Then the Uzbek and
+Russian versions are looked up (switcher links, else /uz/ and /ru/) and their language is
+recorded per page. Protection is never bypassed: a block or a challenge is recorded and the
+site is left alone.
 
 Usage: python -m backend.crawl.probe   (or scripts/probe_banks.py)
 Writes data/probe_report.md: a table only, no page contents.
 """
 
-import os
-import re
 import sys
-import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urljoin, urlsplit
-from urllib.robotparser import RobotFileParser
-
-import httpx
-from bs4 import BeautifulSoup
-from dotenv import load_dotenv
+from urllib.parse import urlsplit
 
 from backend.crawl.banks import BANKS_YAML, Bank, load_banks
-
-load_dotenv()
+from backend.crawl.fetch import Browser, FetchConfig, Fetcher
+from backend.crawl.text import (challenge_marker, classify, detect_language, language_links,
+                                page_title, visible_text)
 
 REPORT_PATH = Path(__file__).resolve().parents[2] / "data" / "probe_report.md"
-CLASSES = ("ok", "js_shell", "blocked", "unreachable", "other")
-BLOCK_STATUSES = {403, 429, 503}
-CHALLENGE_MARKERS = ("just a moment", "cf-chl", "captcha", "access denied",
-                     "attention required", "checking your browser", "ddos-guard")
-MAX_REDIRECTS = 5
+CLASSES = ("ok", "js_shell", "js_shell_failed", "blocked", "unreachable", "other")
+SWITCH_LANGS = ("uz", "uz_cyrl", "ru")
 
 
 @dataclass
-class ProbeConfig:
-    user_agent: str = "ComplianceRadar/0.1"
-    timeout_seconds: float = 15.0
-    min_delay_seconds: float = 1.0
-    min_text_chars: int = 500  # below this a 200 page counts as js_shell
-
-    @classmethod
-    def from_env(cls) -> "ProbeConfig":
-        d = cls()
-        return cls(
-            user_agent=os.getenv("CRAWLER_USER_AGENT") or d.user_agent,
-            timeout_seconds=float(os.getenv("PROBE_TIMEOUT_SECONDS") or d.timeout_seconds),
-            min_delay_seconds=float(os.getenv("CRAWLER_MIN_DELAY_SECONDS")
-                                    or d.min_delay_seconds),
-            min_text_chars=int(os.getenv("PROBE_MIN_TEXT_CHARS") or d.min_text_chars),
-        )
+class LangPage:
+    key: str          # uz | uz_cyrl | ru (what the link points to)
+    url: str
+    found_by: str     # link | guess
+    status: int | None = None
+    language: str | None = None
+    text_length: int | None = None
+    note: str = ""
 
 
 @dataclass
@@ -67,230 +52,112 @@ class ProbeResult:
     language: str | None = None
     robots_disallows_home: bool | None = None  # None = robots.txt could not be read
     method: str = "httpx"
+    lang_pages: list[LangPage] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
-
-
-# ---------- pure helpers (unit-tested) ----------
-
-def visible_text(html: str) -> str:
-    soup = BeautifulSoup(html, "lxml")
-    for tag in soup(["script", "style", "noscript", "template", "svg", "head"]):
-        tag.decompose()
-    return re.sub(r"\s+", " ", soup.get_text(" ")).strip()
-
-
-def page_title(html: str) -> str:
-    soup = BeautifulSoup(html, "lxml")
-    return re.sub(r"\s+", " ", soup.title.get_text()).strip() if soup.title else ""
-
-
-UZ_CYRL_LETTERS = set("ўқғҳЎҚҒҲ")
-RU_ONLY_LETTERS = set("ыщЫЩ")
-UZ_LATN_WORDS = {"va", "uchun", "bilan", "yoki", "bo'yicha", "boʻyicha", "haqida", "mumkin",
-                 "sizning", "kredit", "to'lov", "toʻlov", "hisob", "omonat", "bank", "barcha",
-                 "xizmatlar", "kartasi", "orqali", "bo'lim", "yangiliklar", "biz"}
-EN_WORDS = {"the", "and", "for", "of", "to", "your", "with", "our", "about", "news"}
-
-
-def detect_language(text: str) -> str | None:
-    """Dominant script/language of a page: uz_latn | uz_cyrl | ru | other; None if no text."""
-    cyr = sum(1 for c in text if "Ѐ" <= c <= "ӿ")
-    lat = sum(1 for c in text if c.isascii() and c.isalpha())
-    if cyr + lat == 0:
-        return None
-    if cyr >= lat:
-        uz = sum(1 for c in text if c in UZ_CYRL_LETTERS)
-        ru = sum(1 for c in text if c in RU_ONLY_LETTERS)
-        return "uz_cyrl" if uz > ru else "ru"
-    words = re.findall(r"[a-zʻ'’]+", text.lower())
-    uz = sum(1 for w in words if w.replace("’", "'") in UZ_LATN_WORDS)
-    en = sum(1 for w in words if w in EN_WORDS)
-    return "uz_latn" if uz > en else "other"
-
-
-def challenge_marker(html: str) -> str | None:
-    low = html.lower()
-    return next((m for m in CHALLENGE_MARKERS if m in low), None)
-
-
-def classify(status: int | None, html: str, text_len: int, min_text_chars: int) -> str:
-    """Markers only count on an error status or a near-empty page: a normal home page
-    may legitimately load a reCAPTCHA script."""
-    if status is None:
-        return "unreachable"
-    if status in BLOCK_STATUSES:
-        return "blocked"
-    if status == 200:
-        if text_len < min_text_chars:
-            return "blocked" if challenge_marker(html) else "js_shell"
-        return "ok"
-    return "other"
-
-
-def robots_disallows(robots_txt: str, user_agent: str, url: str) -> bool:
-    rp = RobotFileParser()
-    rp.parse(robots_txt.splitlines())
-    return not rp.can_fetch(user_agent, url)
-
-
-# ---------- network ----------
-
-class DomainThrottle:
-    """At most one request per min_delay seconds per host."""
-
-    def __init__(self, min_delay: float):
-        self.min_delay = min_delay
-        self._last: dict[str, float] = {}
-
-    def wait(self, url: str) -> None:
-        host = urlsplit(url).hostname or ""
-        gap = time.monotonic() - self._last.get(host, float("-inf"))
-        if gap < self.min_delay:
-            time.sleep(self.min_delay - gap)
-        self._last[host] = time.monotonic()
+    html: str = field(default="", repr=False)  # in memory only, never written to the report
 
 
 class Prober:
-    def __init__(self, cfg: ProbeConfig):
+    def __init__(self, cfg: FetchConfig, transport=None):
         self.cfg = cfg
-        self.throttle = DomainThrottle(cfg.min_delay_seconds)
-        self.client = httpx.Client(headers={"User-Agent": cfg.user_agent},
-                                   timeout=cfg.timeout_seconds, follow_redirects=False)
-        # host -> robots.txt text ("" = no restrictions), or None if it could not be read
-        self._robots: dict[str, str | None] = {}
+        self.fetcher = Fetcher(cfg, transport=transport)
+        self.throttle = self.fetcher.throttle
 
     def close(self) -> None:
-        self.client.close()
-
-    def _get(self, url: str) -> httpx.Response:
-        self.throttle.wait(url)
-        return self.client.get(url)
-
-    def robots_for(self, url: str, notes: list[str]) -> str | None:
-        p = urlsplit(url)
-        host = p.hostname or ""
-        if host in self._robots:
-            return self._robots[host]
-        robots_url = f"{p.scheme}://{p.netloc}/robots.txt"
-        text: str | None
-        try:
-            r = self._get(robots_url)
-            hops = 0
-            while r.is_redirect and hops < MAX_REDIRECTS:
-                nxt = urljoin(str(r.url), r.headers["location"])
-                if urlsplit(nxt).hostname != host:
-                    break
-                r = self._get(nxt)
-                hops += 1
-            if r.status_code == 200:
-                text = r.text
-            elif 400 <= r.status_code < 500:
-                # RFC 9309: robots.txt unavailable (4xx) -> no restrictions.
-                text = ""
-                notes.append(f"robots.txt {r.status_code} on {host}")
-            else:
-                # RFC 9309: unreachable (5xx) -> assume full disallow.
-                text = "User-agent: *\nDisallow: /"
-                notes.append(f"robots.txt {r.status_code} on {host}: treated as disallow")
-        except httpx.HTTPError as e:
-            text = None
-            notes.append(f"robots.txt error on {host}: {type(e).__name__}")
-        self._robots[host] = text
-        return text
-
-    def allowed(self, url: str, res: ProbeResult) -> bool:
-        robots = self.robots_for(url, res.notes)
-        if robots is None:
-            # Could not read robots.txt at all: be conservative and do not fetch.
-            return False
-        return not robots_disallows(robots, self.cfg.user_agent, url)
+        self.fetcher.close()
 
     def probe(self, bank: Bank) -> ProbeResult:
         res = ProbeResult(bank_id=bank.id, url=bank.website_url)
-        url = bank.website_url
-        robots = self.robots_for(url, res.notes)
-        if robots is None:
+        self.fetcher.notes = res.notes
+        allowed = self.fetcher.allowed(bank.website_url)
+        if allowed is None:
             res.classification = "unreachable"
             return res
-        res.robots_disallows_home = robots_disallows(robots, self.cfg.user_agent, url)
-        if res.robots_disallows_home:
+        res.robots_disallows_home = not allowed
+        if not allowed:
             res.notes.append("home page disallowed by robots.txt: not fetched")
             return res
-        try:
-            r = self._get(url)
-            hops = 0
-            while r.is_redirect and hops < MAX_REDIRECTS:
-                nxt = urljoin(str(r.url), r.headers["location"])
-                if not self.allowed(nxt, res):
-                    res.notes.append(f"redirect target disallowed or robots unknown: {nxt}")
-                    res.http_status, res.final_url = r.status_code, str(r.url)
-                    return res
-                r = self._get(nxt)
-                hops += 1
-        except httpx.HTTPError as e:
+        r = self.fetcher.get(bank.website_url)
+        res.http_status, res.final_url = r.status, r.final_url
+        if r.robots_blocked:
+            res.notes.append(f"redirect target: {r.error}: {r.final_url}")
+            return res
+        if r.error:
             res.classification = "unreachable"
-            res.notes.append(f"{type(e).__name__}: {str(e)[:120]}")
+            res.notes.append(r.error)
             return res
         html = r.text
         text = visible_text(html)
-        res.http_status, res.final_url = r.status_code, str(r.url)
-        res.title, res.text_length = page_title(html), len(text)
+        res.html, res.title, res.text_length = html, page_title(html), len(text)
         res.language = detect_language(text)
-        res.classification = classify(r.status_code, html, len(text), self.cfg.min_text_chars)
+        res.classification = classify(r.status, html, len(text), self.cfg.min_text_chars)
         if res.classification == "blocked" and (m := challenge_marker(html)):
             res.notes.append(f"challenge marker: {m!r}")
         return res
 
-
-def browser_retry(results: list[ProbeResult], prober: Prober) -> None:
-    """One plain headless Chromium visit per js_shell page. No stealth, no proxies."""
-    todo = [r for r in results if r.classification == "js_shell"]
-    if not todo:
-        return
-    from playwright.sync_api import Error as PWError
-    from playwright.sync_api import sync_playwright
-
-    cfg = prober.cfg
-    with sync_playwright() as pw:
-        browser = pw.chromium.launch()
-        try:
-            for res in todo:
-                ctx = browser.new_context(user_agent=cfg.user_agent)
-                page = ctx.new_page()
-                url = res.final_url or res.url
-                res.method = "browser"
-                res.notes.append(f"httpx: js_shell ({res.text_length} chars)")
-                try:
-                    prober.throttle.wait(url)
-                    resp = page.goto(url, wait_until="load",
-                                     timeout=cfg.timeout_seconds * 1000)
-                    try:
-                        page.wait_for_load_state("networkidle",
-                                                 timeout=cfg.timeout_seconds * 1000)
-                    except PWError:
-                        res.notes.append("browser: networkidle not reached")
-                    html = page.content()
-                except PWError as e:
-                    res.notes.append(f"browser error: {str(e).splitlines()[0][:120]}")
-                    ctx.close()
+    def probe_languages(self, res: ProbeResult, browser: Browser | None) -> None:
+        """Find the uz / uz_cyrl / ru versions and record each page's detected language."""
+        if res.classification != "ok" or not res.html:
+            return
+        found = language_links(res.html, res.final_url)
+        targets = [(k, found[k], "link") for k in SWITCH_LANGS if k in found]
+        origin = "{0.scheme}://{0.netloc}".format(urlsplit(res.final_url))
+        for k in ("uz", "ru"):
+            if k not in found:
+                targets.append((k, f"{origin}/{k}/", "guess"))
+        for key, url, how in targets:
+            lp = LangPage(key=key, url=url, found_by=how)
+            res.lang_pages.append(lp)
+            if url.rstrip("/") == res.final_url.rstrip("/"):
+                lp.status, lp.language, lp.text_length = (res.http_status, res.language,
+                                                          res.text_length)
+                lp.note = "same as home page"
+                continue
+            if res.method == "browser" and browser:
+                if self.fetcher.allowed(url) is not True:
+                    lp.note = "robots.txt disallows or unreadable"
                     continue
-                final_url = page.url
-                ctx.close()
-                if not prober.allowed(final_url, res):
-                    res.notes.append(f"browser landed on disallowed URL: {final_url}")
+                rr = browser.render(url, text_len=lambda h: len(visible_text(h)))
+                lp.status, html = rr.status, rr.html
+                if not rr.ok:
+                    lp.note = "browser: " + "; ".join(rr.notes)
+            else:
+                r = self.fetcher.get(url)
+                if r.error:
+                    lp.note = r.error
                     continue
-                text = visible_text(html)
-                status = resp.status if resp else None
-                res.http_status, res.final_url = status, final_url
-                res.title, res.text_length = page_title(html), len(text)
-                res.language = detect_language(text)
-                res.classification = classify(status, html, len(text), cfg.min_text_chars)
-                if challenge_marker(html) and res.classification != "ok":
-                    res.classification = "blocked"
-                    res.notes.append(f"browser: challenge marker {challenge_marker(html)!r}; "
-                                     "stopped for this site")
-        finally:
-            browser.close()
+                lp.status, html = r.status, r.text if r.is_html else ""
+            text = visible_text(html) if html else ""
+            lp.text_length, lp.language = len(text), detect_language(text)
+
+
+def browser_retry(results: list[ProbeResult], prober: Prober, browser: Browser) -> None:
+    """Render js_shell pages: network idle up to the browser timeout, one retry."""
+    for res in results:
+        if res.classification != "js_shell":
+            continue
+        res.method = "browser"
+        res.notes.append(f"httpx: js_shell ({res.text_length} chars)")
+        url = res.final_url or res.url
+        rr = browser.render(url, text_len=lambda h: len(visible_text(h)))
+        res.notes.extend(f"browser {n}" for n in rr.notes)
+        if prober.fetcher.allowed(rr.final_url or url) is not True:
+            res.notes.append(f"browser landed on disallowed URL: {rr.final_url}")
+            res.classification = "other"
+            continue
+        text = visible_text(rr.html) if rr.html else ""
+        res.html, res.final_url = rr.html, rr.final_url or url
+        res.http_status = rr.status
+        res.title, res.text_length = page_title(rr.html), len(text)
+        res.language = detect_language(text)
+        if rr.html and (m := challenge_marker(rr.html)) and not rr.ok:
+            res.classification = "blocked"
+            res.notes.append(f"browser: challenge marker {m!r}; stopped for this site")
+        elif rr.ok:
+            res.classification = classify(rr.status, rr.html, len(text),
+                                          prober.cfg.min_text_chars)
+        else:
+            res.classification = "js_shell_failed"
 
 
 # ---------- report ----------
@@ -303,27 +170,38 @@ def _cell(v) -> str:
     return str(v).replace("|", "\\|")
 
 
-def render_report(results: list[ProbeResult], skipped: list[Bank], cfg: ProbeConfig) -> str:
+def _lang_cell(r: ProbeResult) -> str:
+    parts = []
+    for lp in r.lang_pages:
+        what = (f"{lp.language or 'no data'} ({lp.text_length} chars)"
+                if lp.text_length is not None else (lp.note or "no data"))
+        parts.append(f"{lp.key} [{lp.found_by}] {urlsplit(lp.url).path or '/'} → "
+                     f"{_cell(lp.status)} {what}")
+    return _cell("; ".join(parts))
+
+
+def render_report(results: list[ProbeResult], skipped: list[Bank], cfg: FetchConfig) -> str:
     counts = {c: sum(r.classification == c for r in results) for c in CLASSES}
     lines = [
         "# Bank website probe",
         "",
         f"- Run at: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
         f"- User-Agent: `{cfg.user_agent}`",
-        f"- Min visible text for `ok`: {cfg.min_text_chars} characters; "
-        f"timeout {cfg.timeout_seconds:g} s; "
-        f"{cfg.min_delay_seconds:g} s between requests per domain",
+        f"- Min visible text for `ok`: {cfg.min_text_chars} characters; httpx timeout "
+        f"{cfg.timeout_seconds:g} s; {cfg.min_delay_seconds:g} s between requests per domain",
+        f"- Browser fallback: {'on' if cfg.browser_fallback else 'off'}; network idle up to "
+        f"{cfg.browser_timeout_seconds:g} s, one retry",
         "- Page contents are not stored; this table only.",
         "",
         "| bank | class | status | text length | language | robots disallows home "
-        "| method | final URL | title | notes |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "| method | final URL | title | language versions | notes |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in results:
         lines.append("| " + " | ".join(_cell(v) for v in (
             r.bank_id, r.classification, r.http_status, r.text_length, r.language,
-            r.robots_disallows_home, r.method, r.final_url, r.title[:80],
-            "; ".join(r.notes))) + " |")
+            r.robots_disallows_home, r.method, r.final_url, r.title[:80])) + " | "
+            + _lang_cell(r) + " | " + _cell("; ".join(r.notes)) + " |")
     lines += ["", "## Summary", "", "| class | banks |", "|---|---|"]
     lines += [f"| {c} | {n} |" for c, n in counts.items()]
     lines += [f"| skipped (no website_url) | {len(skipped)} |", ""]
@@ -333,20 +211,22 @@ def render_report(results: list[ProbeResult], skipped: list[Bank], cfg: ProbeCon
 
 
 def print_table(results: list[ProbeResult], skipped: list[Bank]) -> None:
-    head = ("bank", "class", "status", "text_len", "language")
+    head = ("bank", "class", "status", "text_len", "language", "uz/ru versions")
     rows = [(r.bank_id, r.classification, _cell(r.http_status), _cell(r.text_length),
-             _cell(r.language)) for r in results]
+             _cell(r.language),
+             ", ".join(f"{lp.key}:{lp.language or '-'}" for lp in r.lang_pages) or "-")
+            for r in results]
     widths = [max(len(str(x)) for x in col) for col in zip(head, *rows)]
     for row in (head, *rows):
         print("  ".join(str(x).ljust(w) for x, w in zip(row, widths)))
     print()
     for c in CLASSES:
-        print(f"{c:12} {sum(r.classification == c for r in results)}")
-    print(f"{'skipped':12} {len(skipped)} (no website_url)")
+        print(f"{c:16} {sum(r.classification == c for r in results)}")
+    print(f"{'skipped':16} {len(skipped)} (no website_url)")
 
 
 def run(banks_path: Path = BANKS_YAML, report_path: Path = REPORT_PATH) -> list[ProbeResult]:
-    cfg = ProbeConfig.from_env()
+    cfg = FetchConfig.from_env()
     banks = load_banks(banks_path)
     targets = [b for b in banks if b.crawlable]
     skipped = [b for b in banks if not b.crawlable]
@@ -356,7 +236,18 @@ def run(banks_path: Path = BANKS_YAML, report_path: Path = REPORT_PATH) -> list[
         for b in targets:
             print(f"probing {b.id} ...", file=sys.stderr)
             results.append(prober.probe(b))
-        browser_retry(results, prober)
+        need_browser = cfg.browser_fallback and any(
+            r.classification == "js_shell" for r in results)
+        if need_browser:
+            with Browser(cfg, prober.throttle) as browser:
+                browser_retry(results, prober, browser)
+                for r in results:
+                    print(f"languages {r.bank_id} ...", file=sys.stderr)
+                    prober.probe_languages(r, browser)
+        else:
+            for r in results:
+                print(f"languages {r.bank_id} ...", file=sys.stderr)
+                prober.probe_languages(r, None)
     finally:
         prober.close()
     print_table(results, skipped)
