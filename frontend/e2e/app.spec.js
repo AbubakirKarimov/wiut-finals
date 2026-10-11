@@ -96,7 +96,7 @@ test("a JavaScript-only site ends with one friendly message and an amber final s
   await expect(status).not.toContainText("Status: done");
   const message = status.getByTestId("js-only-message");
   await expect(message).toHaveText(
-    "This site renders its content with JavaScript, which the hosted demo cannot read. Nothing was judged.");
+    "This site needs JavaScript to show its content, and this demo has no browser, so nothing was checked or guessed. In production a local browser reads such sites.");
   // No pre-computed results exist for this host, so no Findings link is offered.
   await expect(message.getByRole("link")).toHaveCount(0);
   const stepper = page.getByRole("list", { name: "Check progress" });
@@ -111,7 +111,7 @@ test("a JavaScript-only site ends with one friendly message and an amber final s
   const visible = await page.evaluate(() => document.body.innerText);
   expect(visible).not.toMatch(/BROWSER_FALLBACK|[A-Z]{3,}_[A-Z_]{3,}=/);
   // The message appears once in the status area, not repeated as an error with Retry.
-  await expect(status.getByText("which the hosted demo cannot read")).toHaveCount(1);
+  await expect(status.getByText("this demo has no browser")).toHaveCount(1);
   await expect(status.getByRole("button", { name: "Retry" })).toHaveCount(0);
   const checks = page.getByTestId("js-only-checks");
   await expect(checks).toContainText("1 check(s), all not checkable");

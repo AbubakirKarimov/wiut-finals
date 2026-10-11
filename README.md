@@ -270,6 +270,29 @@ passages, not whole pages.
   is strict, so an LLM quote with a different apostrophe is rejected (`not_checkable`).
 - **Scanned PDFs** have no text layer: stored as `readable=false`, not OCR'd.
 
+## Known limitations
+
+- **JavaScript-only bank sites cannot be read on the hosted demo.** The hosted image has no
+  browser, so a site whose home page has almost no text without JavaScript ends with every
+  check `not_checkable` ("nothing was checked or guessed"). Home-page text measured over
+  plain HTTP (`scripts/probe_hosted_examples.py`, `data/hosted_examples.json`, threshold
+  1,500 characters from `data/check_hints.yaml`): Agrobank 0, Hayot Bank 0, Asakabank 0
+  (JavaScript shells), Universal Bank 925 (too short to report gaps); MKBANK 13,139, Anor
+  Bank 7,572 and Garant Bank 13,522 work. The Check screen offers only the working ones as
+  examples. Pre-computed results for the others were made on a laptop with a local browser.
+- **Jina Reader as an external renderer (tried, not enabled):** about 20 s per page, so a
+  60 s run read only 2–5 pages of a JavaScript-only site (laptop: 4–11), and results were
+  unstable between runs (Universal Bank's home page rendered in two runs and failed in the
+  third; without a locale header it rendered the English site). Report:
+  [`eval/jina_fallback.md`](eval/jina_fallback.md) (code on branch `jina-fallback`).
+- **Chromium in a small container (tried, not enabled):** at 512 MB memory never ran out
+  (peak 356 MiB). With 0.1 CPU every bank stopped after 1 page; with 0.5 CPU Agrobank read
+  5 pages and Hayot Bank 3 (laptop: 4 and 11), Universal Bank 15. Image 2.06 GB unpacked.
+  Report: [`eval/render_browser_experiment.md`](eval/render_browser_experiment.md) (code on
+  branch `render-free-browser`).
+- **Production design:** a local headless browser inside the regulator's perimeter
+  (`BROWSER_FALLBACK=1`), no external rendering API.
+
 ## Honest limitations
 
 - **Requirements must be approved by a human.** Until `data/requirements.yaml` exists, every

@@ -57,8 +57,8 @@ function JsOnlyNotice({ job }) {
   return (
     <Notice kind="warn">
       <span data-testid="js-only-message">
-        This site renders its content with JavaScript, which the hosted demo cannot read.
-        Nothing was judged.
+        This site needs JavaScript to show its content, and this demo has no browser, so
+        nothing was checked or guessed. In production a local browser reads such sites.
         {job.precomputed_findings > 0 && (
           <> Pre-computed results for this bank (made with a browser) are on
             the <a href="#/findings">Findings tab</a>.</>

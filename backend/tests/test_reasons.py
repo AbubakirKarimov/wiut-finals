@@ -19,8 +19,8 @@ PRE = Path(__file__).resolve().parents[2] / "data" / "precomputed" / "findings.j
     ("not_checkable", "LLM timeout / rate limit: openai-compatible:api.groq.com: HTTP 429",
      "The LLM quota was exhausted or the call timed out; try again later."),
     ("not_checkable", "page needs JavaScript rendering; not available on this hosted demo (...)",
-     "This site renders its content with JavaScript, which the hosted demo cannot read. "
-     "Nothing was judged."),
+     "This site needs JavaScript to show its content, and this demo has no browser, so "
+     "nothing was checked or guessed. In production a local browser reads such sites."),
     ("ok", "Code: link \"Kalkulyatorlar\" (https://x.uz/c/) found on https://x.uz/ (any page); "
      "anchor text quoted from the page. Presence only: whether the calculator shows the full "
      "cost of the loan (all interest and fees) is not verified.",
