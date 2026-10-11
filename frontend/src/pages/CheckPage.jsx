@@ -11,7 +11,7 @@ const CRAWL_TEXT = {
   blocked: "The site blocked our crawler. Bot protection is never bypassed, so nothing could be checked.",
   unreachable: "The site could not be reached (DNS, timeout or connection error).",
   robots_disallowed: "The site's robots.txt does not allow our crawler, so it was not read.",
-  js_shell_failed: "The site stayed nearly empty even in a browser.",
+  js_shell_failed: "This site renders its content with JavaScript and could not be rendered (browser or Jina Reader). Nothing was judged.",
   other: "The site returned an unexpected response.",
 };
 
@@ -57,8 +57,8 @@ function JsOnlyNotice({ job }) {
   return (
     <Notice kind="warn">
       <span data-testid="js-only-message">
-        This site renders its content with JavaScript, which the hosted demo cannot read.
-        Nothing was judged.
+        This site renders its content with JavaScript, which the hosted demo cannot read
+        (no browser here, and the optional Jina Reader fallback is off). Nothing was judged.
         {job.precomputed_findings > 0 && (
           <> Pre-computed results for this bank (made with a browser) are on
             the <a href="#/findings">Findings tab</a>.</>
@@ -276,6 +276,14 @@ export default function CheckPage() {
             </Notice>
           )}
           {jsOnly && <JsOnlyNotice job={job} />}
+          {run && run.crawl_status === "ok" && /Jina Reader/.test(run.crawl_reason || "") && (
+            <Notice>
+              <span data-testid="jina-note">
+                Some pages were rendered by Jina Reader, an external service: only the public
+                page address was sent to it. Quotes are verified against the text it returned.
+              </span>
+            </Notice>
+          )}
           {!jsOnly && run && run.crawl_status && run.crawl_status !== "ok" && (
             <Notice kind="error">
               {CRAWL_TEXT[run.crawl_status] || "The site could not be read."}{" "}

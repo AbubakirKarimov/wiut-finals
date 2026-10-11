@@ -96,7 +96,8 @@ test("a JavaScript-only site ends with one friendly message and an amber final s
   await expect(status).not.toContainText("Status: done");
   const message = status.getByTestId("js-only-message");
   await expect(message).toHaveText(
-    "This site renders its content with JavaScript, which the hosted demo cannot read. Nothing was judged.");
+    "This site renders its content with JavaScript, which the hosted demo cannot read " +
+    "(no browser here, and the optional Jina Reader fallback is off). Nothing was judged.");
   // No pre-computed results exist for this host, so no Findings link is offered.
   await expect(message.getByRole("link")).toHaveCount(0);
   const stepper = page.getByRole("list", { name: "Check progress" });

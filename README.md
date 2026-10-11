@@ -26,6 +26,20 @@ Render's free plan; see `DEPLOY.md`).
   `not_checkable` "page needs JavaScript rendering; not available on this hosted demo".
   Agrobank and Hayot Bank need a browser; their pre-computed results come from a local run
   with the browser fallback.
+- **Optional external renderer: Jina Reader** (`RENDER_FALLBACK=jina`, off by default). When
+  set and there is no browser (`BROWSER_FALLBACK=0`), a page that answered HTTP 200 with
+  almost no text, or a home page under the short-homepage threshold, is fetched as
+  `https://r.jina.ai/<page url>`. *Sent:* only the public page URL, our User-Agent and
+  format headers; no API key, cookies or user data. *Returned:* the rendered page as
+  Markdown with its links, converted to minimal HTML so the usual text and link extraction
+  apply; quotes are verified against exactly that text. Never used for a page that blocked
+  us (that would be a bypass); a Jina failure, timeout (20 s) or too-short text keeps the
+  page `not_checkable`. The Check screen says when Jina was used. Limitations: about 20 s
+  per page, so the 60 s run budget allows only 2–5 pages (most checks then stay
+  `not_checkable`); results vary between runs; the text is Jina's rendering, not ours; the
+  bank sees Jina's fetcher, not our User-Agent. Measurements: `eval/jina_fallback.md`.
+- **Production design:** a local headless browser inside the regulator's perimeter
+  (`BROWSER_FALLBACK=1`), no external rendering API.
 
 ## Architecture
 
@@ -257,7 +271,8 @@ passages, not whole pages.
   `BROWSER_FALLBACK=1` they are rendered in plain headless Chromium (network idle up to 45 s,
   one retry; otherwise `js_shell_failed`) and crawled to depth 1 only. On the hosted demo
   (`BROWSER_FALLBACK=0`) they are `not_checkable` with "page needs JavaScript rendering; not
-  available on this hosted demo". In the probe
+  available on this hosted demo", unless the optional Jina Reader fallback is on (see
+  Hosted demo). In the probe
   (`data/probe_report.md`) Agrobank and Hayot Bank needed the browser.
 - **Blocked sites**: HTTP 403/429/503 or a challenge page ("Just a moment", captcha, ...) →
   `not_checkable`, never bypassed. Agrobank answers robots.txt with 403, which RFC 9309
