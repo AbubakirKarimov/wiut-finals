@@ -146,6 +146,11 @@ e2e suite is run locally.
 .venv/bin/python scripts/crawl_all.py [bank_id ...]          # crawl + check banks.yaml (batch runs)
 ```
 
+Real output of the shortlist run (2026-10-10, Groq `openai/gpt-oss-120b`):
+`data/requirements_candidates.json` and `data/requirements_review.md`: 175 eligible clauses
+→ 80 after the pre-filter → 36 shortlisted; 163 LLM API calls, 83 of them failed and were
+retried (0 errors after retry), $0.036 total at list price.
+
 ### Batch run and pre-computed results
 
 ```bash

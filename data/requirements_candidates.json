@@ -1,0 +1,2769 @@
+{
+ "generated_at": "2026-10-10T14:05:58.055785+00:00",
+ "llm": "openai-compatible:api.groq.com, model openai/gpt-oss-120b",
+ "stats": {
+  "eligible clauses": 175,
+  "passed pre-filter": 80,
+  "sent to LLM": 80,
+  "LLM errors (invalid JSON after retry)": 0,
+  "judged checkable by LLM": 36,
+  "shortlisted (checkable + always-include)": 36,
+  "run: llm_api_calls": 163,
+  "run: llm_failed_calls": 83,
+  "run: llm_cache_hits": 0,
+  "run: input_tokens": 72428,
+  "run: output_tokens": 42308,
+  "run: api_time_s": 163.6,
+  "run: cost_usd": 0.036249
+ },
+ "candidates": [
+  {
+   "clause_id": "cbu_reg_3030:resolution:2",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804910",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "2. Мазкур қарор расмий эълон қилинган кундан эътиборан уч ойдан кейин кучга киради.",
+   "text_en": "The decision comes into force three months after its official announcement.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "Compliance depends on internal timing of implementation, which cannot be verified from the public website.",
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "publication"
+    ],
+    "keywords": {
+     "publication": [
+      "эълон",
+      "e'lon"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:1",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804922",
+   "chapter": "1-боб. Умумий қоидалар",
+   "paragraph": null,
+   "text_original": "1. Мазкур Низомда қуйидаги асосий тушунчалардан фойдаланилади:\nистеъмолчилар — банк хизматидан фойдаланиш истагида банкка мурожаат қилган, ушбу хизматдан фойдаланаётган ёки олдин фойдаланган жисмоний ёки юридик шахслар;\nшахсий кабинет — банкнинг расмий веб-сайтида, интернет-банкинг тизимида ва/ёки мобиль иловасида жойлаштирилган, истеъмолчига банк хизматини кўрсатиш шартномаси бўйича ўз мажбуриятларини бажариши юзасидан ахборот олиш, шунингдек Интернет тармоғидан фойдаланган ҳолда хабарлар алмашиш орқали банк билан ўзаро ҳамкорлик қилиш имконини берувчи ахборот ресурси;\nмурожаат — истеъмолчи (ёки унинг вакили) томонидан оғзаки, ёзма ёки электрон шаклда банкка юборилган банк хизматларини кўрсатишга тааллуқли ариза, шикоят ёки таклиф;\nкредит — банклар томонидан бериладиган кредит, микроқарз ва микрокредитлар;\nтизимли камчилик — муайян молиявий маҳсулот, бизнес жараён, банк хизмат кўрсатиш бўлинмалари тармоғи, ахборот тизими ёки ички назорат тизими, якка ҳолат билан чекланмайдиган ва ўз мазмунига кўра бошқа ўхшаш шартномалар, операциялар, хизмат кўрсатиш жараёнлари ёки таркибий бўлинмалар фаолиятидаги истеъмолчиларнинг ҳуқуқлари бузилишига олиб келувчи камчилик.",
+   "text_en": "The regulation defines basic concepts such as consumers, personal cabinet, appeal, credit, and systematic deficiency.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause only provides definitions and does not impose any publishable obligation that can be verified on the public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "complaints",
+     "disclosure",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "интернет",
+      "мобиль илова",
+      "veb-sayt",
+      "sayt",
+      "internet",
+      "mobil ilova"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ],
+     "complaints": [
+      "мурожаат",
+      "шикоят",
+      "murojaat",
+      "shikoyat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:3",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5289539",
+   "chapter": "1-боб. Умумий қоидалар",
+   "paragraph": null,
+   "text_original": "3. Банк хизматлари банк ва истеъмолчи ўртасида тузилган шартнома, шу жумладан оммавий оферта тарзидаги шартнома асосида кўрсатилади.\nШартномаларнинг матни истеъмолчилар тушуниши учун аниқ ва содда тарзда баён этилиши ва компьютер воситасида босиб чиқаришда «Тimеs Nеw Rоmаn» 12 ўлчамли шрифтдан кам бўлмаган ёки шунга ўхшаш шрифтни қўллаган ҳолда Мiсrоsоft Wоrd матн редакторидан фойдаланилиши лозим.\nШартномаларнинг матни давлат тилида тузилади. Истеъмолчи ва банкнинг ўзаро келишувига мувофиқ шартнома матни бошқа тилда ҳам тузилиши мумкин.",
+   "text_en": "The bank must provide its service contracts, including public‑offer contracts, in the state language (Uzbek), written clearly in simple language, using Times New Roman 12‑point font (or similar) prepared with Microsoft Word.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "Font type and the use of Microsoft Word cannot be verified from publicly accessible HTML or PDF pages.",
+   "llm_confidence": 0.92,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language",
+     "terms_offer"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ],
+     "terms_offer": [
+      "оферта",
+      "oferta"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:4",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804933",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "1-§. Маълумотлар беришнинг умумий минимал талаблари",
+   "text_original": "4. Банк томонидан кўрсатиладиган барча хизматлар тўғрисида маълумотлар истеъмолчига ошкор этилиши лозим.\nХизматлар тўғрисидаги маълумотлар тижорат ёки банк сирини ўз ичига олмаслиги зарур.",
+   "text_en": "The bank must disclose information about all its services to consumers, ensuring that such information does not contain commercial or bank secrets.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "A public page (e.g., Products, Services, or Tariffs) that lists and describes all banking services offered.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.85,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure"
+    ],
+    "keywords": {
+     "disclosure": [
+      "ошкор",
+      "oshkor"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:5",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#4427417",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "1-§. Маълумотлар беришнинг умумий минимал талаблари",
+   "text_original": "5. Банк хизматларини тақдим этиш шартлари, ушбу шартларнинг ўзгариши ҳақидаги маълумотлар банкнинг расмий веб-сайтида эълон қилиниши, шунингдек банкнинг ахборот стендларида доимий равишда жойлаштириб борилиши керак.\nБунда, банк хизматларини тақдим этиш шартларининг ўзгариши ҳақидаги маълумот кучга киришидан камида ўн кун олдин, валюта айирбошлаш курсларининг ўзгариши тўғрисидаги маълумот зудлик билан эълон қилиниши лозим.",
+   "text_en": "The bank must publish its service provision terms and any changes to them, as well as currency exchange rate changes, on its official public website.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "A 'Terms of Service' or similar page (or PDF) on the website showing current terms and a change log, and a section announcing currency exchange rate updates.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.86,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure",
+     "publication",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ],
+     "publication": [
+      "эълон",
+      "e'lon"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:7",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5289561",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "1-§. Маълумотлар беришнинг умумий минимал талаблари",
+   "text_original": "7. Банк ўзининг молиявий хизматлари тўғрисидаги маълумотларни истеъмолчиларга давлат тилида етказиши лозим. Банкнинг молиявий хизматлари тўғрисидаги маълумотлар қўшимча равишда бошқа тилларда ҳам тақдим этилиши мумкин.\nБанк хизматлари тўғрисидаги маълумотларнинг матни лўнда, оддий ва равон тилда баён этилиши керак.",
+   "text_en": "The bank must provide information about its financial services to consumers in Uzbek, using clear and plain language.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "uz_version",
+   "evidence_hint": "Uzbek-language versions of main service pages (loans, deposits, tariffs, terms) and a language selector showing Uzbek.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": true,
+   "approved_at": "2026-10-10T14:23:54.979028+00:00"
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:9",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643168",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "1-§. Маълумотлар беришнинг умумий минимал талаблари",
+   "text_original": "9. Банк томонидан кредит ва омонат (депозит) бўйича хизмат кўрсатиш даврида истеъмолчининг оғзаки ёки ёзма сўрови олинган кундан эътиборан бир иш куни ичида унга қуйидаги ахборотлар ёзма шаклда ойда бир марта бепул тақдим этилади:\nа) кредит бўйича (ахборот берилган санасини кўрсатган ҳолда):\nкредитлаш лимити;\nкредит бўйича тўланган пул маблағлари суммаси;\nасосий сумма бўйича қарз қолдиғи;\nнавбатдаги тўловларнинг миқдори, таркиби ва муддатлари (тўловлар жадвали);\nкредитни муддатидан олдин қисман ёки тўлиқ сўндириш истаги билдирилган тақдирда тўлаш лозим бўлган суммалар миқдори;\nмуддати ўтказиб юборилган қарздорлик миқдори ва таркиби;\nкелиб тушаётган пул маблағлари кредит бўйича қарзни сўндиришга йўналтирилиши ҳақида ахборотлар;\nб) омонат (депозит) бўйича (ахборот берилган санасини кўрсатган ҳолда):\nахборот берилган санага омонат (депозит) қолдиғи;\nахборот берилган санага омонат (депозит) бўйича ҳисобланган жами фоиз суммаси, шу жумладан тўланган фоиз суммаси.",
+   "text_en": "The bank must provide, free of charge and in writing, the specified credit and deposit information to a consumer within one business day of their oral or written request.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause requires individualized written information to be supplied on request, which is not publicly disclosed on the website.",
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure"
+    ],
+    "keywords": {
+     "disclosure": [
+      "ахборот бер",
+      "axborot ber"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:11",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804954",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "1-§. Маълумотлар беришнинг умумий минимал талаблари",
+   "text_original": "11. Банк истеъмолчиларга маълумот бериш учун банк хизматини кўрсатиш шартномасини тузиш чоғида улар билан боғланиш алоқа воситаларини келишиб олиши ва ушбу алоқа воситалари орқали боғланиш имкониятини таъминлаши лозим.",
+   "text_en": "The bank must agree with consumers on communication channels when concluding a service contract and ensure communication through those channels.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "Agreement on communication channels is a private contractual step not observable on the public website.",
+   "llm_confidence": 0.9,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure"
+    ],
+    "keywords": {
+     "disclosure": [
+      "маълумот бер",
+      "ma'lumot ber"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:13",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804958",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "2-§. Банкнинг расмий веб-сайтида ахборот бериш хусусиятлари",
+   "text_original": "13. Банк ўзининг расмий веб-сайтига эга бўлиши шарт.\nРасмий веб-сайтга жойлаштирилаётган ахборотларнинг санаси кўрсатилиши керак.",
+   "text_en": "The bank must have an official website and must display the date of the information posted on it.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Look for a visible date (e.g., “Updated on …”) on the bank’s public pages such as the homepage or product pages.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ]
+    },
+    "always_include": true
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:14",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804959",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "2-§. Банкнинг расмий веб-сайтида ахборот бериш хусусиятлари",
+   "text_original": "14. Банкнинг расмий веб-сайтида сайтнинг тузилишини баён этувчи, ушбу тузилмадаги расмий веб-сайтнинг ҳар бир саҳифаси жойлашган жойни қулай шаклда аниқлаш имконини берувчи бўлим бўлиши керак.",
+   "text_en": "The bank must provide a section on its official website that describes the site structure and allows easy identification of the location of each page.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "A site map or 'Website Structure' page/section listing all pages and their locations, typically linked in the footer or navigation.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ]
+    },
+    "always_include": true
+   },
+   "shortlisted": true,
+   "approved": true,
+   "approved_at": "2026-10-10T14:23:54.979028+00:00"
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:15",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804960",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "2-§. Банкнинг расмий веб-сайтида ахборот бериш хусусиятлари",
+   "text_original": "15. Банкнинг расмий веб-сайти Ўзбекистон Республикаси Вазирлар Маҳкамасининг 2014 йил 2 июлдаги 176-сон қарори билан тасдиқланган Акциядорлик жамиятларининг корпоратив веб-сайтларига қўйиладиган талаблар тўғрисидаги низомга мувофиқ бўлиши керак.",
+   "text_en": "The bank's official website must comply with the requirements set out in Cabinet of Ministers Resolution No. 176 of 2 July 2014 on corporate websites of joint‑stock companies.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "Compliance requires verifying the website meets the detailed external regulation, which cannot be fully assessed from the public site alone.",
+   "llm_confidence": 0.9,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:16",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804961",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "2-§. Банкнинг расмий веб-сайтида ахборот бериш хусусиятлари",
+   "text_original": "16. Банкнинг расмий веб-сайтидаги ахборотдан фойдаланишда:\nистеъмолчилар зарур маълумотлардан хоҳлаган пайтида танишиб чиқиш ва ундан фойдаланиш имконига эга бўлиши керак. Маълумот билан танишганлик ёки ундан бошқача тарзда фойдаланганлик учун ҳақ ундирилмаслиги ҳамда бошқа чекловлар қўйилмаслиги лозим;\nистеъмолчи маълумот билан бепул ва кенг тарқалган дастурий таъминот ёрдамида фойдаланиш имконига эга бўлиши лозим;\nахборот шифрланган ёки бошқа воситалар орқали ҳимояланган бўлмаслиги керак;\nбанк ўз расмий веб-сайтида жойлаштирилган ахборотдан (истеъмолчининг шахсий кабинетида жойлаштирилган ахборотдан ташқари) фойдаланиш учун истеъмолчидан рўйхатдан ўтиш ёки шахсий маълумотларини тақдим этишини, шунингдек у билан турли хил битимлар тузишни талаб қилишга ҳақли эмас.",
+   "text_en": "Consumers must be able to access required information on the bank’s public website at any time, free of charge, without registration, without providing personal data, and without any encryption or other protection.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Open a typical public page (e.g., loans, deposits, tariffs) and verify that the information is displayed without any login prompt, fee notice, or request for personal data.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.96,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure",
+     "tariffs_fees",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ],
+     "tariffs_fees": [
+      "ҳақ ундир",
+      "haq undir"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:17",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804968",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "2-§. Банкнинг расмий веб-сайтида ахборот бериш хусусиятлари",
+   "text_original": "17. Банк расмий веб-сайтининг мазкур банк ва кўрсатилаётган банк хизматлари шартлари тўғрисида ахборотларни ўз ичига олган бўлимига веб-сайтнинг бош саҳифасидан гиперҳаволалар орқали бир ўтишда кириш учун имкони яратилган бўлиши керак.",
+   "text_en": "The bank must provide a link on its homepage that leads to a section containing information about the bank and the terms of the services offered.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "A hyperlink on the homepage pointing to a page or section (e.g., “About the bank”, “Service terms”) that presents information about the bank and its service conditions.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ]
+    },
+    "always_include": true
+   },
+   "shortlisted": true,
+   "approved": true,
+   "approved_at": "2026-10-10T14:23:54.979028+00:00"
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:18",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5290032",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "2-§. Банкнинг расмий веб-сайтида ахборот бериш хусусиятлари",
+   "text_original": "18. Банк ўзининг расмий веб-сайтида, интернет-банкинг тизимида ва/ёки мобиль иловасида истеъмолчи учун шахсий кабинет яратиш ва ундан фойдаланиш имкониятини таъминлаб бериши лозим.\nБанк истеъмолчига унинг шахсий кабинетида:\nкредит шартномаси бўйича истеъмолчи билан тузилган шартнома ва унга киритилган ўзгартиришлар ҳамда мазкур Низомнинг 9-бандида кўрсатилган маълумотлардан;\nомонат (депозит) шартномаси бўйича истеъмолчи билан тузилган шартнома ва унга киритилган ўзгартиришлар ҳамда омонат қолдиғи, омонат бўйича кирим-чиқим операцияларига доир маълумотлардан фойдаланиш имкониятини таъминлаб бериши шарт.",
+   "text_en": "The bank must provide consumers with the ability to create and use a personal cabinet on its official website, internet‑banking system, and/or mobile application, including access to loan and deposit contracts and related information.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The required functionality and access to personal cabinet information can only be verified behind a login or within the mobile app, not from publicly accessible pages.",
+   "llm_confidence": 0.9,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "интернет",
+      "мобиль илова",
+      "veb-sayt",
+      "sayt",
+      "internet",
+      "mobil ilova"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:18^1",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643197",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "2-§. Банкнинг расмий веб-сайтида ахборот бериш хусусиятлари",
+   "text_original": "18^1. Банклар ўзларининг расмий веб-сайтларида, шунингдек мобил иловаларида (агар мавжуд бўлса) жисмоний шахсларга мўлжалланган кредитларнинг тўлиқ қийматини мустақил ҳисоблаб чиқиш имкониятини яратиб беришлари лозим.",
+   "text_en": "Banks must provide on their public website a tool that allows natural persons to independently calculate the full cost of loans intended for individuals.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "A loan cost calculator page or widget on the bank’s website, such as a page titled “Loan calculator”, “Credit cost calculator”, or similar, where users can input parameters and obtain the total loan cost.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.92,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "credit_cost",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "мобил илова",
+      "veb-sayt",
+      "sayt",
+      "mobil ilova"
+     ],
+     "credit_cost": [
+      "тўлиқ қиймат",
+      "ҳисоблаб чиқ",
+      "to'liq qiymat",
+      "hisoblab chiq"
+     ]
+    },
+    "always_include": true
+   },
+   "shortlisted": true,
+   "approved": true,
+   "approved_at": "2026-10-10T14:23:54.979028+00:00"
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:21",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804976",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "3-§. Банк фаолиятга оид реклама тусидаги ахборотлар бериш",
+   "text_original": "21. Реклама берувчи банк Интернет тармоғида контекстли рекламани жойлаштиришда бошқа кредит ташкилотининг фирма номи ва (ёки) товар белгисидан калит сўзлар сифатида фойдаланиши мумкин эмас.",
+   "text_en": "The bank must not use another credit organization's name or trademark as keywords in its contextual internet advertising.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns the bank's keyword usage in contextual ads, which cannot be observed from the public website alone.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure",
+     "terms_offer",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "интернет",
+      "internet"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ],
+     "terms_offer": [
+      "реклама",
+      "reklama"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:22",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804977",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "3-§. Банк фаолиятга оид реклама тусидаги ахборотлар бериш",
+   "text_original": "22. Реклама берувчи банк истеъмолчига нотўғри ахборот тақдим этилишига йўл қўймаслик мақсадида ўз расмий веб-сайтини бошқа кредит ташкилотининг илгари эълон қилинган расмий веб-сайтига ўхшатиб ниқобламаслиги керак.",
+   "text_en": "The bank must not imitate or copy another credit organization's previously announced official website in its advertising to avoid providing false information to consumers.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "Verifying that the bank's website does not resemble another credit organization's site requires comparison with external sites, which cannot be assessed from the bank's public website alone.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "publication",
+     "terms_offer",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "publication": [
+      "эълон",
+      "e'lon"
+     ],
+     "terms_offer": [
+      "реклама",
+      "reklama"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:23",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3804980",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "4-§. Истеъмолчига бериладиган ахборотнинг минимал ҳажми",
+   "text_original": "23. Банкнинг ахборот стендларида ва расмий веб-сайтида қуйидаги ахборотлар жойлаштирилиши шарт:\nбанкнинг тўлиқ ва қисқартирилган номи, манзили, филиаллари манзиллари, иш вақти, боғланиш учун алоқа телефонлари, расмий веб-сайти ва электрон почта манзили;\nмазкур Низомнинг матни;\nистеъмолчиларга банк хизматларини кўрсатиш тартиби, шартлари ва қиймати, шу жумладан банк хизмати бўйича намунавий шартномалар матни (фақат расмий веб-сайтда);\nбанк операциялари бўйича тарифлар, фоиз ставкалари ва воситачилик ҳақлари тўғрисида;\nчет эл валюталарини сотиш ва сотиб олиш курслари, чет эл валюталарини алмаштириш курслари, шунингдек валюта айирбошлаш операциялари учун ундириладиган воситачилик ҳақи миқдорлари (агарда мавжуд бўлса);\nистеъмолчилар мурожаатларини кўриб чиқиш тартиби, шу жумладан мурожаат қилиш усуллари ва улар йўлланадиган манзиллар тўғрисида;\nистеъмолчининг ҳуқуқларини ҳимоя қилиш усуллари, шу жумладан низони судгача ҳал этиш имконияти ва усуллари ҳақида.",
+   "text_en": "The bank must publish on its official website its full and short name, address, branch addresses, working hours, contact phone numbers, website and email, the text of this regulation, the procedures, terms and fees for services (including sample contract texts), tariffs, interest rates and commissions, foreign exchange rates, the procedure for handling consumer complaints and the methods for protecting consumer rights, including court dispute resolution.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Look for pages such as About, Contact, Regulations, Tariffs, Consumer Rights, Sample Contracts that contain the listed information.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "complaints",
+     "disclosure",
+     "tariffs_fees",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ],
+     "complaints": [
+      "мурожаат",
+      "murojaat"
+     ],
+     "tariffs_fees": [
+      "тариф",
+      "фоиз ставка",
+      "tarif",
+      "foiz stavka"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:26",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5290517",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "4-§. Истеъмолчига бериладиган ахборотнинг минимал ҳажми",
+   "text_original": "26. Банк омонати (депозит) шартномаси тузилгунга қадар банк истеъмолчига оғзаки тарзда қуйидаги ахборотни тақдим этади:\nомонат (депозит) тури (талаб қилиб олгунча, муддатли, жамғарма);\nомонат (депозит) муддати (мавжуд бўлганда);\nомонатнинг (депозитнинг) энг кам суммаси;\nмукофот ставкалари;\nқўшимча битим тузмаган ҳолда омонат (депозит) муддатини узайтириш шартлари;\nомонатни (депозитни) тўлдириш имконияти;\nомонатни (депозитни) тўлиқ ёки қисман муддатидан олдин қайтариб олиш шартлари;\nфоиз ставкалари;\nомонат (депозит) бўйича асосий сумма ва фоизли даромадларни тўлаб бериш тартиби;\nомонатга (депозитга) қўшимча маблағ киритиш имконияти;\nомонатга (депозитга) нақд пулларни кирим қилиш қандай ҳужжат билан расмийлаштирилиши;\nомонатга (депозитга) қўйиш мақсадида банк кассасига нақд пулларни топшириш ёки банк ҳисобварағига маблағларни ўтказишдан аввал банк билан депозит шартномасини расмийлаштириш шартлиги;\nЎзбекистон Республикасининг «Банклардаги омонатларни ҳимоя қилиш кафолатлари тўғрисида»ги Қонунига мувофиқ кафолатланадиган пул маблағлари ҳамда кафолатланган омонатлар бўйича компенсация суммаси;\nбанк омонати (депозити) шартномаси бўйича назарда тутилган банк ва истеъмолчининг ҳуқуқ ва мажбуриятлари, уларнинг жавобгарлиги тўғрисида.\nБанк омонати (депозит) шартномаси масофавий хизмат кўрсатиш тизими орқали тузилганда, банк мазкур тизим орқали истеъмолчига шартнома тузилишидан олдин мазкур бандда кўрсатилган маълумотлар билан танишиб чиқиш имкониятини яратиб бериши лозим.",
+   "text_en": "Before concluding a deposit contract, the bank must orally provide the consumer with the specified information about the deposit.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause requires oral provision of information, which cannot be verified from the public website alone.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "tariffs_fees"
+    ],
+    "keywords": {
+     "tariffs_fees": [
+      "фоиз ставка",
+      "foiz stavka"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:27",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#6372433",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "4-§. Истеъмолчига бериладиган ахборотнинг минимал ҳажми",
+   "text_original": "27. Кредит шартномаси тузилгунга қадар банк истеъмолчига қуйидаги ахборотни тақдим этади:\nкредит олиш учун қарз олувчига қўйиладиган талаблар;\nкредитнинг тури;\nкредитнинг энг кўп миқдори ва валютаси, шу жумладан чет эл валютаси билан боғлиқ эҳтимолий таваккалчиликлари (чет эл валютаси бўйича курслар ўзгариши натижасида юзага келадиган молиявий йўқотиш билан боғлиқ таваккалчилик) ҳақида огоҳлантиради;\nкредитдан фойдаланиш муддати;\nфоиз ставкасининг йиллик номинал қиймати, ўзгарувчан фоиз ставкалари қўлланилганда эса уларни аниқлаш тартиби, шунингдек истеъмолчи-жисмоний шахслар мурожаат қилган санадаги кредитнинг тўлиқ қиймати. Бунда жисмоний шахсларга ажратиладиган кредитларнинг тўлиқ қийматини ҳисоблаш мазкур Низомнинг 1-иловасига мувофиқ тартибда амалга оширилади;\nкредитдан фойдаланганлик учун фоизлар ҳисоблаш бошланадиган сана ёки уни аниқлаш тартиби;\nвоситачилик ҳақлари, тарифлар ва кредит олиш ҳамда унга хизмат кўрсатиш билан боғлиқ бўлган бошқа тўловларнинг батафсил рўйхати ва миқдорлари;\nкредит шартномаси бўйича мажбуриятлар бажарилмаган тақдирда истеъмолчининг жавобгарлиги ва таваккалчиликлари;\nкредит бериш, шу жумладан масофавий хизматлар кўрсатиш тизимлари орқали кредит бериш усуллари;\nқарз олувчининг кредитни қайтариш, кредит бўйича фоизларни ва бошқа тўловларни тўлаш чоғидаги тўловларининг даврийлиги;\nгаровга қўювчи, кафил (кафолат берувчи) ва кредит шартномасининг тарафи ҳисобланган бошқа шахснинг жавобгарлиги;\nбанк ва истеъмолчининг ҳуқуқлари ва мажбуриятлари, шу жумладан муддати ўтказиб юборилган қарздорликни ундириш жараёнида истеъмолчининг ҳуқуқлари, шунингдек банк хизматларини кўрсатиш шартномасида кўзда тутилган тарафларнинг жавобгарлиги ҳақидаги маълумотлар;\nистеъмолчи томонидан кредит олиш учун тақдим этилган ҳужжатларни кўриб чиқиш, кредитни тақдим этиш ва ундан фойдаланиш муддатлари;\nкредит олиш учун зарур бўлган ҳужжатларнинг тўлиқ рўйхати;\nкредит бериш тўғрисидаги шартнома бўйича мажбуриятлар бажарилишини таъминлаш турлари;\nкредит таъминотига қабул қилинадиган гаров турлари (агар гаров талаб қилинса) ва уларга қўйиладиган талаблар;\nкредитни муддатидан олдин сўндириш тартиби;\nкредит шартларини ўзгартириш тартиби, шу жумладан қарздорликни қайтариш муддатларини қайта кўриб чиқиш ва ундирувни гаров мулкига қаратиш тартиб-таомили.",
+   "text_en": "Before concluding a credit contract, the bank must provide the consumer with information on loan requirements, type, maximum amount and currency, foreign‑exchange risk, term, interest rate and its calculation method, fees, obligations, collateral, repayment schedule, and other related conditions.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The required pre‑contractual information may be given directly to the consumer in person or other non‑public ways, so compliance cannot be verified solely from the bank's public website.",
+   "llm_confidence": 0.9,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "collateral",
+     "complaints",
+     "credit_cost",
+     "tariffs_fees"
+    ],
+    "keywords": {
+     "collateral": [
+      "гаров",
+      "garov"
+     ],
+     "credit_cost": [
+      "тўлиқ қиймат",
+      "to'liq qiymat"
+     ],
+     "complaints": [
+      "мурожаат",
+      "murojaat"
+     ],
+     "tariffs_fees": [
+      "тариф",
+      "фоиз ставка",
+      "tarif",
+      "foiz stavka"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:27^1",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#6372455",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "4-§. Истеъмолчига бериладиган ахборотнинг минимал ҳажми",
+   "text_original": "27^1. Банк олдидаги мажбуриятлар таъминоти сифатида мулкини гаровга қўяётган ёки кафил бўлаётган учинчи шахсларга келгусида юзага келиши мумкин бўлган хатарлар, хусусан қарз олувчи томонидан кредит ва унга ҳисобланган фоизлар ўз вақтида тўланмаган тақдирда, кредит бўйича юзага келган қарздорликларни қоплаш учун қонунчиликка ва шартномага мувофиқ учинчи шахснинг гаровдаги мол-мулкига ёхуд кафилнинг мол-мулкига ундирув солидар ёки субсидиар жавобгарлиги тартибида қаратилиши мумкинлигини тушунтириши лозим.",
+   "text_en": "The bank must explain that guarantors may be held liable under subrogation or subsidiary liability if the borrower fails to repay the loan and interest on time.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "A public page (e.g., loan guarantees, collateral, or guarantor information) that states guarantors can be liable for the borrower’s debt under subrogation or subsidiary liability according to law and contract.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.78,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "collateral"
+    ],
+    "keywords": {
+     "collateral": [
+      "гаров",
+      "garov"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:28^1",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7816721",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "4-§. Истеъмолчига бериладиган ахборотнинг минимал ҳажми",
+   "text_original": "28^1. Банклар молиявий қийинчиликлар, мураккаб ҳаётий вазиятларга тушиб қолган ҳамда форс-мажор ҳолатлари туфайли ўз вақтида кредит тўловларини амалга оширишга қийналаётган истеъмолчиларнинг амалдаги кредитлари бўйича кредит шартномаси шартларига ўзгартириш ва қўшимчалар киритиш (реструктуризация) имкониятлари борасидаги аризаларини кўриб чиқиш тартибига эга бўлиши ва ушбу тартибни банкнинг расмий веб-сайтида жойлаштириши шарт.\nМазкур тартиб камида қуйидагиларни ўз ичига қамраб олиши лозим:\nкредит шартномаси шартларига ўзгартириш ва қўшимчалар киритишнинг (реструктуризация) турлари (масалан, кредит тўловлари муддатини узайтириш, кредит фоиз ставкасини қайта кўриб чиқиш, кредит тўловларини кечиктирганлик учун жарима ва пенялар миқдорини камайтириш ва бошқалар);\nкредит шартномаси шартларига ўзгартириш ва қўшимчалар киритишга (реструктуризацияга) асос бўладиган молиявий қийинчиликлар, мураккаб ҳаётий вазиятлар ҳамда форс-мажор ҳолатлар рўйхати;\nистеъмолчининг аризаларини қабул қилиш, рўйхатга олиш тартиби ҳамда аризага илова қилинадиган зарур ҳужжатларнинг рўйхати;\nистеъмолчининг аризаларини кўриб чиқиш муддатлари;\nқабул қилинган аризаларни кўриб чиқиш ва баҳолаш мезонлари;\nариза бўйича банк томонидан қабул қилинган қарор ҳақида истеъмолчига хабар бериш тартиби ва муддати;\nариза қаноатлантирилган тақдирда, кредит шартномаси ҳамда унинг иловаларига қўшимча ва ўзгартиришлар киритиш тартиби;\nаризани қанотлантиришни рад этиш бўйича қарор қабул қилинганда, бу тўғрисида асослантирилган ҳолда аризачига хабар бериш тартиби.\nБунда ушбу тартибда ҳомиладорлик ва туғиш таътилини олган аёлларнинг амалдаги кредитлари бўйича тўловлар муддатини ўн ойгача узайтириш тўғрисидаги аризаларини кўриб чиқиш бўйича қоидалар мажбурий тарзда акс эттирилиши лозим.",
+   "text_en": "The bank must publish on its official website the procedure for reviewing consumer applications to modify or add to loan contract terms (restructuring), including all items listed in the clause.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "A dedicated page or downloadable PDF (e.g., titled “Loan Restructuring Procedure” or similar) that contains the detailed list of types of restructuring, qualifying circumstances, application acceptance and registration rules, required documents, review timelines, evaluation criteria, notification procedures, and special rules for pregnant or postpartum women.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure",
+     "tariffs_fees",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ],
+     "tariffs_fees": [
+      "фоиз ставка",
+      "foiz stavka"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": true,
+   "approved_at": "2026-10-10T14:23:54.979028+00:00"
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:29",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3805021",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "4-§. Истеъмолчига бериладиган ахборотнинг минимал ҳажми",
+   "text_original": "29. Банк истеъмолчи кредит шартномаси бўйича ўз мажбуриятларини лозим даражада бажармаслиги билан боғлиқ таваккалчиликлар тўғрисида, шу жумладан истеъмолчига нисбатан мажбуриятларни бузганлиги учун қўлланиладиган неустойка (жарима, пеня) ва уларнинг натижасида истеъмолчининг харажатлари суммаси ошиши эҳтимоли тўғрисида ахборот беради.",
+   "text_en": "The bank must provide information to consumers about the risk that the bank may not fulfill its obligations under a consumer credit contract, including any penalties and the possibility of increased consumer expenses.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Consumer credit product page or terms and conditions section that states the bank’s possible non‑performance risks, applicable penalties (fines, interest) and that the consumer’s costs may increase.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.78,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure"
+    ],
+    "keywords": {
+     "disclosure": [
+      "ахборот бер",
+      "axborot ber"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:30^1",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643405",
+   "chapter": "2-боб. Истеъмолчига ахборот беришнинг минимал талаблари",
+   "paragraph": "4-§. Истеъмолчига бериладиган ахборотнинг минимал ҳажми",
+   "text_original": "30^1. Истеъмолчи-жисмоний шахс кредит, шу жумладан кредит картасини олиш ёки омонат ҳисобварағи очиш учун банкка мурожаат қилганида (банк биносига истеъмолчи ташриф буюрганда) банк мазкур Низомнинг 2-иловасига мувофиқ кредитнинг, 3-иловасига мувофиқ муддатли омонатнинг ҳамда 3а-иловасига мувофиқ кредит картанинг асосий шартлари тўғрисидаги ахборот варақасини (бундан буён матнда Ахборот варақаси деб юритилади) истеъмолчи — жисмоний шахс билан биргаликда тўлдиради ва истеъмолчи — жисмоний шахсга тақдим этади.\nБунда мобил илова орқали кредит, шу жумладан кредит картасини олишда ҳамда муддатли омонат очишда, банк томонидан истеъмолчига ахборот варақаси билан танишиб чиқиш ва уни юклаб олиш имконияти яратилиши лозим.\nБанк ўзининг расмий веб-сайтида истеъмолчиларга тақдим этилаётган омонат, кредит, шу жумладан кредит карта маҳсулотлари бўйича Ахборот варақасининг интерактив шаклини мустақил равишда тўлдириш ва ундан нусха олиш имкониятини яратиб бериши лозим.\nАхборот варақаси истеъмолчи — жисмоний шахсга бепул тарзда тақдим этилади ҳамда кредит, шу жумладан кредит картасини олиш ёки омонат ҳисобварағи очиш учун буюртманома ҳисобланмайди.",
+   "text_en": "The bank must provide on its public website an interactive, free information sheet for credit, credit card and term deposit products that consumers can fill out and download.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "A dedicated page or link on the bank’s website offering an interactive ‘Information Sheet’ for credit, credit card and term deposit products, with a fill‑in form and a download option (e.g., PDF or web form).",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.93,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "complaints",
+     "terms_offer",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "мобил илова",
+      "veb-sayt",
+      "sayt",
+      "mobil ilova"
+     ],
+     "complaints": [
+      "мурожаат",
+      "murojaat"
+     ],
+     "terms_offer": [
+      "асосий шарт",
+      "asosiy shart"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:33",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3805031",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "33. Банк фаолиятида инсофсиз хизмат кўрсатиш амалиётларининг қўлланилишига йўл қўйилмайди, жумладан:\nистеъмолчи бошқа кредит ташкилоти билан банк хизматини кўрсатиш шартномасини тузишига тўсқинлик қилиш мақсадида банк томонидан кредит бюросига ёки бошқа ташкилотларга нотўғри ахборот бериш;\nистеъмолчиларга субординар қарзни омонат (депозит) ёки омонатга (депозитга) тенглаштирилган қарз сифатида таклиф этиш;\nистеъмолчи учун мақбул шартларда расмийлаштирилган бошланғич қарзни қайтариш мақсадида уни бошқа кредит шартномасини тузишга рағбатлантириш;\nистеъмолчиларга кредит олиш бўйича аризасида (сўровида) кўрсатилган миқдордан ортиқча суммада кредит таклиф этиш ҳамда уни олишга ундаш;\nкредит қарздорликларини давлат томонидан фуқароларга ажратиладиган ижтимоий нафақа ва ёрдам маблағлари, шу жумладан ижтимоий карта ҳисобварағига келиб тушадиган маблағлар ҳисобидан ундириш;\nкредит шартномасида ёки унга илова қилинган кредитни қайтариш жадвалида тўловлар бўйича белгиланган календар санага қадар кредит тўловларини ундиришга талаб қўйиш, бундан истеъмолчи томонидан банкнинг автотўлов хизматидан фойдаланиш даврида кредит тўловларининг ечиб олиниши ҳамда қонунчиликда белгиланган бошқа ҳолатлар мустасно;\nистеъмолчиларнинг қарзи миқдорини оширишга йўналтирилган чора-тадбирларни амалга оширганлиги учун банк ходимларини мукофотлаш ва рағбатлантириш тақиқланади.",
+   "text_en": "The bank must not engage in unfair service practices, including providing false information to credit bureaus, offering subordinated debt as a deposit, encouraging consumers to take additional credit contracts, offering credit amounts exceeding the consumer’s request, deducting social benefits from loan repayments, demanding early repayment before the scheduled date, and rewarding staff for increasing consumer debt.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The prohibited practices are internal actions that are not disclosed on the public website, so compliance cannot be verified from publicly available pages.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure"
+    ],
+    "keywords": {
+     "disclosure": [
+      "ахборот бер",
+      "axborot ber"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:35",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3805038",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "35. Банк:\nкредит бўйича номинал ва реал фоиз ставкаларни кредит бериш санасидаги эълон қилинган фоиз ставкалари кўрсаткичларидан оширмаслиги (фоиз тўловлари номинал ставка бўйича кредит асосий суммасининг камайиб борадиган қолдиғига ҳисоблаб ёзилади);\nкредит шартномаси тузилгунга қадар мазкур Низомнинг 27 — 29-бандларига мувофиқ ахборот истеъмолчига маълум қилиши;\nкредит шартномаси тузилгунга қадар қарз олувчининг тўловга қобилиятлилиги пухта ўрганиши;\nқонунчилик ҳужжатларига мувофиқ истеъмолчидан ундирилиши тақиқланган қўшимча йиғимлар, воситачилик ҳақлари ва бошқа тўловларни кредит шартномаси шартларига киритмаслиги;\nкредит ёки лизинг шартномасида шартнома тузилгандан кейин ва мижоз томонидан пул маблағлари олингунга ёхуд лизинг бўйича мол-мулк учун тўлов амалга оширилгунга қадар бўлган даврда истеъмолчининг кредит ёки лизинг олишдан бепул асосда воз кечиш ҳуқуқини назарда тутиши;\nкредит шартномасида жарима санкцияларини ундирмаган ҳолда исталган вақтда истеъмолчининг кредитни (лизингни) муддатидан олдин сўндириш ҳуқуқини назарда тутиши;\nкредит қарздорлиги бўйича ҳисобланган фоизлар, воситачилик ҳақи ва неустойкаларнинг (пеня, жарималар) энг кўп умумий суммаси қонунчилик ҳужжатларида белгиланган миқдордан ошиб кетмаслигини назорат қилиши;\nгаров предмети сифатида қўйилган бирдан-бир турар жой фақат суд тартибида ундирилиши мумкинлигини ва у оммавий савдолар орқали реализация қилинишини (қонунчилик ҳужжатларида назарда тутилган ҳоллар бундан мустасно) истеъмолчига маълум қилиши;\nкредит шартномасининг шартларига қарз олувчининг ҳуқуқларини чекланишига ва/ёки мажбуриятларини оширилишига олиб келувчи ўзгартиришларни бир томонлама киритилиши йўл қўйимаслиги лозим.",
+   "text_en": "The bank must not set credit interest rates above the rates announced at the time of granting, must inform the consumer of the information required by sections 27‑29 before concluding a credit contract, must thoroughly assess the borrower’s repayment ability, must not include prohibited additional fees or commissions in the contract, must allow the consumer to withdraw from the credit or leasing agreement without charge before funds are disbursed, must permit the consumer to terminate the credit or leasing early at any time without penalty, must ensure that total interest, commissions and penalties do not exceed the maximum amounts prescribed by law, must inform the consumer that collateral housing can be sold only through court proceedings, and must not unilaterally amend contract terms to limit the borrower’s rights or increase obligations.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "Many obligations (e.g., internal assessment of repayment ability, pre‑contract information per sections 27‑29, and prohibition of unilateral contract changes) are not disclosed on public webpages and require access to contracts or internal procedures.",
+   "llm_confidence": 0.86,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "collateral",
+     "publication",
+     "tariffs_fees"
+    ],
+    "keywords": {
+     "publication": [
+      "эълон",
+      "e'lon"
+     ],
+     "collateral": [
+      "гаров",
+      "garov"
+     ],
+     "tariffs_fees": [
+      "фоиз ставка",
+      "foiz stavka"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:35^1",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5290543",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "35^1. Тижорат банкларига:\nкредит шартномалари бўйича йиллик қарз суммасининг ярмидан кўп миқдорида фоизлар ҳисоблаш, комиссия ва неустойка (жарима, пеня) ундириш, жавобгарликнинг бошқа чораларини қўллаш;\nкредит буюртмаларини кўриб чиқиш, ссуда ҳисоб рақамларига хизмат кўрсатиш, кредитлар ажратиш учун тўловлар, шунингдек, жисмоний шахслар ва кичик тадбиркорлик субъектлари томонидан кредитларни муддатидан илгари қоплаш учун неустойка (жарима, пеня) ундириш;\nкредит шартномасига қарздорнинг кредит ажратилган банкда ёки бошқа банкда очилган ҳисобварақларида ҳар қандай давр мобайнида маълум миқдордаги камаймайдиган пул маблағи қолдиғи ёки айланмаси мавжуд бўлиши, шу жумладан кредитни қайтариш жадвалида белгиланган навбатдаги тўловни қоплаш учун етарли маблағ сақлаши юзасидан шарт киритиш;\nжисмоний шахсларга хорижий валютада кредитлар бериш ва кредитлар бўйича уларнинг мажбуриятларини хорижий валютада ҳисобга олиш;\nилгари олинган кредитлар бўйича сўндирилмаган муддати ўтган қарздорлик мавжуд бўлган тақдирда жисмоний шахсларга янги микромолиявий хизматлар кўрсатиш тақиқланади.",
+   "text_en": "Commercial banks must not calculate interest, commissions, penalties or other responsibility measures on loan amounts exceeding half of the annual loan sum, must not charge early‑repayment penalties, must ensure borrowers have sufficient balance to cover scheduled payments, must not grant foreign‑currency loans to individuals, and must not provide new micro‑financial services to individuals with overdue debts on previously taken loans.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause regulates internal banking practices that are not required to be published on the bank's public website.",
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "tariffs_fees"
+    ],
+    "keywords": {
+     "tariffs_fees": [
+      "комиссия",
+      "komissiya"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:35^3",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7816808",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "35^3. Банклар томонидан молиявий хизматлар кўрсатиш жараёнида, шунингдек банкнинг масофавий хизмат кўрсатиш тизимлари орқали хизматлар кўрсатилаётган пайтда қуйидаги ҳолатларнинг жорий этилишига йўл қўйилмайди:\nистеъмолчининг хоҳиш-иродасини ифодаловчи ҳар қандай белгиларни (масалан, белги қўйиш майдончалари, силжитма тугмалар ва шунга ўхшашларни) олдиндан ўрнатиб қўйиш ёки танлаб қўйиш;\nкредит параметрлари кўрсатилган майдончаларни, шу жумладан кредит суммаси, муддати ҳамда тегишли аризадаги истеъмолчининг даромади тўғрисидаги маълумотларни олдиндан тўлдириш.\nБунда агар банк истеъмолчига тегишли танловни таклиф қилса, унга кредитни расмийлаштириш жараёнида мустақил равишда белгини қўйиш, кредит параметрларини мустақил белгилаш ва бошқа майдончаларни тўлдириш имконияти берилиши керак (масалан, кредит бюросидан кредит ҳисоботини сўраш, реклама тусидаги ахборотни юбориш, масофавий молиявий хизматни улаш, банк хизматларининг умумий шартлари билан танишганлигини тасдиқлаш, банк тарифларини қабул қилиш ва шунга ўхшаш белгилар).",
+   "text_en": "The bank must not pre‑set any consumer choice indicators or pre‑fill credit‑parameter fields in its remote service interfaces, and must allow the consumer to independently select options and enter information.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Inspect the publicly accessible online loan application page (HTML/PDF) and verify that no checkboxes or radio buttons have the \"checked\" attribute by default and that input fields for credit amount, term, and income are empty (no preset \"value\" attribute).",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.78,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "tariffs_fees",
+     "terms_offer"
+    ],
+    "keywords": {
+     "tariffs_fees": [
+      "тариф",
+      "tarif"
+     ],
+     "terms_offer": [
+      "реклама",
+      "reklama"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:36^2",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#4427611",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "36^2. Банк томонидан тўлов шаклига қараб (нақд пул билан ёки нақд пулсиз ҳисоб-китоблар) банк хизматлари учун ҳар хил нархлар (тарифлар) белгилаш тақиқланади.",
+   "text_en": "The bank must not set different tariffs for its services based on whether the payment is made in cash or cashless.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Tariff page(s) showing a single price for each service without separate cash and cashless rates, or a statement that rates are the same for all payment methods.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.78,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "tariffs_fees"
+    ],
+    "keywords": {
+     "tariffs_fees": [
+      "тариф",
+      "tarif"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:36^5",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#4605484",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "36^5. Банк қарз олувчининг ва (ёки) гаровга қўювчининг суғурта компанияси ва (ёки) баҳоловчини танлаш ҳуқуқини чекламаслиги лозим.",
+   "text_en": "The bank must not limit the borrower’s or guarantor’s right to choose an insurance company or appraiser.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns internal practices about choice of insurer or appraiser, which are not disclosed on public website pages.",
+   "llm_confidence": 0.85,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "collateral"
+    ],
+    "keywords": {
+     "collateral": [
+      "гаров",
+      "garov"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:36^6",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#4749290",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "36^6. Банк кредит операцияларини амалга оширишда қуйидагиларга риоя этиши лозим:\nкредит шартномасида кредит маблағларини бериш муддати, шартлари ва улардан фойдаланиш тартиби аниқ кўрсатилиши;\nкредит шартномасида кредит маблағларини бериш мажбуриятини бажармаганлиги ёки ўз вақтида бажармаганлиги учун банк қарз олувчи олдида кредитор сифатида ўз жавобгарлигини акс эттириши;\nистеъмолчи — жисмоний шахслар билан тузилган кредит шартномасида кредитнинг тўлиқ қиймати миқдорини кўрсатиши шарт. Бунда кредитнинг тўлиқ қиймати миқдори шартноманинг биринчи варағининг ўнг юқори бурчагида, квадрат шаклдаги рамка ичига, оқ фонда қора ранг билан, «Times New Roman» 14 ўлчамли шрифтдан кам бўлмаган ёки шунга ўхшаш шрифтни қўллаган ҳолда, рақам ва сўзлар билан ёзилади.",
+   "text_en": "When granting credit, the bank must clearly state the loan amount, term, conditions and usage in the credit contract, reflect its liability for non‑performance, and for contracts with individuals the full credit amount must be shown on the first page in a square box at the top‑right corner in black font on white background using Times New Roman size 14 or a similar font.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause mandates specific content and formatting within individual credit contracts, which are private documents not publicly accessible on the website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "credit_cost"
+    ],
+    "keywords": {
+     "credit_cost": [
+      "тўлиқ қиймат",
+      "to'liq qiymat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:36^10",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#4749298",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "36^10. Жисмоний шахс — қарз олувчи томонидан истеъмол кредити ва ипотека кредити бўйича қарздорлик тўлиқ тўланганидан сўнг, банк мазкур қарздорлик бўйича амалга оширилган охирги тўлов санасининг кейинги уч иш кунидан кечиктирмаган ҳолда қарз олувчининг шахсий кабинетида кредит бўйича қарздорлик тўлиқ сўндирилганлиги ва ушбу кредит шартномаси бўйича қарздорлик мавжуд эмаслиги тўғрисида маълумот жойлаштириши шарт.",
+   "text_en": "The bank must post in the borrower’s personal online cabinet that the consumer or mortgage credit debt is fully repaid and no debt exists under the contract within three working days after the last payment.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The required information is posted only in the borrower’s personal online cabinet, which is not publicly accessible.",
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure"
+    ],
+    "keywords": {
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:36^11",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#4749299",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "36^11. Кредитдан фойдаланганлик учун фоиз ставкаси тури (ўзгармас ёки ўзгарувчи фоиз ставкаси) ҳамда кредитнинг асосий суммаси ва фоизларини тўлаш усули (дифференциал ёки аннуитет) томонларнинг ўзаро келишувига мувофиқ кредит шартномасида назарда тутилиши керак.",
+   "text_en": "The loan contract must specify the type of interest rate, the principal amount, and the method of interest payment (differential or annuity).",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "Find the publicly posted loan agreement (e.g., PDF or web page) and confirm it includes clauses stating the interest rate type (fixed or variable), the loan principal amount, and the interest payment method (differential or annuity).",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.78,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "tariffs_fees"
+    ],
+    "keywords": {
+     "tariffs_fees": [
+      "фоиз ставка",
+      "foiz stavka"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:37^1",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643475",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "37^1. Қарз олувчи кредит бўйича гаровда турган ўзининг депозитидаги (омонатидаги) маблағларини кредит шартномаси даврининг хоҳлаган вақтида депозит (омонатнинг) амал қилиш муддатидан қатьи назар, мазкур кредитни қайтариш учун йўналтириш ҳуқуқига эга.\nБунда, қарз олувчи кредит бўйича гаровда турган ўзининг муддатли депозитидаги (омонатидаги) маблағларини шартномада кўрсатилган депозит (омонат) муддати тугагунга қадар кредитни қайтариш учун йўналтирмоқчи бўлса, у бу ҳақда банкни депозитни (омонатни) қайтаришни мўлжаллаётган санадан камида бир ой олдин хабардор қилиши лозим.",
+   "text_en": "The bank must allow a borrower to use the funds from a deposit pledged as collateral to repay a loan at any time and the borrower must notify the bank at least one month before the intended deposit withdrawal for repayment.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Deposit or loan terms page stating that pledged deposit funds can be used for loan repayment at any time and that the borrower must give at least one month notice before withdrawing the deposit for repayment.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.78,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "collateral"
+    ],
+    "keywords": {
+     "collateral": [
+      "гаров",
+      "garov"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:37^2",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643486",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "37^2. Қарздордан кредитнинг жорий тўлови учун кредитни қайтариш жадвалида белгиланган суммага нисбатан кўп маблағ келиб тушса, у ҳолда банк келиб тушган маблағнинг ортиқча қисмини қарз олувчининг кредитининг асосий қарзини сўндиришга йўналтиради ҳамда кредит суммасини қайта ҳисоблайди, агар шартномада бошқача тартиб белгиланмаган бўлса.\nАгар кредитни қайтариш жадвали расмийлаштирилгандан сўнг кредит бўйича молиялаштиришни бошлаш муддатлари ёки шартномада кўзда тутилган ўзгарувчан фоиз ставкаси ўзгариши, кредит шартномасининг шартлари томонлар ўртасида қайта кўриб чиқилиши (шу жумладан, кредитнинг реструктуризация қилиниши), қарз олувчи томонидан кредит қисман муддатидан олдин сўндирилиши муносабати билан кредит бўйича тўловларни амалга ошириш саналари ва муддатлари ёки оралиқ кредит тўловларининг миқдорлари ўзгарганда банк кредитни қайтариш жадвалини янгидан расмийлаштириб, қарз олувчига тақдим қилиши лозим.\nБунда, кредитни қайтариш жадвали янгидан расмийлаштирилиши билан ундан олдин мавжуд бўлган кредитни қайтариш жадвали ўз кучини йўқотади. Ушбу қоида кредит шартномасида қайд этилиши шарт.",
+   "text_en": "If a borrower pays more than the scheduled amount, the bank must allocate the excess to the loan principal and recalculate the loan unless the contract specifies otherwise.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Loan product page or downloadable loan agreement PDF that states that overpayments are applied to the principal and that the repayment schedule will be updated accordingly.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.78,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "tariffs_fees"
+    ],
+    "keywords": {
+     "tariffs_fees": [
+      "фоиз ставка",
+      "foiz stavka"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:37^4",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643490",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "37^4. Банк кредит шартномасига асосан кредит бўйича қарздорлик суммасини тўлаш мажбурияти тўлиқ бажарилган санадан бошлаб уч иш кунидан кечиктирмаган ҳолда мазкур кредит бўйича:\nгаровда турган мулкни тақиқдан чиқариш;\nгаров сифатида бўлган мол-мулкка нисбатан банкнинг ҳуқуқлари тўғрисидаги ёзувни гаров реестридан чиқариш чораларини кўриши шарт.",
+   "text_en": "The bank must, within three days after the loan is fully repaid, remove the pledged property from restriction and take steps to delete the entry concerning the bank’s rights over the pledged property from the pledge register.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The actions concern internal collateral removal procedures and register updates, which are not required to be published on the bank's public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "collateral"
+    ],
+    "keywords": {
+     "collateral": [
+      "гаров",
+      "garov"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:37^5",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643494",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "1-§. Банк томонидан истеъмолчи билан муносабатларни амалга оширишнинг асосий қоидалари",
+   "text_original": "37^5. Банклар ажратилган кредит таъминотига қабул қилинган гаров мулкларини кредитнинг асосий қарзи қолдиғига мутаносиб равишда босқичма-босқич гаровдан чиқариш ёки гаров нарсасини алмаштириш бўйича қуйидагиларни ўз ичига олувчи алоҳида тартибга эга бўлиши ва ушбу тартиб банкнинг расмий веб-сайтида жойлаштирилиши лозим:\nқарз олувчи ёки гаровга қўювчининг гаровга қўйилган мол-мулкларни босқичма-босқич гаровдан чиқариш ёки гаров нарсасини алмаштириш бўйича аризасини рўйхатга олиш ҳамда ушбу аризани кўриб чиқиш муддати;\nгаровга қўйилган мол-мулкларни босқичма-босқич гаровдан чиқариш ёки гаров нарсасини алмаштириш масаласини кўриб чиқиш ва тегишли қарорни қабул қилиш бўйича банкнинг ваколатли органи тўғрисида ҳамда мазкур ваколатли органнинг қарори ҳақида аризачига хабар бериш муддати;\nгаровга қўйилган мол-мулкларни босқичма-босқич гаровдан чиқариш ёки гаров нарсасини алмаштиришни рад этиш бўйича қарор қабул қилинганда, бу тўғрисида асослантирилган ҳолда аризачига хабар бериш.\nБанк кредит бўйича тузиладиган гаров шартномасида банкнинг гаров таъминотига қўйилган талаблардан келиб чиққан ҳолда қарз олувчининг кредитнинг қопланмаган қисмидан ортиқ суммада гаров таъминоти суммасини камайтириш ҳуқуқини, шунингдек гаров таъминотини камайтириш тартиби ва усулларини акс эттириши шарт.\nКредит қарздорлигини қоплаш мақсадида банк гаровга қўйилган мол-мулкни суддан ташқари тартибда қонунчиликда тақиқланмаган усуллар орқали гаровга қўювчи билан қонунчиликда белгиланган тартибда келишган ҳолда реализация қилиши мумкин.\nБунда, банк мол-мулкни реализация қилишдан тушган маблағларни кредит қарздорлиги ва бошқа харажатларга йўналтирилиши юзасидан қарз олувчи ва гаровга қўювчига ёзма маълумот юборилишини таъминлаши лозим.",
+   "text_en": "The bank must publish on its official website a separate procedure describing the step‑by‑step release or substitution of pledged assets for secured loans.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "A dedicated page or downloadable document on the bank's website outlining the procedure for stepwise release or substitution of pledged assets, including application registration, decision timelines and notification requirements.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.96,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "collateral",
+     "disclosure",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ],
+     "collateral": [
+      "гаров",
+      "garov"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": true,
+   "approved_at": "2026-10-10T14:23:54.979028+00:00"
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:39",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#3805061",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "2-§. Истеъмолчиларга хизмат кўрсатиш бўйича минимал талаблар",
+   "text_original": "39. Банк:\nушбу Низомнинг 23-бандида назарда тутилган, хизмат кўрсатиш жойларида ошкор этиладиган ахборотдан барча истеъмолчилар бутун иш вақти давомида фойдалана олишларига имкон яратиб бериш керак;\nахборот истеъмолчилар учун қулай ва монеликсиз танишиш имконини берадиган тарзда жойлаштирилишини таъминлаши керак;\nистеъмолчилар билан бевосита ишловчи банк ходимларини (бундан буён матнда администраторлар деб юритилади) истеъмолчилар кўра оладиган, ходимнинг фамилияси, исми ва лавозими қайд этилган визуал идентификация воситаларига эга бўлишларини таъминлаши лозим;\nбанк хизматларини кўрсатиш учун мўлжалланган жойида истеъмолчилар ва ногиронлиги бўлган ҳамда имконияти чекланган истеъмолчилар билан шартномаларни тузиш имкониятини таъминлаши керак.",
+   "text_en": "The bank must ensure that information displayed at service locations is accessible to all consumers throughout working hours, presented in a convenient and uninterrupted manner, that staff directly serving consumers have visible identification showing their name and position, and that contracts can be concluded with consumers with disabilities at the service location.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The requirement concerns on‑site information, staff identification badges, and contract‑signing facilities, which are not reflected on the public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure"
+    ],
+    "keywords": {
+     "disclosure": [
+      "ошкор",
+      "жойлаштир",
+      "oshkor",
+      "joylashtir"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:40^3",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7816845",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "3-§. Омонатларни кафолатлаш тизими тўғрисида хабардор этиш",
+   "text_original": "40^3. Мазкур Низомнинг 40^2-бандида назарда тутилган ахборотлар банк томонидан қуйидаги шаклларда тарқатилиши шарт:\nбанкнинг ахборот стендлари ва расмий веб-сайтида жойлаштириш орқали;\nадминистраторлар орқали, шу жумладан банк омонати (депозити) шартномаси ва (ёки) банк ҳисобварағи шартномасини тузиш жараёнида ҳамда истеъмолчининг сўровига асосан;\nмасофавий хизмат кўрсатиш тизимлари орқали.",
+   "text_en": "The bank must publish information about the deposit guarantee system on its official website.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "A dedicated page or downloadable document on the bank’s public website (e.g., titled “Deposit guarantee system” or similar) containing the required information.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.85,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:40^4",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7816849",
+   "chapter": "3-боб. Банкнинг истеъмолчи билан муносабатларни ташкил этиши",
+   "paragraph": "3-§. Омонатларни кафолатлаш тизими тўғрисида хабардор этиш",
+   "text_original": "40^4. Банкнинг расмий веб-сайтида омонатлар тўғрисидаги ахборот жойлаштирилган саҳифада «Омонатларингиз кафолатланган» деган мазмунда кўзга ташланадиган тегишли ҳавола (гиперҳавола) жойлаштириши ва ушбу тегишли ҳавола (гиперҳавола) Омонатларни кафолатлаш агентлигининг расмий веб-сайтидаги тегишли саҳифага йўналтирилиши керак.",
+   "text_en": "The bank must place a visible hyperlink with the text “Your deposits are guaranteed” on its deposit information page that links to the corresponding page on the Deposit Guarantee Agency’s official website.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "On the bank’s deposit products or deposits information page, locate a hyperlink labeled “Your deposits are guaranteed” and verify that its URL points to the Deposit Guarantee Agency’s official website.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.98,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": true,
+   "approved_at": "2026-10-10T14:23:54.979028+00:00"
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:47",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7170579",
+   "chapter": "5-боб. Мурожаатларни кўриб чиқишга қўйиладиган талаблар",
+   "paragraph": "1-§. Мурожаатлар билан ишлашга қўйиладиган талаблар",
+   "text_original": "47. Банк мазкур Низомга ва қонунчилик ҳужжатларига мувофиқ мурожаатларни кўриб чиқиш тартибига эга бўлиши ҳамда ушбу тартибда камида қуйидагилар назарда тутилиши лозим:\nбанкда мурожаатлар билан ишлашни ташкиллаштириш;\nмурожаатларни қабул қилиш ва рўйхатга олиш;\nмурожаатларни кўриб чиқиш муддатлари ва уларга жавоб бериш;\nмурожаатларни кўрмай қолдириш ва кўриб чиқишни тугатиш;\nистеъмолчиларни ва уларнинг вакилларини қабул қилишни ташкил этиш.\nБанк томонидан мурожаатларни кўриб чиқиш тартибининг тўлиқ матни банкнинг расмий веб-сайтида барча учун очиқ шаклда, шунингдек, банкнинг мурожаатларни қабул қилиш манзиллари (почта ва электрон манзиллари, телефон рақамлари, ижтимоий каналлардаги манзиллар, мобил илова ва бошқалар) тўғрисидаги маълумотлар банк (филиал)нинг стендларида истеъмолчига кўринарли жойда ўқиш имконияти бўлган ҳолда жойлаштирилади.\nИстеъмолчининг талабига мувофиқ банк ходими истеъмолчига мурожаатларни кўриб чиқиш тартибини тушунтириб бериши лозим.\nБанк мурожаатлар билан ишлашда ва уларни кўриб чиқишда мурожаатларда назарда тутилган қоидабузарликларни, салбий ҳолатларни, тизимли камчиликларни, истеъмолчиларнинг ҳуқуқлари ва қонуний манфаатлари бузилишини келтириб чиқарувчи сабабларни бартараф этиши лозим.",
+   "text_en": "The bank must publish the full text of its complaint handling procedure on its official website and provide consumer-visible information about complaint submission addresses (mail, email, phone, social media, mobile app) at its branches.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "Information about the placement of contact details on branch stands and staff explanations cannot be verified from the public website alone.",
+   "llm_confidence": 0.92,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "complaints",
+     "disclosure",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "мобил илова",
+      "veb-sayt",
+      "sayt",
+      "mobil ilova"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ],
+     "complaints": [
+      "мурожаат",
+      "murojaat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:49",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7170589",
+   "chapter": "5-боб. Мурожаатларни кўриб чиқишга қўйиладиган талаблар",
+   "paragraph": "1-§. Мурожаатлар билан ишлашга қўйиладиган талаблар",
+   "text_original": "49. Банк истеъмолчиларнинг мурожаатларини кўриб чиқиши ва кўриб чиқиш натижалари бўйича мурожаат этувчиларга жавоб бериши лозим.\nБанк оғзаки, ёзма ёхуд электрон шаклдаги мурожаатларни қабул қилиш учун шароитлар яратиши зарур.\nБанк истеъмолчиларга хизмат кўрсатиш офисларида (ёки марказларида), филиалларида ва ўзининг расмий веб-сайти орқали мурожаатларни қабул қилишни йўлга қўяди. Банк расмий веб-сайтининг бош саҳифасида ёки сайтнинг ўзгармас юқори қисмида (ушбу саҳифада) яққол кўринарли тарзда жойлаштирилган ҳавола орқали тўғридан-тўғри ўтиш мумкин бўлган бошқа саҳифасида мурожаатларни қабул қилишни ташкил этади.\nБанк мобил иловасида истеъмолчилар томонидан мурожаат қолдирилиши учун имконият яратади ва/ёки мурожаат юборилиши учун алоқа каналларини кўрсатиши керак.\nБанк истеъмолчилар билан телефон алоқаси орқали боғланишини таъминловчи Call-марказларни ташкил этиб, у орқали истеъмолчиларга банк фаолияти билан боғлиқ маслаҳатлар ва тушунтиришлар беради ҳамда оғзаки шаклдаги мурожаатларни қабул қилади.",
+   "text_en": "The bank must provide a clearly visible link on its homepage or top navigation that leads directly to a page where consumer complaints can be submitted.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Look for a prominently placed link on the homepage or in the fixed top menu (e.g., labeled “Complaints”, “Consumer complaints”, or similar) that opens a dedicated page with a complaint submission form or contact details.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "complaints",
+     "disclosure",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "мобил илова",
+      "veb-sayt",
+      "sayt",
+      "mobil ilova"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ],
+     "complaints": [
+      "мурожаат",
+      "murojaat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": true,
+   "approved_at": "2026-10-10T14:23:54.979028+00:00"
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:51",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7170595",
+   "chapter": "5-боб. Мурожаатларни кўриб чиқишга қўйиладиган талаблар",
+   "paragraph": "1-§. Мурожаатлар билан ишлашга қўйиладиган талаблар",
+   "text_original": "51. Call-марказ телефонларининг рақамлари банк расмий веб-сайтининг бош саҳифасида, шунингдек, банк ва унинг филиалларидаги ахборот стендларида ҳамда банк (филиал) биносидан ташқарида ташкил этилган банк хизматлари марказлари ва кассаларнинг истеъмолчига кўринарли жойда ўқишга имконияти бўлган ҳолда жойлаштирилиши керак.",
+   "text_en": "The bank must display the call‑center telephone numbers on the homepage of its official website in a location visible to consumers.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Bank's homepage showing the call‑center phone numbers (e.g., in header, footer or a dedicated contact section).",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": true,
+   "approved_at": "2026-10-10T14:23:54.979028+00:00"
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:58^4",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7170627",
+   "chapter": "5-боб. Мурожаатларни кўриб чиқишга қўйиладиган талаблар",
+   "paragraph": "1-§. Мурожаатлар билан ишлашга қўйиладиган талаблар",
+   "text_original": "58^4. Банкнинг мансабдор шахслари банкнинг расмий веб-сайти ва ахборот стендларида жойлаштирилган жисмоний шахсларни ва юридик шахсларнинг вакилларини қабул қилиш жадвалига мувофиқ истеъмолчиларни шахсан қабул қилишлари шарт. Шахсий қабул баённома асосида расмийлаштирилади ёки истеъмолчини хабардор қилган ҳолда махсус (аудио ва видео) техника воситалари ёрдамида овозлар ёзиб олиниши ёки видеотасвирга туширилиши мумкин.",
+   "text_en": "The bank must publish on its official website a schedule for personal acceptance of consumers, including representatives of individuals and legal entities, in accordance with the posted timetable.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "A page or downloadable document (e.g., PDF) on the bank’s website titled “Acceptance schedule”, “Consumer reception timetable” or similar, showing dates and times for personal acceptance of physical and legal persons.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.86,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "disclosure",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "disclosure": [
+      "жойлаштир",
+      "joylashtir"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:main:58^17",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#8383906",
+   "chapter": "5-боб. Мурожаатларни кўриб чиқишга қўйиладиган талаблар",
+   "paragraph": "2-§. Мурожаатлар кўриб чиқилишини мониторинг ва назорат қилиш",
+   "text_original": "58^17. Банк ҳар чорак (йил) натижаларига кўра мурожаатларни умумлаштиради ва таҳлил қилади.\nМурожаатларни умумлаштириш ва таҳлил қилиш натижаларига кўра маълумотномалар (шарҳлар) тузилади, уларда мурожаатлар билан ишлашнинг умумий кўрсаткичлари, мурожаатларнинг турлари, сони ва келиб чиқиш сабаблари, мурожаатларда тез-тез кўтарилган масалалар, мурожаатлар банк хизмат турлари (маҳсулотлари) бўйича қайси ҳудудлардан келиб тушиши, ушбу банк хизматлари истеъмолчилар талабларидан келиб чиқиб уларга мос ишлаб чиқилганлиги ва истеъмолчилар билан адолатли муносабат қурилганлиги тўғрисида таҳлилий маълумотлар, мурожаатларни кўриб чиқиш якунлари бўйича аниқланган асосий камчиликлар ва қоидабузарликлар, истеъмолчиларнинг ҳуқуқлари ва қонуний манфаатлари бузилишини келтириб чиқарувчи сабабларни бартараф этиш мақсадида кўрилган чора-тадбирлар акс эттирилади.\nБанк бошқаруви банк фаолиятининг чорак (йил) натижаларини кўриб чиқиш тўғрисидаги ўз йиғилишларида банкда мурожаатлар билан ишлаш ҳолатини, шу жумладан мурожаатларни умумлаштириш ва таҳлил қилиш натижалари бўйича маълумотномаларни (шарҳларни), мурожаатларда кўтарилган салбий ҳолатларни, тизимли камчиликларни ва ўзига хос таваккалчиликларни муҳокама қилиши ҳамда истеъмолчиларнинг ҳуқуқлари бузилишига олиб келувчи тизимли камчиликларни бартараф этиш бўйича мазкур Низомнинг 5-иловасига мувофиқ ҳаракатлар режаларини тасдиқлаши лозим.\nБунда, банк бошқаруви қарорлари, шунингдек, мурожаатларни умумлаштириш ва таҳлил қилиш натижалари бўйича маълумотномалар (шарҳлар) ички аудит хизматига тақдим этилади. Ички аудит хизмати банкда мурожаатлар билан ишлаш ҳолатини текшириш ўтказиш бўйича иш режаларини тузишда ва мониторинг фаолиятини амалга оширишда фойдаланади.\nҚуйидаги ҳолатлардан бирининг мавжудлиги тизимли камчиликларни бартараф этиш чоралари кўрилмаган деб ҳисобланишига асос бўлади:\nтизимли камчиликларни бартараф этиш бўйича ҳаракатлар режаларининг тасдиқланмаслиги;\nҳаракатлар режаларида белгиланган чоралар ва топшириқларнинг ўз муддатларида бажарилмаслиги;\nбелгиланган чоралар бажарилганига қарамасдан тизимли камчиликларнинг сақланиб қолиши;\nички аудит хизмати томонидан ҳаракатлар режаларида қайд этилган топшириқлар ижроси ушбу топшириқларни бажариш муддати якунига қадар баҳоланмаганлиги, ҳар чорак натижалари бўйича чорак якунлангандан сўнг бир ой муддат давомида банк бошқаруви ва кузатув кенгашига ҳаракатлар режаларида қайд этилган топшириқларнинг бажарилиши ҳолати, шу жумладан қисман ёки тўлиқ бажарилмаган топшириқлар юзасидан хулоса киритилмаслиги ҳамда ҳар йил якуни бўйича бир ой давомида аҳоли ва юридик шахслар мурожаатларини кўриб чиқиш тизими самарадорлиги баҳоланмаганлиги;\nбанк бошқаруви ички аудит хизмати томонидан тақдим этилган хулосаларда қайд этилган ҳолатларни хулоса тайёрланган санадан бошлаб бир ой давомида кўриб чиқмаганлиги.\nМурожаатларни умумлаштириш ва таҳлил қилиш натижаларига кўра тузилган чораклик маълумотномалар (шарҳлар) ҳисобот чорагидан кейинги ойнинг 20-санасига ва йиллик маълумотномалар (шарҳлар) февраль ойининг 15-санасига қадар банкнинг расмий веб-сайтларида эълон қилиниши шарт.\nБанк акциядорларининг йиллик умумий йиғилишида тасдиқланадиган йиллик ҳисоботда банкнинг мурожаатлар билан ишлаш фаолияти тўғрисидаги маълумотлар ҳам акс эттирилади.\nБанк мазкур бандда назарда тутилган мурожаатлар масаласига оид Банк бошқаруви йиғилиши қарори (ҳужжат) нусхаларини у тасдиқланган кундан бошлаб уч иш куни ичида, шунингдек, ҳаракатлар режасидаги ҳар бир тизимли камчилик бартараф этилганлиги тўғрисидаги маълумотларни камчиликлар бартараф этилган кундан бошлаб беш иш куни ичида Марказий банкка тақдим этади.",
+   "text_en": "The bank must publish quarterly and annual information notes (comments) on the aggregation and analysis of consumer complaints on its official website by the deadlines specified in the regulation.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "Look for publicly accessible web pages or downloadable PDF files on the bank’s website that contain quarterly complaint analysis reports (published by the 20th of the month following the quarter) and an annual complaint analysis report (published by February 15).",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.93,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "complaints",
+     "publication",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "veb-sayt",
+      "sayt"
+     ],
+     "publication": [
+      "эълон",
+      "e'lon"
+     ],
+     "complaints": [
+      "мурожаат",
+      "murojaat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex1:preamble",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643553",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "Мазкур Тартиб жисмоний шахслар — истеъмолчиларга (бундан буён матнда «қарз олувчилар» деб юритилади) ажратилган кредитларнинг тўлиқ қийматини ҳисоблаш тартибини белгилайди.",
+   "text_en": "The bank must apply the procedure for calculating the full amount of credit allocated to consumers as defined by this Regulation.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause pertains to internal calculation methods that are not publicly disclosed on the website.",
+   "llm_confidence": 0.92,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "credit_cost"
+    ],
+    "keywords": {
+     "credit_cost": [
+      "тўлиқ қиймат",
+      "to'liq qiymat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex1:1",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5789541",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "1. Мазкур Тартибда қуйидаги асосий тушунчалардан фойдаланилади:\nкредитнинг тўлиқ қиймати (бундан буён матнда «КТҚ» деб юритилади) — кредит олиш билан боғлиқ тўловларнинг ҳаққоний, йиллик ва самарали ҳисоблашдаги фоиз ставкаси;\nкредит шартномаси — банк томонидан қарз олувчига пул маблағларини тўловлилик, муддатлилик ва қайтаришлилик шартлари асосида бериш ҳақидаги банк ва қарз олувчи ўртасидаги келишув.",
+   "text_en": "The clause only provides definitions of “full credit value” and “credit contract” and does not impose any specific action on the bank.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause merely defines terms and does not require the bank to publish any information on its public website.",
+   "llm_confidence": 0.99,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "credit_cost",
+     "tariffs_fees"
+    ],
+    "keywords": {
+     "credit_cost": [
+      "тўлиқ қиймат",
+      "to'liq qiymat"
+     ],
+     "tariffs_fees": [
+      "фоиз ставка",
+      "foiz stavka"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex1:2",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5789547",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "2. КТҚни ҳисоблаб чиқишда қарз олувчининг қуйидаги тўловлари ҳисобга олинади:\nа) асосий қарз ва фоизлар бўйича тўловлар;\nб) банк фойдасига амалга ошириладиган тўловлар, агар бундай тўловлар кредит шартномаси шартларига мувофиқ қарз олувчининг мажбуриятларига кирса ва/ёки кредит ажратилиши бундай тўловларнинг амалга оширилишига боғлиқ бўлса;\nв) учинчи шахслар фойдасига амалга ошириладиган тўловлар, агар бундай тўловлар кредит шартномаси шартларига мувофиқ истеъмолчининг мажбуриятларига кирса, шунингдек, қуйидаги тўловлар:\nсуғурта ташкилоти фойдасига амалга ошириладиган тўловлар, агар суғурта шартномаси бўйича суғурта ҳодисаси юзага келган тақдирда наф олувчи бўлиб банк ҳисобланса;\nқарз олувчининг мажбуриятлари таъминотига қабул қилинган ва гаровга қўювчининг ихтиёрида қоладиган гаров предметини гаров шартномаси бўйича суғурта қилишда қарз олувчи томонидан суғурта ташкилотининг фойдасига амалга ошириладиган тўловлар;\nқарз олувчи томонидан кафолат (кафиллик) олиш учун кафолат берувчига (кафилга), шунингдек гаровга топширилаётган мулкни баҳолаш учун баҳоловчи ташкилотга тўланадиган тўловлар;\nмижозларни жалб қилиш, улар томонидан кредит олиш учун тақдим этилган ҳужжатларни текшириш, ушбу ҳужжатларни банкка топшириш, кредитларни қоплаш ҳисобига банк мижозларидан тўловлар ва пул ўтказмаларини қабул қилиш бўйича банкка хизмат кўрсатадиган ташкилотлар (воситачилар) ҳисобига амалга оширилган тўловлар.\nБанк томонидан КТҚ кўрсаткичининг ҳисоб-китоби кредит шартномаси муддати тугагунга қадар мазкур бандда назарда тутилган барча тўловларни ҳисобга олган ҳолда амалга оширилади.",
+   "text_en": "When calculating the effective interest rate, the bank must include all payments listed in the clause, such as principal and interest, payments to the bank’s profit, payments to third parties, insurance-related payments, collateral insurance, guarantee fees, and intermediary service fees.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "required_document",
+   "evidence_hint": "Locate a publicly posted document or web page (e.g., a PDF titled “Methodology for calculating the effective interest rate (KТҚ)” or a similar section on the bank’s website) that enumerates the payment types to be included in the KТҚ calculation as specified in the clause.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.78,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "collateral",
+     "credit_cost"
+    ],
+    "keywords": {
+     "collateral": [
+      "гаров",
+      "garov"
+     ],
+     "credit_cost": [
+      "ҳисоблаб чиқ",
+      "hisoblab chiq"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex1:3",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5789562",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "3. КТҚ ҳисоб-китобига қуйидагилар киритилмайди:\nа) қарз олувчининг учинчи шахслар фойдасига амалга оширадиган тўловлари, мазкур Тартибнинг 2-бандида кўрсатилган тўловлар бундан мустасно;\nб) бажариш мажбурияти кредит шартномаси шартларидан эмас, балки қонунчилик талабларидан келиб чиқадиган, қарз олувчи томонидан амалга оширилиши лозим бўлган тўловлар;\nв) қарз олувчининг кредит шартномаси шартларини бажармаслиги ёки лозим даражада бажармаслиги билан боғлиқ тўловлар, шу жумладан неустойка ва/ёки шартномада назарда тутилган бошқа тўловлар;\nг) банк пластик карталаридан фойдаланган ҳолда ажратилган кредитлар бўйича тўловлар, хусусан:\nбанк картасини чиқариш билан боғлиқ комиссиялар;\nбанк картасига хизмат кўрсатиш билан боғлиқ комиссиялар;\nбанк ва/ёки тўлов ташкилотлари мобил иловаси, банкоматлари ва инфокиосклари орқали кредит тўловлари амалга оширилганда ундириладиган комиссиялар;\nкредит суммаларини банкоматлардан фойдаланган ҳолда нақд пулда олганлиги учун тўланадиган комиссиялар.",
+   "text_en": "The bank must not include in the KTK account payments to third parties, legally required borrower payments, penalties for contract non-performance, and credit‑card related commissions.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause governs internal accounting entries that are not publicly disclosed, so compliance cannot be verified from the website alone.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "tariffs_fees",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "мобил илова",
+      "mobil ilova"
+     ],
+     "tariffs_fees": [
+      "комиссия",
+      "komissiya"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex1:4",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5789582",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "4. Банклар қуйидаги ҳолларда КТҚни ҳисоблаб чиқишлари шарт:\nа) қарз олувчилар билан кредит шартномаси тузилганда;\nб) кредит олиш истагини билдирган қарз олувчиларга кредит олиш шартлари ҳақидаги маълумотларни тақдим этиш вақтида. Агар маълумотлар тақдим этиш вақтида мазкур Тартибнинг 2-бандида назарда тутилган айрим тўловлар миқдорини аниқлаш имкони бўлмаса, у ҳолда банк томонидан унга маълум бўлган шу турдаги тўловларга амал қилиши ҳамда кредит олиш истагини билдирган қарз олувчиларга шу тўловларнинг манбаларини ошкор қилиши лозим (масалан, КТҚни ҳисоблашда тарифларидан фойдаланилган суғурта компаниясининг номи ва бошқалар).",
+   "text_en": "Banks must calculate the KTK when a credit contract is concluded or when providing credit terms information, and if certain payment amounts cannot be determined, they must apply known payments of that type and disclose the sources of those payments to the borrower.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The required disclosure is made to individual borrowers during credit negotiations and is not necessarily published on the public website.",
+   "llm_confidence": 0.9,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "credit_cost",
+     "disclosure",
+     "tariffs_fees"
+    ],
+    "keywords": {
+     "disclosure": [
+      "ошкор",
+      "oshkor"
+     ],
+     "credit_cost": [
+      "ҳисоблаб чиқ",
+      "hisoblab chiq"
+     ],
+     "tariffs_fees": [
+      "тариф",
+      "tarif"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex1:5",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643620",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "5. КТҚни ҳисоблашда қарз олувчининг кредит бўйича амалга ошириб бўлган тўловлари улар ҳақиқатда тўланган вақтда, келажакда амалга оширадиган тўловлари эса кредит шартномаси тузилган санада маълум бўлган кредит ажратиш шартларига асосан тўловларни тўлаш жадвали бўйича ҳисобга олинади.\nАгар гаров предметини суғурталаниши кредит шартномаси тузилган санадан кейин амалга ошириладиган бўлса, у ҳолда банк қарз олувчидан суғурта компаниясига амалга оширилиши мўлжалланаётган тўлов суммасини аниқлаши ва шу суммадан келиб чиққан ҳолда КТҚни ҳисоблаб чиқиши шарт.",
+   "text_en": "When calculating the total credit cost, the borrower’s payments already made are taken into account at the time they are actually paid, while future payments are accounted for according to the repayment schedule established on the contract date; if the collateral is insured after the contract date, the bank must determine the amount to be paid to the insurance company and calculate the total credit cost based on that amount.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns internal calculation methods and insurance payment details that are not disclosed on public web pages.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "collateral",
+     "credit_cost"
+    ],
+    "keywords": {
+     "collateral": [
+      "гаров",
+      "garov"
+     ],
+     "credit_cost": [
+      "ҳисоблаб чиқ",
+      "hisoblab chiq"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex1:6",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5789637",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "6. Кредитнинг тўлиқ қийматини ҳисоблашда қуйидаги шартлар ҳисобга олинади:\nа) агар кредит шартномасига мувофиқ истеъмолчи кредит маблағларини қисмларга бўлиб олиши ёки кредит олиш вақтини танлаш мумкинлиги назарда тутилган бўлса, унда кредит суммаси истеъмолчига кредит шартномасини тузиш вақтида тўлиқ ўтказилган деб ҳисобланади;\nб) кредит олиш истагини билдирган қарз олувчиларга кредит олиш шартлари ҳақидаги маълумотларни тақдим этиш вақтида, кредитнинг тўлиқ қиймати таркибидаги суғурта харажатларини ҳисоблашда суғурта ташкилотларининг жорий даврда амалда бўлган ставка ва мукофот миқдорларидан энг юқориси олинади. Шунингдек, истеъмолчилар келгусида суғурта ташкилотларининг ставка ва мукофот миқдорлари ўзгариши эҳтимоли кредитнинг тўлиқ қийматига таъсир кўрсатиши мумкинлиги тўғрисида хабардор қилинишлари шарт.",
+   "text_en": "When calculating the full amount of a consumer loan, the bank must treat the loan amount as fully transferred at contract signing if the loan can be taken in parts or at chosen times, must calculate insurance costs using the highest current rates and rewards, and must inform consumers that future changes in insurance rates may affect the loan’s full amount.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Loan product terms page or downloadable PDF that states insurance costs are calculated using the highest current rates and includes a notice that future changes in insurance rates may affect the full loan amount.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.78,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "credit_cost"
+    ],
+    "keywords": {
+     "credit_cost": [
+      "тўлиқ қиймат",
+      "to'liq qiymat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex1:7",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643550",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "7. Агар кредитнинг фоиз ставкаси базавий кўрсаткичларга (Марказий банкнинг асосий ставкаси, инфляция даражаси ва бошқалар) боғланган бўлса, у ҳолда банк КТҚни ҳисоблашда шу кундаги базавий кўрсаткичларнинг миқдоридан фойдаланади.",
+   "text_en": "If a loan’s interest rate is linked to base indicators, the bank must use the current day’s base indicator values when calculating the loan interest rate.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Loan product or terms page stating that the interest rate is linked to the Central Bank’s key rate and inflation and that the calculation uses the indicators of the calculation day.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.85,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "tariffs_fees"
+    ],
+    "keywords": {
+     "tariffs_fees": [
+      "фоиз ставка",
+      "foiz stavka"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex1:8",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#5789645",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "8. Банклар КТҚни дастурий воситалардан фойдаланган ҳолда ҳисоблайди.\nКТҚ қуйидаги формула асосида ҳисобланади:\nS — кредитор томонидан қарздорга ажратиладиган кредитнинг суммаси;\nР1 — мижознинг кредитни сўндириш учун йўналтирадиган навбатдаги тўлов суммаси; (Pi кредитни сўндириш графигидаги пул оқимларини англатади)\nAPR — кредитнинг тўлиқ қиймати (КТҚ);\nm — мижознинг кредитни сўндириш учун йўналтирадиган тўловлари сони;\n(Масалан, истеъмолчи кредитни 3 йил давомида ҳар ойда бир марта сўндириб борса, m — 36 га тенг бўлади)\ni — мижознинг кредитни сўндириш учун йўналтирадиган навбатдаги тўловининг тартиб рақами;\n(Масалан, кредитни сўндириш графигига асосан истеъмолчи ҳар ой сўндириб борса ва жорий тўлови 5-чи ойга тўғри келса, i — 5 га тенг бўлади)\nti — кредит ажратилган кундан бошлаб мижоз томонидан сўндириш учун йўналтириладиган навбатдаги тўловга қадар бўлган муддат (кунларда).\n(Агар истеъмолчи ҳар ой сўндирилиб бориладиган кредит бўйича 5-чи ой учун тўлов қилиши керак бўлса t5 — 150 кунни ташкил этади)",
+   "text_en": "Banks must calculate the credit turnover coefficient (KTK) using software tools according to the specified formula.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The calculation method and use of software tools are internal processes not disclosed on the public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "credit_cost"
+    ],
+    "keywords": {
+     "credit_cost": [
+      "тўлиқ қиймат",
+      "to'liq qiymat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex1:11",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7643634",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "11. Банклар оммавий ахборот воситалари орқали кредит тўғрисидаги маълумотларни эълон қилганларида, ушбу эълонда банкка мурожаат этилганида мижозларга кредит олиш билан боғлиқ КТҚни ҳисоблаб берилиши ҳақида ахборот беришлари лозим.",
+   "text_en": "When a bank announces credit information through mass media, it must provide customers who contact the bank with information on how the total credit cost is calculated.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The obligation relates to responding to customer inquiries, which cannot be verified from publicly available website pages or documents.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "complaints",
+     "disclosure",
+     "publication"
+    ],
+    "keywords": {
+     "disclosure": [
+      "ахборот бер",
+      "axborot ber"
+     ],
+     "publication": [
+      "эълон",
+      "e'lon"
+     ],
+     "complaints": [
+      "мурожаат",
+      "murojaat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "cbu_reg_3030:annex4:2",
+   "source_id": "cbu_reg_3030",
+   "url": "https://lex.uz/ru/docs/3804290#7170717",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "2. Мурожаат мазмунини ёритиш. Бунда қуйидагилар инобатга олиниши керак:\nмурожаатда келтирилган банк хизмати банкнинг қайси хизмат кўрсатиш канали (мобил илова, банк сайти, телефон, ижтимоий тармоқлар, банк агентлари, банк биноси ва бошқалар) орқали кўрсатилганлигини белгилаш;\nмурожаатда қайд этилган банк хизмати (операция) турини (кредит, микрокредит, микроқарз, онлайн микроқарз, кредит карта, овердрафт, лизинг, истеъмол кредити, автокредит, ипотека кредити, таълим кредити, оилавий тадбиркорлик бўйича имтиёзли кредит, кафиллик, гаров, суғурта, омонат ва депозитлар, онлайн омонат, миллий валютадаги банк карталари, хорижий валютадаги банк карталари, валюта айирбошлаш, халқаро пул ўтказмалари, валюта амалиётлари, банк ҳисобварағига хизмат кўрсатиш, касса хизматлари, бир марталик чакана тўловларни амалга ошириш, банкомат, мобил илова, веб-сайт, call-марказ, мурожаат ва қабул масаласи, банк ходимларининг хатти-ҳаракатлари, банк ходимларининг малакасини ва бошқалар) белгилаш;\nмурожаатда кўтарилган масалаларни умумлаштириш мақсадида банк хизмати (операция) тури бўйича мурожаат масалалари рўйхатини шакллантириш ва уни танлаш имкониятини яратиш;\nбанкнинг масъул ходими томонидан мурожаат билан танишиб чиққан ҳолда «Рўйхат»га қўшимча равишда мурожаатда кўтарилган масала (муаммо) мазмунини (қўлда ёки дастурий таъминот орқали) киритиш;\nмурожаатнинг pdf-файлини ёки/ва word матнини кўриш имкониятини яратиш;\nмурожаатда қайд этилган банк номи;\nмурожаатда қайд этилган банк тузилмасининг (бош офис, филиал ёки банк хизматлари офиси) номи, коди, уларнинг жойлашган манзилини (вилоят ва туман), мурожаатда келтирилган банк ходимлари исми-шарифини белгилаш.\nДастурнинг ушбу бўлими мурожаат келиб тушган банкнинг бош офиси ёки ҳудудлардаги бўлинмаларининг (филиал ёки банк хизматлари офиси) ваколат берилган масъул ходимлари томонидан тўлдирилади.",
+   "text_en": "The bank must record, for each complaint, the service channel, the type of service, a list of issues, the responsible employee’s entry, provide access to the complaint’s PDF or Word file, and include the bank’s name, branch name, code, address, and employee’s name.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The required information pertains to internal complaint handling procedures that are not disclosed on the public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "collateral",
+     "complaints",
+     "website"
+    ],
+    "keywords": {
+     "website": [
+      "веб-сайт",
+      "сайт",
+      "мобил илова",
+      "veb-sayt",
+      "sayt",
+      "mobil ilova"
+     ],
+     "collateral": [
+      "гаров",
+      "garov"
+     ],
+     "complaints": [
+      "мурожаат",
+      "murojaat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:enactment:preamble",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121074",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "Давлат тилини изчил жорий этиш жараёнини такомиллаштириш ва лотин ёзувига асосланган ўзбек алифбосига мукаммал ўтишини таъминлаш мақсадида Ўзбекистон Республикаси Олий Мажлиси қарор қилади:\nЎзбекистон Республикасининг 1989 йил 21 октябрда қабул қилинган «Ўзбекистон Республикасининг давлат тили ҳақида»ги Қонунига (Ўзбекистон Республикаси Олий Советининг Ведомостлари, 1989 йил, № 26-28, 453-модда) ўзгартиш ва қўшимчалар киритиб, унинг янги таҳрири тасдиқлансин (илова қилинади).",
+   "text_en": "The bank must ensure continuous implementation of the state language and transition to the Latin Uzbek alphabet.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns a parliamentary decision about the state language law, not a specific obligation of the bank.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:1",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121102",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "1-модда.\nЎзбекистон Республикасининг давлат тили ўзбек тилидир.",
+   "text_en": "The bank must recognize that the state language of Uzbekistan is Uzbek.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause does not impose a specific, verifiable obligation on the bank that can be assessed via its public website.",
+   "llm_confidence": 0.9,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "ўзбек тил",
+      "davlat til",
+      "o'zbek til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:2",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121104",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "2-модда.\nЎзбек тилига давлат тили мақомининг берилиши республика ҳудудида яшовчи миллат ва элатларнинг ўз она тилини қўллашдан иборат конституциявий ҳуқуқларига монелик қилмайди.",
+   "text_en": "The granting of Uzbek as the state language must not limit the constitutional right of peoples living in the republic to use their mother tongue.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns constitutional language rights, which cannot be verified solely from the bank's public website.",
+   "llm_confidence": 0.92,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "ўзбек тил",
+      "davlat til",
+      "o'zbek til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:3",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121106",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "3-модда.\nЎзбек тилининг Ўзбекистон Республикаси ҳудудида давлат тили сифатида амал қилишининг ҳуқуқий асослари ушбу Қонун ва бошқа қонун ҳужжатлари билан белгилаб берилади.\nТилнинг Қорақалпоғистон Республикасида амал қилишига боғлиқ масалалар, шунингдек Қорақалпоғистон Республикасининг қонунчилиги билан белгиланади.\nЎзбекистон Республикасининг Конституциявий Қонуни билан махсус ҳуқуқий режим ўрнатилган ҳудудда ушбу Қонунда белгиланганидан бошқача иш юритиш ва расмий ҳужжатларни қабул қилиш тили белгиланиши мумкин.\nУшбу Қонун тилларнинг турмушда, шахслараро муомалада ҳамда диний ва ибодат билан боғлиқ удумларни адо этишда қўлланишини тартибга солмайди.\nФуқаролар миллатлараро муомала тилини ўз хоҳишларига кўра танлаш ҳуқуқига эгадирлар.",
+   "text_en": "The bank must provide its key public pages (e.g., loans, deposits, tariffs, terms) in Uzbek, the state language.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "uz_version",
+   "evidence_hint": "Uzbek-language versions of the main product pages or a language selector showing Uzbek on the website.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.88,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "ўзбек тил",
+      "davlat til",
+      "o'zbek til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:4",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121112",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "4-модда.\nЎзбекистон Республикасида давлат тилини ўрганиш учун барча фуқароларга шарт-шароит ҳамда унинг ҳудудида яшовчи миллатлар ва элатларнинг тилларига иззат-ҳурмат билан муносабатда бўлиш таъминланади, бу тилларни ривожлантириш учун шарт-шароит яратилади.\nФуқароларга давлат тилини ўқитиш бепул амалга оширилади.",
+   "text_en": "All citizens must be provided with conditions to study the state language, the languages of peoples living in its territory must be respected, and free state‑language instruction must be offered to citizens.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause sets national language policy and does not impose a specific, verifiable obligation on the bank, so it cannot be assessed via the bank's public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:5",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121115",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "5-модда.\nЎзбекистон Республикасида давлат тилида фаолият кўрсатадиган, миллий гуруҳлар зич яшайдиган жойларда эса — уларнинг тилларида фаолият кўрсатадиган мактабгача таълим ташкилотларини ташкил этиш таъминланади.",
+   "text_en": "In the Republic of Uzbekistan, activities must be conducted in the state language, and in areas where national groups live densely, preschool education institutions must be established that operate in those groups' languages.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns establishment of minority-language preschool institutions, which is not information typically published on a bank's public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:6",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121117",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "6-модда.\nЎзбекистон Республикасида яшовчи шахсларга таълим олиш тилини эркин танлаш ҳуқуқи берилади.\nЎзбекистон Республикаси давлат тилида, шунингдек бошқа тилларда ҳам умумий, ҳунар-техника, ўрта махсус ва олий маълумот олишни таъминлайди.",
+   "text_en": "Persons residing in Uzbekistan have the right to freely choose the language of education, and the state must provide education in Uzbek and other languages.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns education language rights and does not impose obligations on banks, so it cannot be verified on the bank's website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:7",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121120",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "7-модда.\nДавлат тили расмий амал қиладиган доираларда ўзбек адабий тилининг амалдаги илмий қоидалари ва нормаларига риоя этилади.\nДавлат ўзбек тилининг бойитилиши ва такомиллаштирилишини таъминлайди, шу жумладан унга ҳамма эътироф қилган илмий-техникавий ва ижтимоий-сиёсий атамаларни жорий этиш ҳисобига таъминлайди.\nЯнги илмий асосланган атамалар жамоатчилик муҳокамасидан кейин ва Олий Мажлис палаталари тегишли қўмиталарининг розилиги билан ўзбек тилига жорий этилади.",
+   "text_en": "The bank must use the Uzbek literary language, following its scientific rules and norms, in all official public materials.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "uz_version",
+   "evidence_hint": "Uzbek-language versions of key public pages such as loans, deposits, tariffs, and terms are available on the website, indicated by language selectors or Uzbek text on those pages.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.85,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "ўзбек тил",
+      "davlat til",
+      "o'zbek til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:8",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121126",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "8-модда.\nЎзбекистон Республикасининг қонун ҳужжатлари, давлат ҳокимияти ва бошқарув органларининг бошқа ҳужжатлари давлат тилида қабул қилинади ва эълон этилади. Бу ҳужжатларнинг таржималари бошқа тилларда ҳам эълон қилинади.\nМаҳаллий ҳокимият ва бошқарув органларининг ҳужжатлари давлат тилида қабул қилинади ва эълон этилади. Муайян миллат вакиллари зич яшайдиган жойларда маҳаллий ҳокимият ва бошқарув органларининг ҳужжатлари республика давлат тилида ҳамда мазкур миллат тилида қабул қилинади ва эълон этилади.",
+   "text_en": "Legal acts and other official documents must be adopted and announced in the state language, with translations also published in other languages.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause pertains to state authority documents, not to information that a bank must display on its public website, so it cannot be verified from the bank's site.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "publication",
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ],
+     "publication": [
+      "эълон",
+      "e'lon"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:9",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121133",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "9-модда.\nДавлат ҳокимияти ва бошқарув органларида иш давлат тилида юритилади ва заруриятга қараб бошқа тилларга таржима қилиниши таъминланади.\nЎзбекистонда ўтказиладиган халқаро анжуманларда давлат тили, шунингдек қатнашчиларнинг ўзлари танлаган тиллар анжуманнинг иш тили ҳисобланади.",
+   "text_en": "State authorities and management bodies must conduct their work in the state language and ensure translation into other languages when necessary.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause pertains to the language use of state bodies, which cannot be verified through the bank's public website.",
+   "llm_confidence": 0.99,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:10",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121137",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "10-модда.\nКорхоналар, муассасалар, ташкилотлар ва жамоат бирлашмаларида иш юритиш, ҳисоб-китоб, статистика ва молия ҳужжатлари давлат тилида юритилади, ишловчиларининг кўпчилиги ўзбек тилини билмайдиган жамоаларда давлат тили билан бир қаторда бошқа тилларда ҳам амалга оширилиши мумкин.",
+   "text_en": "Financial, accounting, statistical and other financial documents must be prepared in the Uzbek language.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns internal accounting and financial documents that are not necessarily published on the public website.",
+   "llm_confidence": 0.9,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "ўзбек тил",
+      "davlat til",
+      "o'zbek til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:11",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121140",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "11-модда.\nСудлов ишларини юритиш давлат тилида ёки ўша жойдаги кўпчилик аҳоли тилида олиб борилади. Ишда иштирок этаётган, суд ишлари юритилаётган тилни билмайдиган шахсларга таржимон орқали ишга оид материаллар билан танишиш, суд жараёнида иштирок этиш ҳуқуқи ҳамда судда она тилида сўзлаш ҳуқуқи таъминланади.\nКорхоналар, ташкилотлар ва муассасалар ўртасидаги иқтисодий низоларни кўриб чиқиш ва ҳал қилишда давлат тили қўлланилади. Иқтисодий низолар тарафларнинг розилиги билан бошқа тилда ҳам кўриб чиқилиши мумкин.",
+   "text_en": "Court proceedings must be conducted in the state language or the local majority language, and persons who do not know that language must be provided an interpreter and may use their mother tongue in court.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause pertains to judicial language procedures, which are not disclosed on the bank's public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:12",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121144",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "12-модда.\nЎзбекистон Республикасида нотариал ҳаракатлар давлат тилида амалга оширилади. Фуқароларнинг талабига кўра расмийлаштирилган ҳужжат матни нотариус ёки нотариал ҳаракатни бажараётган шахс томонидан рус тилида ёки имконият бўлган тақдирда — бошқа мақбул тилда берилади.",
+   "text_en": "Notarial actions must be carried out in the state language (Uzbek), and the text of notarized documents may be provided in Russian or another suitable language upon a citizen's request.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns the language of notarial documents, which is not information typically disclosed on a bank's public website.",
+   "llm_confidence": 0.9,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:13",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121151",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "13-модда.\nФуқаролик ҳолатини қайд этувчи ҳужжатлар, шахснинг ким эканлигини ва унинг ҳуқуқларини тасдиқловчи ҳужжатлар давлат тилида расмийлаштирилади, заруриятга қараб бошқа тилда таржимаси такрорланиши мумкин.",
+   "text_en": "Civil status documents and documents confirming a person's identity and rights must be formalized in the state language, with translations into other languages possible as needed.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause pertains to internal civil‑status and identity documents, which are not required to be posted on the bank's public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:14",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121154",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "14-модда.\nЎзбекистон Республикаси ҳудудида яшовчи шахсларга давлат ташкилотлари ва муассасаларига, жамоат бирлашмаларига аризалар, таклифлар, шикоятлар билан давлат тилида ва бошқа тилларда мурожаат қилиш ҳуқуқи таъминланади.",
+   "text_en": "The bank must allow persons to submit applications, proposals and complaints in Uzbek and other languages.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "A contact or complaints page stating that submissions are accepted in Uzbek (the state language) and other languages.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.85,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "complaints",
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ],
+     "complaints": [
+      "мурожаат",
+      "шикоят",
+      "murojaat",
+      "shikoyat"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:16",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121232",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "16-модда.\nТелевидение ва радио эшиттиришлари давлат тилида, шунингдек бошқа тилларда олиб борилади.",
+   "text_en": "Television and radio broadcasts must be carried out in the state language, as well as in other languages.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns television and radio broadcasts, which are not reflected on the bank's public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:17",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121236",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "17-модда.\nНоширлик фаолияти давлат тилида, эҳтиёжларни ҳисобга олган ҳолда эса, бошқа тилларда ҳам амалга оширилади.",
+   "text_en": "The bank must provide its publishing activity in the state language (Uzbek) and, as needed, also in other languages.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "uz_version",
+   "evidence_hint": "Verify that key public pages such as loans, deposits, tariffs, and terms are available in Uzbek and that language selection links include Uzbek.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.96,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:18",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121242",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "18-модда.\nПочта-телеграф жўнатмалари давлат тилида ёки фуқароларнинг хоҳишига кўра — бошқа тилда амалга оширилади.",
+   "text_en": "Postal‑telegraph shipments must be carried out in the state language, or in another language if the citizen requests it.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause concerns postal‑telegraph service language requirements, which are not disclosed on the bank's public website.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:19",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121245",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "19-модда.\nМуассасалар, ташкилотлар ва жамоат бирлашмалари муҳрлари, тамғалари, иш қоғозларининг матнлари давлат тилида бўлади.\nЎзбекистон Республикаси ҳудудида жойлашган халқаро ташкилотлар ва муассасалар, қўшма корхоналарнинг, шунингдек миллий маданият жамиятлари ва марказларининг муҳрлари, тамғалари, иш қоғозлари матнларининг таржимаси давлат тилида такрорланади.",
+   "text_en": "The texts of seals, stamps and work documents of institutions must be in the state language (Uzbek).",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The clause applies to all internal documents, many of which are not publicly posted, so compliance cannot be verified from the public website alone.",
+   "llm_confidence": 0.9,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:20",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121250",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "20-модда.\nЛавҳалар, эълонлар, нархномалар ва бошқа кўргазмали ҳамда оғзаки ахборот матнлари давлат тилида расмийлаштирилади ва эълон қилинади ҳамда бошқа тилларда таржимаси берилиши мумкин.",
+   "text_en": "The bank must publish all informational materials such as forms, announcements, price lists and other public information in the state language (Uzbek) on its website.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "uz_version",
+   "evidence_hint": "Uzbek-language versions of key public pages (e.g., loans, deposits, tariffs, terms) and a language selector showing Uzbek are present on the site.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.97,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "publication",
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ],
+     "publication": [
+      "эълон",
+      "e'lon"
+     ]
+    },
+    "always_include": true
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:21",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121254",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "21-модда.\nКорхоналарда ишлаб чиқариладиган маҳсулот давлат тилидаги ва бошқа тиллардаги ёрлиқлар, йўриқномалар, этикеткалар билан таъминланади.",
+   "text_en": "Enterprises must provide product manuals, instructions and labels in the state language (Uzbek) as well as in other languages.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "uz_version",
+   "evidence_hint": "Find Uzbek‑language versions of product manuals, instruction sheets or label PDFs (e.g., downloadable brochures, tariff documents) linked from the bank's public product pages.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.78,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:22",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#1883413",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "22-модда.\nГеографик объектларнинг номлари давлат тилида акс эттирилади.",
+   "text_en": "Geographic object names must be presented in the state language (Uzbek).",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "key_info",
+   "evidence_hint": "Check the branch locations or service area page and verify that city, region and other geographic names are written in Uzbek.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.85,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:23",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121262",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "23-модда.\nЎзбекистон Республикасининг халқаро шартномаси матнлари, агар шартноманинг ўзида бошқача қоида назарда тутилмаган бўлса, давлат тилида ва аҳдлашувчи томоннинг (томонларнинг) тилида ёзилади.",
+   "text_en": "International agreements of Uzbekistan must be written in Uzbek and the contracting party's language unless the agreement provides otherwise.",
+   "text_en_label": "machine translation",
+   "checkable": false,
+   "check_type": null,
+   "evidence_hint": null,
+   "not_checkable_reason": "The bank's public website does not publish the texts of Uzbekistan's international agreements, so compliance cannot be verified online.",
+   "llm_confidence": 0.95,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": false,
+   "approved": false
+  },
+  {
+   "clause_id": "law_state_language:art:24",
+   "source_id": "law_state_language",
+   "url": "https://lex.uz/ru/docs/121051#121264",
+   "chapter": null,
+   "paragraph": null,
+   "text_original": "24-модда.\nЎзбекистон Республикасида давлат тилига ёки бошқа тилларга менсимай ёки хусумат билан қараш тақиқланади. Фуқароларнинг ўзаро муомала, тарбия ва таълим олиш тилини эркин танлаш ҳуқуқини амалга оширишга тўсқинлик қилувчи шахслар қонунчиликка мувофиқ жавобгар бўладилар.",
+   "text_en": "The bank must not discriminate against the state language or other languages and must allow citizens to freely choose the language of communication, education, and upbringing.",
+   "text_en_label": "machine translation",
+   "checkable": true,
+   "check_type": "uz_version",
+   "evidence_hint": "Uzbek-language versions of key public pages (loans, deposits, tariffs, terms) and language selection links on the website.",
+   "not_checkable_reason": null,
+   "llm_confidence": 0.86,
+   "llm_error": null,
+   "prefilter": {
+    "topics": [
+     "state_language"
+    ],
+    "keywords": {
+     "state_language": [
+      "давлат тил",
+      "davlat til"
+     ]
+    },
+    "always_include": false
+   },
+   "shortlisted": true,
+   "approved": false
+  }
+ ]
+}
