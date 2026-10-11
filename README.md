@@ -9,6 +9,12 @@ confirms or rejects each one, and every decision is logged.
 
 Finding statuses: `ok` · `possible_gap` · `not_checkable`.
 
+**Mode: Partner product.** Owner: the Service for the Protection of Consumer Rights of
+Banking Services, Central Bank of Uzbekistan. The partner bank is MKBANK (Mikrokreditbank).
+The banks checked are the partner and the group fined by the CBU on 10 Nov 2025
+([announcement](https://cbu.uz/en/press_center/news/3000256/), 18 banks); see
+`data/banks.yaml`.
+
 ## Hosted demo
 
 **URL: https://compliance-radar-vy9n.onrender.com** (one Docker service on
@@ -96,6 +102,14 @@ bank URL ─> crawler (robots.txt, 1 req/s/host, depth 2, ≤15 pages, ≤60 s, 
 
 ## How to run
 
+Backend (Python 3.11) and frontend (Node 20) run separately in development. Settings are read
+from `.env`; copy `.env.example` and fill in only what you need. The variable names are
+listed in `.env.example` (LLM: `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`,
+`LLM_PRICE_INPUT_PER_MTOK`, `LLM_PRICE_OUTPUT_PER_MTOK`, optional `LLM_FALLBACK_1_*`;
+crawler: `CRAWLER_*`, `BROWSER_FALLBACK`; API: `CHECK_RATE_LIMIT_PER_MINUTE`,
+`CORS_ORIGINS`; storage: `DB_PATH`). Without LLM settings the checks that need the LLM end
+`not_checkable`; everything else works.
+
 ```bash
 python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python -m playwright install chromium     # only for BROWSER_FALLBACK=1
@@ -110,6 +124,10 @@ cd frontend && npm install && npm run dev            # http://localhost:5173
 npm run lint                                          # ESLint
 npx playwright test                                   # e2e (starts its own servers)
 ```
+
+Tests at submission (2026-10-11): `pytest` 264 passed + 1 expected failure (the documented
+prompt-injection limitation, see below); Playwright e2e 21 passed (7 tests × 375, 768 and
+1280 px). Hosted demo: https://compliance-radar-vy9n.onrender.com
 
 CI (`.github/workflows/ci.yml`) runs the backend unit tests and the frontend lint and build
 on a clean machine without `.env`, secrets, real LLM calls or real bank sites. The Playwright
@@ -223,9 +241,22 @@ LLM proposes them once and they are cached.
   git-ignored). No personal data, card numbers or phone numbers are collected on purpose; the
   crawler skips login and search pages. Official URLs in `data/banks.yaml` were entered by
   the team, not guessed.
+- **cbu.uz**: the CBU announcement of 10 Nov 2025 on the monitoring of banks' websites
+  (https://cbu.uz/en/press_center/news/3000256/), public; used only for the list of the 18
+  fined banks in `data/banks.yaml`.
+- **Pre-computed findings** (`data/precomputed/findings.json`, `batch_summary.md`): generated
+  by this project's own pipeline on 2026-10-10 (`scripts/crawl_all.py`: crawl of each bank's
+  public site with the limits above, then the approved checks; LLM `openai/gpt-oss-120b` on
+  Groq for the LLM-assisted checks and translations; some checks re-run the same day with
+  `scripts/recheck.py` after rule fixes, marked "re-checked" in the reason). They contain
+  page URLs, short verbatim quotes and our reasons, not whole pages.
+- **Analyst decisions** (`data/precomputed/decisions.json`): made by a team member after
+  checking the banks' sites by hand.
+- **No personal or confidential data** is used or stored: only public legal texts, public
+  announcements and public bank web pages.
 - **Test fixtures**: `frontend/e2e/fixture-site/` is a made-up Russian-only page set for tests.
 
-## Models and their licences
+## External services, models and their licences
 
 No model is fixed in code. Any OpenAI-compatible endpoint works through `LLM_BASE_URL`,
 `LLM_API_KEY`, `LLM_MODEL` (Groq, OpenRouter, Gemini's OpenAI-compatible API, a local Ollama),
@@ -235,11 +266,35 @@ The LLM is used for: requirement shortlisting (offline), search keywords per req
 yes/no presence answers with a quote, and the machine translation of verified quotes.
 `uz_version` uses no LLM.
 
+- **Groq** (primary LLM, `openai/gpt-oss-120b`, Apache-2.0 open-weight model; Groq's terms
+  of service apply to the API). Used for the pre-computed batch run; live checks on a
+  server use it only if that server has an API key configured.
+- **Google Gemini** (fallback, through its OpenAI-compatible API; Google's API terms apply).
+  Supported as `LLM_FALLBACK_1_*`; it was **not** configured for the recorded batch run.
+- **Render** (hosting of the demo, free plan).
+- **Production** runs without any external API: a local model (e.g. through Ollama,
+  `OLLAMA_BASE_URL`) and a local headless browser inside the regulator's perimeter.
+
 Libraries: FastAPI (MIT), Uvicorn (BSD-3), httpx (BSD-3), Playwright (Apache-2.0),
 BeautifulSoup4 (MIT), lxml (BSD-3), pdfplumber (MIT), pydantic (MIT), PyYAML (MIT),
-python-dotenv (BSD-3), pytest (MIT), React (MIT), Vite (MIT).
+python-dotenv (BSD-3), pytest (MIT), React (MIT), Vite (MIT), ESLint (MIT),
+SQLite (public domain, through Python's `sqlite3`).
 
 ## Cost model
+
+Measured on the pre-computed batch run (6 sites, 54 requirement checks, 2026-10-10;
+`data/precomputed/batch_summary.md`), at Groq list price for `openai/gpt-oss-120b` taken from
+`.env` ($0.15 input / $0.60 output per million tokens): **$0.0099 in total, about $0.0017 per
+site check and $0.00018 per requirement check** (43 API calls, 32,862 tokens). Per-bank
+figures: see `data/precomputed/batch_summary.md`.
+
+- **LLM account:** Groq free tier. The audit hit its daily token quota (200,000 tokens per day,
+  `eval/audit_report.md`) and the batch saw HTTP 429 rate limits, so the costs above are
+  list-price equivalents, not money spent.
+- **Hosting:** Render free plan (`render.yaml`: `plan: free`, region Frankfurt), $0.
+- **Production:** a local model and a local browser; no per-call API cost.
+
+How it is computed:
 
 Cost per check = Σ over API calls (input tokens × `LLM_PRICE_INPUT_PER_MTOK` + output tokens ×
 `LLM_PRICE_OUTPUT_PER_MTOK`) / 10⁶. Token counts come from the provider's `usage` field and
@@ -293,6 +348,12 @@ passages, not whole pages.
 - **Production design:** a local headless browser inside the regulator's perimeter
   (`BROWSER_FALLBACK=1`), no external rendering API.
 
+- **Manual review is not system-wide precision.** The team reviewed 5 of the 11 possible
+  gaps by hand: 2 confirmed, 3 rejected as false alarms (`data/precomputed/decisions.json`).
+  That is a small sample chosen for review, not a precision estimate for the whole system.
+  **6 possible gaps remain pending analyst review** (Anor Bank 14 and 37^5, Garant Bank
+  37^5, MKBANK 37^5, Hayot Bank 18^1, Universal Bank 28^1).
+
 ## Honest limitations
 
 - **Requirements must be approved by a human.** Until `data/requirements.yaml` exists, every
@@ -318,6 +379,13 @@ passages, not whole pages.
   the sentence it asks the model to quote would still pass verbatim verification (the quote
   really is on the page); `test_quote_planted_inside_injected_instruction_is_not_accepted`
   stays an expected failure to document this. An analyst's review remains the safeguard.
+
+## Attribution
+
+- Legal texts: lex.uz (official texts of Uzbekistan). Fined-bank list: cbu.uz announcement
+  of 10 Nov 2025. Bank pages: the banks' own public websites.
+- Libraries and services are used under the licences listed above. No code was copied from
+  other projects.
 
 ## Built with an AI agent
 

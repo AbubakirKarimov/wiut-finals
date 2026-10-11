@@ -19,7 +19,9 @@ def test_registry_loads_and_is_consistent():
     ids = [b.id for b in banks]
     assert len(ids) == len(set(ids))
     assert [b.id for b in banks if b.role == "partner"] == ["mkbank"]
-    assert sum(b.role == "fined_group" for b in banks) == 20
+    # CBU announcement of 10 Nov 2025: 18 banks fined; Mikrokreditbank is our partner mkbank.
+    assert sum(b.role == "fined_group" for b in banks) == 17
+    assert {b.id for b in banks if b.role == "other"} == {"tbc_bank", "davr_bank", "hamkorbank"}
     for b in banks:
         assert b.website_url == "" or b.website_url.startswith("https://"), b.id
 

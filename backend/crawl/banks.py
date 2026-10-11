@@ -9,7 +9,7 @@ from pydantic import BaseModel, field_validator
 
 BANKS_YAML = Path(__file__).resolve().parents[2] / "data" / "banks.yaml"
 
-BankRole = Literal["partner", "fined_group"]
+BankRole = Literal["partner", "fined_group", "other"]
 
 
 class Bank(BaseModel):

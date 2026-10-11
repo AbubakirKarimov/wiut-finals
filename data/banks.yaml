@@ -1,10 +1,14 @@
 # Registry of banks whose public websites are checked.
+# Source of the fined group: CBU announcement of 10 Nov 2025 "on the results of monitoring the
+# official websites of commercial banks", https://cbu.uz/en/press_center/news/3000256/
+# (18 banks fined, 102 million UZS each). Checked against the page on 2026-10-11.
 # id:          stable slug used as bank_id in pages, findings and reports.
 # name:        bank name as commonly written in English.
 # website_url: official home page, https only. Filled in manually by the user; do NOT guess.
 #              An empty website_url is allowed: the bank is listed but skipped by the crawler.
 # role:        partner     - project partner bank
-#              fined_group - bank in the group fined by the CBU
+#              fined_group - bank in the group fined by the CBU (announcement above)
+#              other       - listed for reference; not in the fined group
 # notes:       free text, optional.
 
 banks:
@@ -12,7 +16,7 @@ banks:
     name: "MKBANK"
     website_url: "https://mkbank.uz/uz/"
     role: partner
-    notes: ""
+    notes: "Also named as Mikrokreditbank among the 18 fined banks (CBU, 10 Nov 2025)."
   - id: agrobank
     name: "Agrobank"
     website_url: "https://agrobank.uz/uz/person"
@@ -40,7 +44,7 @@ banks:
     notes: ""
   - id: asakabank
     name: "Asakabank"
-    website_url: ""
+    website_url: "https://asakabank.uz/ru/"
     role: fined_group
     notes: ""
   - id: turonbank
@@ -101,15 +105,15 @@ banks:
   - id: tbc_bank
     name: "TBC Bank"
     website_url: ""
-    role: fined_group
-    notes: ""
+    role: other
+    notes: "Not among the 18 banks in the CBU announcement of 10 Nov 2025."
   - id: davr_bank
     name: "Davr Bank"
     website_url: ""
-    role: fined_group
-    notes: ""
+    role: other
+    notes: "Not among the 18 banks in the CBU announcement of 10 Nov 2025."
   - id: hamkorbank
     name: "Hamkorbank"
     website_url: ""
-    role: fined_group
-    notes: ""
+    role: other
+    notes: "Not among the 18 banks in the CBU announcement of 10 Nov 2025."
