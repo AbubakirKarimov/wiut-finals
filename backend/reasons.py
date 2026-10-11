@@ -12,7 +12,8 @@ RECHECK = re.compile(r"^re-checked (\d{4}-\d{2}-\d{2}) \((.*?)\):\s*")
 # (pattern on the reason, short text). Short texts may use groups of the match.
 _PATTERNS: list[tuple[re.Pattern, str]] = [(re.compile(p, re.I | re.S), t) for p, t in [
     (r"page needs JavaScript rendering",
-     "The page needs JavaScript rendering, which is not available on this hosted demo."),
+     "This site renders its content with JavaScript, which the hosted demo cannot read. "
+     "Nothing was judged."),
     (r"homepage text too short \((\d+) chars\)",
      "The homepage had too little text ({0} characters), likely dynamic content or a block, "
      "so no gap is reported."),
