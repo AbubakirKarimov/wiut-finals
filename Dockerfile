@@ -15,15 +15,20 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     DB_PATH=/tmp/compliance.sqlite \
-    BROWSER_FALLBACK=0 \
+    BROWSER_FALLBACK=1 \
+    BROWSER_TIMEOUT_SECONDS=25 \
+    BROWSER_BLOCK_RESOURCES=1 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
     LIVE_DECISIONS_EPHEMERAL=1 \
     RESET_DB_ON_START=1 \
     CHECK_RATE_LIMIT_PER_MINUTE=5 \
-    MAX_CONCURRENT_CHECKS=2 \
+    MAX_CONCURRENT_CHECKS=1 \
     FRONTEND_DIST=/app/frontend/dist
 WORKDIR /app
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+    && playwright install --with-deps chromium \
+    && rm -rf /var/lib/apt/lists/*
 COPY backend/ backend/
 COPY data/ data/
 COPY eval/replay_stored.json eval/replay_stored.json

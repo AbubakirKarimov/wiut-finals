@@ -31,6 +31,8 @@ class FetchConfig:
     min_text_chars: int = 500          # below this a 200 HTML page counts as js_shell
     browser_fallback: bool = True      # BROWSER_FALLBACK=0 disables Playwright
     browser_timeout_seconds: float = 45.0
+    # Small containers: skip images, fonts and media in the browser (text is unaffected).
+    browser_block_resources: bool = True
     max_bytes: int = 10 * 1024 * 1024  # per response (PDFs included)
 
     @classmethod
@@ -45,6 +47,8 @@ class FetchConfig:
             browser_fallback=_env_bool("BROWSER_FALLBACK", d.browser_fallback),
             browser_timeout_seconds=float(os.getenv("BROWSER_TIMEOUT_SECONDS")
                                           or d.browser_timeout_seconds),
+            browser_block_resources=_env_bool("BROWSER_BLOCK_RESOURCES",
+                                              d.browser_block_resources),
             max_bytes=int(float(os.getenv("CRAWLER_MAX_FILE_MB") or 10) * 1024 * 1024),
         )
 
@@ -224,6 +228,9 @@ class RenderResult:
     notes: list[str] = field(default_factory=list)
 
 
+BLOCKED_RESOURCES = {"image", "font", "media"}
+
+
 class Browser:
     """Plain headless Chromium (no stealth, no proxies, honest User-Agent).
 
@@ -238,7 +245,9 @@ class Browser:
     def __enter__(self) -> "Browser":
         from playwright.sync_api import sync_playwright
         self._pw = sync_playwright().start()
-        self._browser = self._pw.chromium.launch()
+        # Container-friendly flags: /dev/shm is tiny in Docker, there is no GPU.
+        self._browser = self._pw.chromium.launch(
+            args=["--disable-dev-shm-usage", "--disable-gpu"])
         return self
 
     def __exit__(self, *exc) -> None:
@@ -255,6 +264,10 @@ class Browser:
         for attempt in (1, 2):
             out.attempts = attempt
             ctx = self._browser.new_context(user_agent=self.cfg.user_agent)
+            if self.cfg.browser_block_resources:
+                ctx.route("**/*", lambda route: route.abort()
+                          if route.request.resource_type in BLOCKED_RESOURCES
+                          else route.continue_())
             page = ctx.new_page()
             try:
                 self.throttle.wait(url)
