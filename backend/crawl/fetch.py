@@ -31,6 +31,9 @@ class FetchConfig:
     min_text_chars: int = 500          # below this a 200 HTML page counts as js_shell
     browser_fallback: bool = True      # BROWSER_FALLBACK=0 disables Playwright
     browser_timeout_seconds: float = 45.0
+    # Hosted demo without a browser: "jina" renders JavaScript-only pages through Jina
+    # Reader (backend/crawl/jina.py); "" = off.
+    render_fallback: str = ""
     max_bytes: int = 10 * 1024 * 1024  # per response (PDFs included)
 
     @classmethod
@@ -45,6 +48,7 @@ class FetchConfig:
             browser_fallback=_env_bool("BROWSER_FALLBACK", d.browser_fallback),
             browser_timeout_seconds=float(os.getenv("BROWSER_TIMEOUT_SECONDS")
                                           or d.browser_timeout_seconds),
+            render_fallback=(os.getenv("RENDER_FALLBACK") or "").strip().lower(),
             max_bytes=int(float(os.getenv("CRAWLER_MAX_FILE_MB") or 10) * 1024 * 1024),
         )
 
@@ -225,6 +229,7 @@ class RenderResult:
 
 
 class Browser:
+    method = "browser"
     """Plain headless Chromium (no stealth, no proxies, honest User-Agent).
 
     render(): navigate, wait for network idle up to the timeout, retry once if the page

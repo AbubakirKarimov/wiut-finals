@@ -129,9 +129,17 @@ class Crawler:
         self.cfg = cfg
         self.store = store  # DbPageStore-like: get(bank_id, url) / put(page, links, request_url)
         self.fetcher = fetcher or Fetcher(cfg.fetch)
-        self._browser_factory = browser_factory or (
-            lambda: Browser(cfg.fetch, self.fetcher.throttle))
+        self._browser_factory = browser_factory or self._default_renderer
         self.progress = progress or (lambda msg: None)
+
+    def _default_renderer(self):
+        if self.cfg.fetch.browser_fallback:
+            return Browser(self.cfg.fetch, self.fetcher.throttle)
+        from backend.crawl.jina import JinaReader
+        return JinaReader(self.cfg.fetch, self.fetcher.throttle)
+
+    def _can_render(self) -> bool:
+        return self.cfg.fetch.browser_fallback or self.cfg.fetch.render_fallback == "jina"
 
     def crawl(self, bank_id: str, start_url: str, run_id: str | None = None) -> CrawlResult:
         res = CrawlResult(bank_id=bank_id, start_url=start_url)
@@ -140,7 +148,7 @@ class Crawler:
         fcfg = self.cfg.fetch
 
         cached = self._cached(bank_id, start_url, run_id)
-        if cached and cached[1].get("method") in ("httpx", "browser-home") and \
+        if cached and cached[1].get("method") in ("httpx", "browser-home", "jina-home") and \
                 len(cached[0].text) >= fcfg.min_text_chars:
             self.progress("home page from the store (fetched earlier)")
             page, meta = cached
@@ -176,7 +184,7 @@ class Crawler:
             res.fetch_errors.append(f"{start_url}: HTTP {home.status}")
             return res
         if cls == "js_shell":
-            if not fcfg.browser_fallback:
+            if not self._can_render():
                 res.status = "needs_browser"
                 res.reason = ("page needs JavaScript rendering; not available on this hosted "
                               "demo (the home page has almost no text without JavaScript and "
@@ -333,12 +341,13 @@ class Crawler:
         browser; the rendering replaces it only if it has more text. Never bypasses a block:
         robots.txt is checked again for the final URL."""
         n = len(page.text)
-        if n >= self.cfg.homepage_min_chars or not self.cfg.fetch.browser_fallback:
+        if n >= self.cfg.homepage_min_chars or not self._can_render():
             return page, meta
         self.progress(f"home page has only {n} characters of text: rendering it in a browser")
         tl = lambda h: len(visible_text(h))  # noqa: E731
         try:
             with self._browser_factory() as browser:
+                how = getattr(browser, "method", "browser")
                 rr = browser.render(page.url, self.cfg.fetch.browser_timeout_seconds, text_len=tl)
         except Exception as e:  # Playwright missing or crashed: keep the httpx page
             res.notes.append(f"browser re-render of the short home page failed: {type(e).__name__}")
@@ -354,21 +363,25 @@ class Crawler:
         new = page.model_copy(update={"text": text, "language": detect_language(text) or "other",
                                       "title": page_title(rr.html) or page.title,
                                       "links": lk, "readable": True})
-        new_meta = {"method": "browser-home", "links": [list(x) for x in lk],
+        new_meta = {"method": f"{how}-home", "links": [list(x) for x in lk],
                     "lang": language_links(rr.html, page.url)}
         res.pages[res.pages.index(page)] = new
         if self.store is not None:
             self.store.put(new, new_meta, request_url=page.url)
-        res.notes.append(f"home page re-rendered in a browser: {n} -> {len(text)} characters")
+        res.notes.append(f"home page re-rendered in a browser: {n} -> {len(text)} characters"
+                         + (" (Jina Reader, external service)" if how == "jina" else ""))
         return new, new_meta
 
     # --- browser crawl (JavaScript-only sites) ---
 
     def _crawl_with_browser(self, res: CrawlResult, root: str, deadline: float,
                             run_id: str | None) -> CrawlResult:
-        res.method = "browser"
         tl = lambda h: len(visible_text(h))  # noqa: E731
         with self._browser_factory() as browser:
+            res.method = getattr(browser, "method", "browser")
+            if res.method == "jina":
+                res.notes.append("pages rendered by Jina Reader (external service; only the "
+                                 "public URL was sent)")
             self.progress("rendering home page in a browser")
             remaining = max(1.0, deadline - time.monotonic())
             rr = browser.render(root, min(self.cfg.fetch.browser_timeout_seconds, remaining),
@@ -382,7 +395,7 @@ class Crawler:
             if self.fetcher.allowed(rr.final_url) is not True:
                 res.status, res.reason = "robots_disallowed", f"browser landed on {rr.final_url}"
                 return res
-            self._store_html(res, rr.final_url, rr.html, run_id)
+            self._store_html(res, rr.final_url, rr.html, run_id, res.method)
             res.language_links = language_links(rr.html, rr.final_url)
             res.has_language_switcher = bool(res.language_links)
             seen = {normalize_url(rr.final_url)}
@@ -411,12 +424,13 @@ class Crawler:
                 p = browser.render(url, min(self.cfg.fetch.browser_timeout_seconds,
                                             max(1.0, remaining)), text_len=tl)
                 if p.ok:
-                    self._store_html(res, p.final_url, p.html, run_id)
+                    self._store_html(res, p.final_url, p.html, run_id, res.method)
                 else:
-                    res.fetch_errors.append(f"{url}: browser render failed")
+                    res.fetch_errors.append(f"{url}: {res.method} render failed")
         return res
 
-    def _store_html(self, res: CrawlResult, url: str, html: str, run_id: str | None) -> None:
+    def _store_html(self, res: CrawlResult, url: str, html: str, run_id: str | None,
+                    method: str = "browser") -> None:
         if normalize_url(url) in {normalize_url(p.url) for p in res.pages}:
             # A link that renders to a page already read (e.g. a single-page app's home).
             res.notes.append(f"browser: {url} already read, not counted twice")
@@ -427,7 +441,7 @@ class Crawler:
                     title=page_title(html), run_id=run_id, links=links(html, url))
         res.pages.append(page)
         if self.store is not None:
-            self.store.put(page, {"method": "browser", "links": [list(x) for x in links(html, url)],
+            self.store.put(page, {"method": method, "links": [list(x) for x in links(html, url)],
                                   "lang": language_links(html, url)}, request_url=url)
 
     def close(self) -> None:

@@ -84,6 +84,9 @@ def check_site(url: str, *, bank_id: str | None = None, source: str = "job",
         if on_crawl:
             on_crawl(crawl)
         run.crawl_status, run.crawl_reason = crawl.status, crawl.reason or None
+        jina = [n for n in crawl.notes if "Jina Reader" in n]
+        if jina and not run.crawl_reason:  # declared external service: say it was used
+            run.crawl_reason = jina[0]
         run.pages_read, run.fetch_errors = len(crawl.pages), crawl.fetch_errors
         run.has_language_switcher = crawl.has_language_switcher
         with db.connect(db_path) as conn:
