@@ -1,0 +1,212 @@
+[
+  {
+    "bank": "agrobank",
+    "url": "https://agrobank.uz/uz/person",
+    "secs": 60.1,
+    "crawl_status": "ok",
+    "crawl_reason": null,
+    "pages": 2,
+    "page_methods": {
+      "jina": 2
+    },
+    "jina": {
+      "ok": 5,
+      "not_checkable": 4
+    },
+    "stored_pages": 4,
+    "stored_secs": 67.7,
+    "stored": {
+      "ok": 5,
+      "not_checkable": 4
+    },
+    "diffs": []
+  },
+  {
+    "bank": "hayot_bank",
+    "url": "https://hayotbank.uz/main/individual/home",
+    "secs": 60.1,
+    "crawl_status": "ok",
+    "crawl_reason": null,
+    "pages": 5,
+    "page_methods": {
+      "jina": 5
+    },
+    "jina": {
+      "ok": 2,
+      "not_checkable": 7
+    },
+    "stored_pages": 11,
+    "stored_secs": 87.2,
+    "stored": {
+      "ok": 5,
+      "possible_gap": 2,
+      "not_checkable": 2
+    },
+    "diffs": [
+      {
+        "requirement_id": "req:cbu_reg_3030:main:14",
+        "stored": "possible_gap",
+        "jina": "not_checkable",
+        "jina_reason": "site had 2 fetch error(s), e.g. https://hayotbank.uz/main/individual/tariff: browser render failed: No evidence found on 5 pages read. Code checked links matching sayt xaritasi, sayt kartasi, sayt tuzilmasi, сайт харитас",
+        "stored_reason": "No evidence found on 11 pages read. Code checked links matching sayt xaritasi, sayt kartasi, sayt tuzilmasi, сайт харитаси, карта сайта, структура сайта, sitemap, site map on 1 page(s) (https://hayotbank.uz/main/individu"
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:18^1",
+        "stored": "possible_gap",
+        "jina": "not_checkable",
+        "jina_reason": "site had 2 fetch error(s), e.g. https://hayotbank.uz/main/individual/tariff: browser render failed: No evidence found on 5 pages read. Code checked links matching kalkulyator, калькулятор, calculator, calc on 5 page(s) (",
+        "stored_reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): No evidence found on 11 pages read. Code checked links matching kalkulyator, калькулятор, calculator, calc on 11 page(s) (https://hayotbank.uz/main/indi"
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:37^5",
+        "stored": "ok",
+        "jina": "not_checkable",
+        "jina_reason": "site had 2 fetch error(s), e.g. https://hayotbank.uz/main/individual/tariff: browser render failed: No evidence found on 5 pages read. No page matched the keywords (keywords from hints: garovdan ozod qilish, garovni alma",
+        "stored_reason": "re-checked 2026-10-10 (0 page(s) re-fetched for missing link data): LLM: present, quote verified. The page lists a document titled with the required release/substitution procedure."
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:49",
+        "stored": "ok",
+        "jina": "not_checkable",
+        "jina_reason": "Code: \"murojaat\" appears in the text of https://hayotbank.uz/main/individual/home but not as a link the crawler could read (a button or script?); check manually.",
+        "stored_reason": "Code: link \"Bankka murojaat qilish\" (https://hayotbank.uz/main/about/contacting-bank) found on https://hayotbank.uz/main/individual/home (homepage page); anchor text quoted from the page."
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:51",
+        "stored": "ok",
+        "jina": "not_checkable",
+        "jina_reason": "site had 2 fetch error(s), e.g. https://hayotbank.uz/main/individual/tariff: browser render failed: No evidence found on 5 pages read. Code checked for +998 numbers and short 1xxx numbers near call, call-markaz, call-цен",
+        "stored_reason": "Code: call-centre number +998 55 520 22 22 found in the text of the homepage https://hayotbank.uz/main/individual/home."
+      }
+    ]
+  },
+  {
+    "bank": "universal_bank",
+    "url": "https://universalbank.uz/",
+    "secs": 20.7,
+    "crawl_status": "ok",
+    "crawl_reason": null,
+    "pages": 15,
+    "page_methods": {
+      "httpx": 15
+    },
+    "jina": {
+      "ok": 1,
+      "not_checkable": 5,
+      "possible_gap": 3
+    },
+    "stored_pages": 15,
+    "stored_secs": 12.4,
+    "stored": {
+      "ok": 2,
+      "possible_gap": 5,
+      "not_checkable": 2
+    },
+    "diffs": [
+      {
+        "requirement_id": "req:cbu_reg_3030:main:14",
+        "stored": "possible_gap",
+        "jina": "not_checkable",
+        "jina_reason": "homepage text too short (925 chars), likely dynamic content or blocked (threshold 1500, data/check_hints.yaml): No evidence found on 15 pages read. Code checked links matching sayt xaritasi, sayt kartasi, sayt tuzilmasi,",
+        "stored_reason": "No evidence found on 15 pages read. Code checked links matching sayt xaritasi, sayt kartasi, sayt tuzilmasi, сайт харитаси, карта сайта, структура сайта, sitemap, site map on 4 page(s) (https://universalbank.uz/, https:/"
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:17",
+        "stored": "possible_gap",
+        "jina": "not_checkable",
+        "jina_reason": "homepage text too short (925 chars), likely dynamic content or blocked (threshold 1500, data/check_hints.yaml): No evidence found on 15 pages read. Code checked links matching bank haqida, biz haqimizda, банк ҳақида, о б",
+        "stored_reason": "No evidence found on 15 pages read. Code checked links matching bank haqida, biz haqimizda, банк ҳақида, о банке, about, about us, about bank on 4 page(s) (https://universalbank.uz/, https://universalbank.uz/uz/, https:/"
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:51",
+        "stored": "ok",
+        "jina": "not_checkable",
+        "jina_reason": "homepage text too short (925 chars), likely dynamic content or blocked (threshold 1500, data/check_hints.yaml): No evidence found on 15 pages read. Code checked for +998 numbers and short 1xxx numbers near call, call-mar",
+        "stored_reason": "Code: call-centre number +998 (71) 200-11-10 found in the text of the homepage https://universalbank.uz/."
+      }
+    ]
+  },
+  {
+    "bank": "asakabank",
+    "url": "https://asakabank.uz/ru/",
+    "secs": 61.7,
+    "crawl_status": "ok",
+    "crawl_reason": null,
+    "pages": 2,
+    "page_methods": {
+      "jina": 2
+    },
+    "jina": {
+      "ok": 2,
+      "not_checkable": 7
+    },
+    "stored_pages": null,
+    "stored_secs": null,
+    "stored": {},
+    "diffs": [
+      {
+        "requirement_id": "req:cbu_reg_3030:main:14",
+        "stored": "no data",
+        "jina": "not_checkable",
+        "jina_reason": "only 2 page(s) read (at least 5 needed to report a possible gap): No evidence found on 2 pages read. Code checked links matching sayt xaritasi, sayt kartasi, sayt tuzilmasi, сайт харитаси, карта сайта, структура сайта, s",
+        "stored_reason": ""
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:17",
+        "stored": "no data",
+        "jina": "not_checkable",
+        "jina_reason": "Code: matching link \"Bank haqida\" found on https://asakabank.uz/uz/about-bank/bank-property, which is not a homepage page; the requirement names the homepage, so check it manually.",
+        "stored_reason": ""
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:18^1",
+        "stored": "no data",
+        "jina": "not_checkable",
+        "jina_reason": "only 2 page(s) read (at least 5 needed to report a possible gap): No evidence found on 2 pages read. Code checked links matching kalkulyator, калькулятор, calculator, calc on 2 page(s) (https://asakabank.uz/ru/, https://",
+        "stored_reason": ""
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:28^1",
+        "stored": "no data",
+        "jina": "not_checkable",
+        "jina_reason": "only 2 page(s) read (at least 5 needed to report a possible gap): No evidence found on 2 pages read. No page matched the keywords (keywords from hints: restrukturizatsiya, kredit shartlarini o'zgartirish, shartnoma shart",
+        "stored_reason": ""
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:37^5",
+        "stored": "no data",
+        "jina": "not_checkable",
+        "jina_reason": "only 2 page(s) read (at least 5 needed to report a possible gap): No evidence found on 2 pages read. No page matched the keywords (keywords from hints: garovdan ozod qilish, garovni almashtirish, garov mulkini qaytarish,",
+        "stored_reason": ""
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:40^4",
+        "stored": "no data",
+        "jina": "not_checkable",
+        "jina_reason": "relevant section not reached (read 2 pages): no section page",
+        "stored_reason": ""
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:49",
+        "stored": "no data",
+        "jina": "not_checkable",
+        "jina_reason": "Code: matching link \"Boshqaruv raisi murojaati\" found on https://asakabank.uz/uz/about-bank/bank-property, which is not a homepage page; the requirement names the homepage, so check it manually.",
+        "stored_reason": ""
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:51",
+        "stored": "no data",
+        "jina": "ok",
+        "jina_reason": "Code: call-centre number +998 55) 514-41-08 found in the text of the homepage https://asakabank.uz/ru/.",
+        "stored_reason": ""
+      },
+      {
+        "requirement_id": "req:cbu_reg_3030:main:7",
+        "stored": "no data",
+        "jina": "ok",
+        "jina_reason": "Uzbek version present (2 Uzbek pages of 2; completeness not assessed): 2 Uzbek and 0 Russian pages of 2 HTML pages read (Uzbek share 100%); language switcher found",
+        "stored_reason": ""
+      }
+    ]
+  }
+]
