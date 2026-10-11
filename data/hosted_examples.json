@@ -1,0 +1,70 @@
+{
+  "measured_at": "2026-10-11T04:29:11+00:00",
+  "homepage_min_chars": 1500,
+  "browser_fallback": false,
+  "banks": [
+    {
+      "bank_id": "mkbank",
+      "url": "https://mkbank.uz/uz/",
+      "http_status": 200,
+      "text_chars": 13139,
+      "classification": "ok",
+      "error": null,
+      "works_on_hosted": true
+    },
+    {
+      "bank_id": "agrobank",
+      "url": "https://agrobank.uz/uz/person",
+      "http_status": 200,
+      "text_chars": 0,
+      "classification": "js_shell",
+      "error": null,
+      "works_on_hosted": false
+    },
+    {
+      "bank_id": "anor_bank",
+      "url": "https://www.anorbank.uz/uz/",
+      "http_status": 200,
+      "text_chars": 7572,
+      "classification": "ok",
+      "error": null,
+      "works_on_hosted": true
+    },
+    {
+      "bank_id": "hayot_bank",
+      "url": "https://hayotbank.uz/main/individual/home",
+      "http_status": 200,
+      "text_chars": 0,
+      "classification": "js_shell",
+      "error": null,
+      "works_on_hosted": false
+    },
+    {
+      "bank_id": "universal_bank",
+      "url": "https://universalbank.uz/",
+      "http_status": 200,
+      "text_chars": 925,
+      "classification": "ok",
+      "error": null,
+      "works_on_hosted": false
+    },
+    {
+      "bank_id": "garant_bank",
+      "url": "https://garantbank.uz/ru",
+      "http_status": 200,
+      "text_chars": 13522,
+      "classification": "ok",
+      "error": null,
+      "works_on_hosted": true
+    },
+    {
+      "bank_id": "asakabank",
+      "url": "https://asakabank.uz/ru/",
+      "http_status": 200,
+      "text_chars": 0,
+      "classification": "js_shell",
+      "error": null,
+      "works_on_hosted": false
+    }
+  ]
+}

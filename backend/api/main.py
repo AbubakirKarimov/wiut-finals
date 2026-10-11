@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from backend import db, metrics, precomputed, team_decisions
+from backend import db, hosted_examples, metrics, precomputed, team_decisions
 from backend.reasons import split_reason
 from backend.api.cors import cors_origins
 from backend.api.ratelimit import limiter_from_env, rate_limit_dependency
@@ -150,10 +150,17 @@ def banks() -> list[dict]:
         for r in conn.execute("SELECT run_id, status, COUNT(*) AS n FROM findings "
                               "GROUP BY run_id, status"):
             counts[(r["run_id"], r["status"])] = r["n"]
+    hosted = hosted_examples.load()
     out = []
     for b in load_banks():
         run = latest.get(b.id)
+        m = hosted.get(b.id)
+        # Offered as a Check example only when measured readable without a browser, for
+        # this exact URL (data/hosted_examples.json).
+        works = bool(m and m["works_on_hosted"] and m["url"] == b.website_url)
         out.append({**b.model_dump(), "latest_run": run.model_dump(mode="json") if run else None,
+                    "works_on_hosted": works,
+                    "hosted_measurement": m if m and m["url"] == b.website_url else None,
                     "findings": {s: counts.get((run.id, s), 0) if run else 0
                                  for s in ("ok", "possible_gap", "not_checkable")}})
     return out
@@ -242,9 +249,15 @@ def get_job(job_id: str) -> dict:
         run = db.get_run(conn, job.result_ref) if job.result_ref else None
         findings = _finding_rows(conn, "WHERE f.run_id = ?", (run.id,)) if run else []
         approved = len(db.list_requirements(conn, approved_only=True))
+        # Stored (pre-computed, made with a browser) results for the same bank, if any.
+        pre = conn.execute(
+            "SELECT COUNT(*) AS n FROM findings f JOIN runs r ON r.id = f.run_id "
+            "WHERE r.bank_id = ? AND r.source = 'precomputed'",
+            (run.bank_id,)).fetchone()["n"] if run else 0
     return {**job.model_dump(mode="json"),
             "run": run.model_dump(mode="json") if run else None,
             "approved_requirements": approved,
+            "precomputed_findings": pre,
             "findings": findings}
 
 
