@@ -1,8 +1,46 @@
 {
  "format": 1,
- "exported_at": "2026-10-10T19:38:03.942077+00:00",
- "reviewed_on": null,
- "n": 0,
- "authors": [],
- "decisions": []
+ "exported_at": "2026-10-11T06:30:25.082697+00:00",
+ "reviewed_on": "2026-10-11T06:30:24.980305+00:00",
+ "n": 5,
+ "authors": [
+  "Abubakir K."
+ ],
+ "decisions": [
+  {
+   "finding_id": "2f5b94c096fd:req:cbu_reg_3030:main:17",
+   "analyst": "Abubakir K.",
+   "verdict": "rejected",
+   "comment": "Link \"Bank haqida\" found under the \"Yana\" dropdown menu on the homepage; the crawler does not expand collapsed menus.",
+   "decided_at": "2026-10-11T06:30:24.974592+00:00"
+  },
+  {
+   "finding_id": "2f5b94c096fd:req:cbu_reg_3030:main:37^5",
+   "analyst": "Abubakir K.",
+   "verdict": "rejected",
+   "comment": "Found in the PDF \"majburiyatlarning ta'minoti\" under Client rights; section II covers release of pledged property after full repayment and page 5 covers partial release and substitution. The crawler did not read this PDF.",
+   "decided_at": "2026-10-11T06:30:24.976416+00:00"
+  },
+  {
+   "finding_id": "2f5b94c096fd:req:cbu_reg_3030:main:40^4",
+   "analyst": "Abubakir K.",
+   "verdict": "rejected",
+   "comment": "Deposit guarantee notice with a link to the guarantee fund (fgd.uz) is present on /deposit. The link text is \"Batafsil\", not the exact phrase \"Your deposits are guaranteed\", so this is a wording difference.",
+   "decided_at": "2026-10-11T06:30:24.977710+00:00"
+  },
+  {
+   "finding_id": "2f5b94c096fd:req:cbu_reg_3030:main:14",
+   "analyst": "Abubakir K.",
+   "verdict": "confirmed",
+   "comment": "No dedicated site map page or link found in the footer; main navigation and footer section links exist.",
+   "decided_at": "2026-10-11T06:30:24.978952+00:00"
+  },
+  {
+   "finding_id": "8084dba7da91:req:cbu_reg_3030:main:14",
+   "analyst": "Abubakir K.",
+   "verdict": "confirmed",
+   "comment": "No dedicated site map page or link found. Footer lists section links, and \"Bank tuzilmasi\" is the bank's organisational structure, not the site structure.",
+   "decided_at": "2026-10-11T06:30:24.980305+00:00"
+  }
+ ]
 }
