@@ -11,7 +11,6 @@ const CRAWL_TEXT = {
   blocked: "The site blocked our crawler. Bot protection is never bypassed, so nothing could be checked.",
   unreachable: "The site could not be reached (DNS, timeout or connection error).",
   robots_disallowed: "The site's robots.txt does not allow our crawler, so it was not read.",
-  needs_browser: "This page needs JavaScript rendering, which is not available on this hosted demo. Nothing was judged: all checks are not checkable.",
   js_shell_failed: "The site stayed nearly empty even in a browser.",
   other: "The site returned an unexpected response.",
 };
@@ -48,8 +47,36 @@ export function stageOf(progress, prev) {
   return next;
 }
 
+// The hosted demo has no browser: a JavaScript-only site ends with nothing judged.
+export function isJsOnly(job) {
+  return Boolean(job && job.status === "done" && job.run && job.run.crawl_status === "needs_browser"
+    && job.findings.every((f) => f.status === "not_checkable"));
+}
+
+function JsOnlyNotice({ job }) {
+  return (
+    <Notice kind="warn">
+      <span data-testid="js-only-message">
+        This site renders its content with JavaScript, which the hosted demo cannot read.
+        Nothing was judged.
+        {job.precomputed_findings > 0 && (
+          <> Pre-computed results for this bank (made with a browser) are on
+            the <a href="#/findings">Findings tab</a>.</>
+        )}
+      </span>
+      {job.run.crawl_reason && (
+        <details className="tech">
+          <summary>Details</summary>
+          <p>{job.run.crawl_reason}</p>
+        </details>
+      )}
+    </Notice>
+  );
+}
+
 function Stepper({ job, st, elapsed }) {
   const done = job.status === "done";
+  const jsOnly = isJsOnly(job);
   // When finished, show the final counts from the run, not the last polled event.
   const pages = done && job.run ? job.run.pages_read : st.pages;
   const checks = done ? job.findings.length : st.checks;
@@ -58,16 +85,16 @@ function Stepper({ job, st, elapsed }) {
     { label: "Crawling site", detail: st.stage === 0 ? "fetching home page" : "" },
     { label: "Reading pages", detail: pages != null ? (done ? `${pages} read` : `${pages}/${st.pagesMax || "?"}`) : "" },
     { label: "Running checks", detail: checksMax != null ? `${checks}/${checksMax}` : "" },
-    { label: "Done", detail: "" },
+    jsOnly ? { label: "Not available on this hosted demo", detail: "", warn: true } : { label: "Done", detail: "" },
   ];
   const current = done ? 4 : st.stage ?? 0;
   return (
     <ol className="stepper" aria-label="Check progress">
       {steps.map((s, i) => {
-        const state = i < current || done ? "done" : i === current ? "active" : "todo";
+        const state = s.warn ? "warn" : i < current || done ? "done" : i === current ? "active" : "todo";
         return (
           <li key={s.label} className={`step step-${state}`} aria-current={state === "active" ? "step" : undefined}>
-            <span className="step-dot" aria-hidden="true">{state === "done" ? "✓" : i + 1}</span>
+            <span className="step-dot" aria-hidden="true">{state === "done" ? "✓" : state === "warn" ? "!" : i + 1}</span>
             <span className="step-label">{s.label}</span>
             {s.detail && <span className="step-detail">{s.detail}</span>}
           </li>
@@ -112,7 +139,8 @@ export default function CheckPage() {
   useEffect(() => () => clearTimeout(timer.current), []);
   useEffect(() => {
     api.banks()
-      .then((bs) => setExamples(bs.filter((b) => b.website_url).slice(0, 3).map((b) => b.website_url)))
+      // Only sites measured readable without a browser (data/hosted_examples.json).
+      .then((bs) => setExamples(bs.filter((b) => b.website_url && b.works_on_hosted).slice(0, 3).map((b) => b.website_url)))
       .catch(() => setExamples([]));
   }, []);
 
@@ -178,6 +206,7 @@ export default function CheckPage() {
     setJob((j) => ({ ...j, findings: j.findings.map((f) => (f.id === id ? { ...f, decision: d } : f)) }));
 
   const run = job && job.run;
+  const jsOnly = isJsOnly(job);
   const elapsed = started ? Math.max(0, Math.round((now - started) / 1000)) : 0;
   const quotaHit = job && job.status === "done"
     ? job.findings.filter((f) => /LLM timeout|rate limit|quota/i.test(f.reason || "")).length : 0;
@@ -226,8 +255,13 @@ export default function CheckPage() {
         <div className="progress" data-testid="job-status">
           <Stepper job={job} st={st} elapsed={elapsed} />
           <p className="small">
-            <strong>Status:</strong> {job.status}
-            {job.progress && job.progress !== job.status ? ` — ${job.progress}` : ""}
+            <strong>Status:</strong>{" "}
+            {jsOnly ? <span data-testid="status-label">finished, nothing judged</span> : (
+              <>
+                {job.status}
+                {job.progress && job.progress !== job.status ? ` — ${job.progress}` : ""}
+              </>
+            )}
           </p>
           {running && (
             <button type="button" className="btn" onClick={cancel} disabled={cancelling}>
@@ -241,7 +275,8 @@ export default function CheckPage() {
               <span className="small">({job.error})</span> {retry}
             </Notice>
           )}
-          {run && run.crawl_status && run.crawl_status !== "ok" && (
+          {jsOnly && <JsOnlyNotice job={job} />}
+          {!jsOnly && run && run.crawl_status && run.crawl_status !== "ok" && (
             <Notice kind="error">
               {CRAWL_TEXT[run.crawl_status] || "The site could not be read."}{" "}
               {run.crawl_reason && <span className="small">({run.crawl_reason})</span>} {retry}
@@ -266,11 +301,20 @@ export default function CheckPage() {
           ) : job.findings.length === 0 ? (
             <Notice>No findings were produced for this run.</Notice>
           ) : (
-            <>
-              <AnalystField analyst={analyst} setAnalyst={setAnalyst} />
-              <FindingsList findings={job.findings} analyst={analyst} onDecided={onDecided}
-                            liveRunId={run && run.id} />
-            </>
+            jsOnly ? (
+              // Every card would repeat the message above: keep them out of the way.
+              <details className="tech" data-testid="js-only-checks">
+                <summary>{job.findings.length} check(s), all not checkable</summary>
+                <FindingsList findings={job.findings} analyst={analyst} onDecided={onDecided}
+                              liveRunId={run && run.id} />
+              </details>
+            ) : (
+              <>
+                <AnalystField analyst={analyst} setAnalyst={setAnalyst} />
+                <FindingsList findings={job.findings} analyst={analyst} onDecided={onDecided}
+                              liveRunId={run && run.id} />
+              </>
+            )
           )}
         </div>
       )}

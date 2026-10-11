@@ -87,6 +87,39 @@ test("a check reaches results with stepper, badge and pages read", async ({ page
   await shot(page, testInfo, "check-results");
 });
 
+test("a JavaScript-only site ends with one friendly message and an amber final step", async ({ page }, testInfo) => {
+  await page.goto("/#/check");
+  await page.getByPlaceholder("https://bank.uz/").fill(SITE.replace("index.html", "js-only.html"));
+  await page.getByRole("button", { name: "Check", exact: true }).click();
+  const status = page.getByTestId("job-status");
+  await expect(status.getByTestId("status-label")).toHaveText("finished, nothing judged", { timeout: 60_000 });
+  await expect(status).not.toContainText("Status: done");
+  const message = status.getByTestId("js-only-message");
+  await expect(message).toHaveText(
+    "This site renders its content with JavaScript, which the hosted demo cannot read. Nothing was judged.");
+  // No pre-computed results exist for this host, so no Findings link is offered.
+  await expect(message.getByRole("link")).toHaveCount(0);
+  const stepper = page.getByRole("list", { name: "Check progress" });
+  const last = stepper.locator(".step").last();
+  await expect(last).toHaveClass(/step-warn/);
+  await expect(last).toHaveText(/Not available on this hosted demo/);
+  await expect(stepper).not.toContainText("Done");
+  // The technical reason is only in the collapsed Details; no env var names are visible.
+  const details = status.locator("details.tech");
+  await expect(details).not.toHaveAttribute("open", "");
+  await expect(details.locator("p")).toBeHidden();
+  const visible = await page.evaluate(() => document.body.innerText);
+  expect(visible).not.toMatch(/BROWSER_FALLBACK|[A-Z]{3,}_[A-Z_]{3,}=/);
+  // The message appears once in the status area, not repeated as an error with Retry.
+  await expect(status.getByText("which the hosted demo cannot read")).toHaveCount(1);
+  await expect(status.getByRole("button", { name: "Retry" })).toHaveCount(0);
+  const checks = page.getByTestId("js-only-checks");
+  await expect(checks).toContainText("1 check(s), all not checkable");
+  await expect(checks).not.toHaveAttribute("open", "");
+  await noHorizontalScroll(page);
+  await shot(page, testInfo, "check-js-only");
+});
+
 test("stored cards: ok keeps its quote, not checkable shows only a short reason", async ({ page }) => {
   await page.goto("/#/findings");
   const ok = page.getByTestId("finding-row").filter({ hasText: "e2e_ok_bank" });

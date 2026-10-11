@@ -228,6 +228,9 @@ input[aria-invalid="true"] { border-color: var(--err-fg); }
 .step-active { color: var(--text); font-weight: 600; }
 .step-active .step-dot { border-color: var(--accent); color: var(--accent); }
 .step-done .step-dot { background: var(--ok-fg); border-color: var(--ok-fg); color: var(--surface); }
+.step-warn { color: var(--warn-fg); font-weight: 600; }
+.step-warn .step-dot { background: var(--warn-bg); border-color: var(--warn-fg); color: var(--warn-fg); }
+.notice .tech { margin-top: 0.4rem; }
 .step-detail { font-variant-numeric: tabular-nums; font-size: 13px; }
 .elapsed { font-size: 13px; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
 .how { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
