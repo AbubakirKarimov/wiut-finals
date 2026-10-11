@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, formatTime } from "../api.js";
+import { api, formatDate, formatTime } from "../api.js";
 import { Notice, StatusBadge } from "../components/Findings.jsx";
 
 function fmt(v, unit = "") {
@@ -47,6 +47,10 @@ function Metrics({ m }) {
   const u = m.llm_usage;
   const c = m.consistency;
   const n = a.decided;
+  const lt = m.findings_by_status_latest;
+  const all = m.findings_by_status;
+  const noCalls = !u.api_calls && !u.cache_hits;
+  const checksPerSite = u.runs && u.checks ? Math.round((u.checks / u.runs) * 10) / 10 : null;
   return (
     <>
       <h2>Analyst review</h2>
@@ -54,28 +58,30 @@ function Metrics({ m }) {
         <Stat testid="team-precision" label="Possible gaps confirmed by the team"
               value={t.n >= t.min_reviewed ? `${t.confirmed} of ${t.n} confirmed` : "not enough data"}
               note={t.n >= t.min_reviewed
-                ? `reviewed by team on ${t.reviewed_on} (n = ${t.n}; data/precomputed/decisions.json)`
+                ? `reviewed by team on ${formatDate(t.reviewed_at || t.reviewed_on)} (n = ${t.n}; data/precomputed/decisions.json)`
                 : `n = ${t.n} reviewed by the team; at least ${t.min_reviewed} needed`} />
-        <Stat testid="precision" label="Live decisions on this server"
+        <Stat testid="precision" label="Visitor clicks on this demo (not saved, not counted as team review)"
               value={n ? `${a.confirmed} of ${n} confirmed` : "n/a"}
               note={n < MIN_REVIEWED
                 ? `not enough data (n = ${n} reviewed; at least ${MIN_REVIEWED} needed)`
                 : `n = ${n} reviewed possible gaps · ${typeof a.value === "number" ? `precision ${pct(a.value)}` : a.value}`} />
-        <Stat label="Findings by status"
-              value={`${m.findings_by_status.possible_gap} / ${m.findings_by_status.not_checkable} / ${m.findings_by_status.ok}`}
-              note="possible gap / not checkable / ok (all stored runs)" />
+        <Stat testid="by-status" label="Findings by status (latest run per bank)"
+              value={`${lt.possible_gap} / ${lt.not_checkable} / ${lt.ok}`}
+              note={`possible gap / not checkable / ok · ${lt.findings} findings on ${lt.banks} bank(s) · all stored runs incl. older ones: ${all.possible_gap} / ${all.not_checkable} / ${all.ok}`} />
       </div>
 
       <h2>Who decided: code vs LLM-assisted</h2>
       <div className="stats" data-testid="decided-split">
-        <Stat label="Shown findings decided by code" value={pct(d.share_code)}
-              note={d.recorded
-                ? `${d.code} code · ${d.llm_assisted} LLM-assisted · ${d.not_recorded} not recorded`
-                : `n/a: the ${d.not_recorded} shown finding(s) were stored before this was recorded`} />
-        <Stat label="Current checks replayed on stored pages" value={pct(r.share_code)}
-              note={r.findings
-                ? `${r.decided_by.code} of ${r.findings} findings decided by code on ${r.banks} banks (no LLM calls; eval/replay_stored.py, ${String(r.generated_at).slice(0, 10)})`
-                : "n/a: replay not run"} />
+        <Stat testid="decided-by-code" label="Findings decided by code (latest run per bank)"
+              value={d.recorded ? `${d.code} of ${d.code + d.llm_assisted + d.not_recorded}` : "n/a"}
+              note={[
+                d.recorded
+                  ? `${pct(d.share_code)} · ${d.llm_assisted} LLM-assisted${d.not_recorded ? ` · ${d.not_recorded} not recorded` : ""}`
+                  : `the ${d.not_recorded} shown finding(s) were stored before this was recorded`,
+                r.findings
+                  ? `Replay of the current checks on the stored pages (no LLM calls, ${formatDate(r.generated_at)}): ${r.decided_by.code} of ${r.findings} decided by code`
+                  : "Replay: not run",
+              ].join(" · ")} />
       </div>
 
       <h2>Speed and cost</h2>
@@ -87,8 +93,10 @@ function Metrics({ m }) {
               note={`${u.api_calls ?? 0} API call(s), ${u.cache_hits ?? 0} cache hit(s)`} />
         <Stat label="LLM calls per run" value={fmt(u.calls_per_run)} note={`${u.runs} run(s)`} />
         <Stat label="Tokens per run" value={fmt(u.tokens_per_run)} note="input + output, API calls only" />
-        <Stat label="Estimated cost per requirement check" value={usd(u.cost_usd_per_check)}
-              note={`per site run ${usd(u.cost_usd_per_run)} · list price from server config`} />
+        <Stat label="Estimated LLM cost per requirement check (list price)" value={usd(u.cost_usd_per_check)}
+              note={`one requirement on one site · from LLM call logs on this server${noCalls ? " (pre-computed runs carry no call logs)" : ""}`} />
+        <Stat label="Estimated LLM cost per site check (list price)" value={usd(u.cost_usd_per_run)}
+              note={checksPerSite ? `one site, ${checksPerSite} requirement checks` : "no data"} />
         <Stat label="Consistency (repeat runs agree)" value={pct(c.value)}
               note={c.requirements ? `${c.requirements} requirement(s) on ${c.banks} bank(s)` : c.detail} />
       </div>

@@ -113,7 +113,7 @@ function DecisionBox({ finding, analyst, onDecided }) {
       {decision && (
         <p className={`decided decided-${decision.verdict}`} data-testid="decision-state">
           {decision.verdict === "confirmed" ? "Confirmed" : "Rejected"} by {decision.analyst}
-          {" · "}{formatTime(decision.decided_at)}
+          {" on "}{formatTime(decision.decided_at)}
           {decision.source === "team" ? <span className="decided-src"> · team review</span> : null}
           {decision.storage_note ? <span className="decided-src" data-testid="storage-note"> · {decision.storage_note}</span> : null}
           {decision.comment ? <span className="decided-comment">“{decision.comment}”</span> : null}

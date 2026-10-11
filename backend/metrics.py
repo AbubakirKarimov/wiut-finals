@@ -94,8 +94,11 @@ def team_review(conn: sqlite3.Connection) -> dict:
     n = len(latest)
     confirmed = sum(r["verdict"] == "confirmed" for r in latest.values())
     reviewed_on = max((r["decided_at"][:10] for r in latest.values()), default=None)
+    reviewed_at = max((r["decided_at"] for r in latest.values()), default=None)
     out = {"n": n, "confirmed": confirmed, "rejected": n - confirmed,
-           "reviewed_on": reviewed_on or NO_DATA, "min_reviewed": TEAM_MIN_REVIEWED}
+           "reviewed_on": reviewed_on or NO_DATA,  # UTC date
+           "reviewed_at": reviewed_at or NO_DATA,  # UTC timestamp (the UI shows local time)
+           "min_reviewed": TEAM_MIN_REVIEWED}
     if n < TEAM_MIN_REVIEWED:
         return {**out, "label": "not enough data",
                 "detail": f"n = {n} possible gap(s) reviewed by the team"}
@@ -229,6 +232,13 @@ def compute(conn: sqlite3.Connection, labels_path: Path = LABELS_PATH) -> dict:
     status_counts = {s: 0 for s in ("ok", "possible_gap", "not_checkable")}
     for r in conn.execute("SELECT status, COUNT(*) AS n FROM findings GROUP BY status"):
         status_counts[r["status"]] = r["n"]
+    # What the Findings screen shows: each bank's latest run only.
+    latest_counts = {s: 0 for s in ("ok", "possible_gap", "not_checkable")}
+    for r in conn.execute(f"SELECT status, COUNT(*) AS n FROM findings WHERE run_id IN "
+                          f"({LATEST_RUNS}) GROUP BY status"):
+        latest_counts[r["status"]] = r["n"]
+    latest_banks = conn.execute(f"SELECT COUNT(DISTINCT bank_id) AS n FROM runs WHERE id IN "
+                                f"({LATEST_RUNS})").fetchone()["n"]
 
     return {
         "checks_completed": n,
@@ -244,7 +254,9 @@ def compute(conn: sqlite3.Connection, labels_path: Path = LABELS_PATH) -> dict:
         "precision_possible_gap_vs_labels": label_precision(conn, labels_path),
         "precision_possible_gap_from_decisions": decision_precision(conn),
         "consistency": consistency(conn),
-        "findings_by_status": status_counts,
+        "findings_by_status": status_counts,  # all stored runs
+        "findings_by_status_latest": {**latest_counts, "banks": latest_banks,
+                                      "findings": sum(latest_counts.values())},
         "team_review": team_review(conn),
         "decided_by": decided_by(conn),
         "decided_by_replay": replay_summary(),

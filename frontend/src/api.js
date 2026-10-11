@@ -52,9 +52,32 @@ export const api = {
   metrics: () => request("/metrics"),
 };
 
-export function formatTime(iso) {
-  if (!iso) return "no data";
+// Every date in the UI is shown in Uzbekistan time, whatever the viewer's browser timezone;
+// stored and exported values stay in UTC.
+const TZ = "Asia/Tashkent";
+const DATE_TIME = new Intl.DateTimeFormat("en-GB", {
+  timeZone: TZ, day: "numeric", month: "short", year: "numeric",
+  hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+});
+const DATE_ONLY = new Intl.DateTimeFormat("en-GB", {
+  timeZone: TZ, day: "numeric", month: "short", year: "numeric",
+});
+
+function parse(iso) {
+  if (!iso || iso === "no data") return null;
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toISOString().replace("T", " ").slice(0, 16) + " UTC";
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+// "11 Oct 2026, 10:42 (Tashkent time)"
+export function formatTime(iso) {
+  const d = parse(iso);
+  if (!d) return iso || "no data";
+  return `${DATE_TIME.format(d)} (Tashkent time)`;
+}
+
+// "11 Oct 2026" (the date in Tashkent)
+export function formatDate(iso) {
+  const d = parse(iso);
+  return d ? DATE_ONLY.format(d) : iso || "no data";
 }

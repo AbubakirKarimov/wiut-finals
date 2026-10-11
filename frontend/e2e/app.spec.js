@@ -144,6 +144,19 @@ test("stored cards: ok keeps its quote, not checkable shows only a short reason"
   await expect(ncEv.getByTestId("nc-reason")).not.toContainText("re-checked");
 });
 
+test("times are shown in Tashkent time whatever the browser timezone", async ({ browser }) => {
+  // The seeded stored run finished at 2026-10-10 12:00 UTC = 17:00 in Tashkent (UTC+5).
+  for (const timezoneId of ["America/New_York", "Asia/Tokyo"]) {
+    const ctx = await browser.newContext({ timezoneId });
+    const page = await ctx.newPage();
+    await page.goto("/#/findings");
+    const row = page.getByTestId("finding-row").filter({ hasText: "e2e_ok_bank" });
+    await expect(row).toContainText("pre-computed on 10 Oct 2026, 17:00 (Tashkent time)");
+    await expect(row).not.toContainText("UTC");
+    await ctx.close();
+  }
+});
+
 test("decision persists after reload and appears in the audit log", async ({ page, request }, testInfo) => {
   // Make sure a stored finding exists (independent of test order).
   const start = await request.post(`${API}/check`, { data: { url: SITE } });
@@ -177,6 +190,10 @@ test("decision persists after reload and appears in the audit log", async ({ pag
   await expect(page.getByTestId("team-precision")).toContainText("not enough data");
   await expect(page.getByTestId("decision-log")).toContainText("live session, may reset on restart");
   await expect(page.getByTestId("decided-split")).toContainText("decided by code");
+  await expect(page.getByTestId("by-status")).toContainText("latest run per bank");
+  await expect(page.getByTestId("precision")).toContainText("Visitor clicks on this demo");
+  // Times are shown in Tashkent time, e.g. "11 Oct 2026, 10:42 (Tashkent time)".
+  await expect(page.getByTestId("decision-log")).toContainText(/\d{1,2} [A-Z][a-z]{2} \d{4}, \d{2}:\d{2} \(Tashkent time\)/);
   await expect(page.getByTestId("known-failures")).toContainText("Prompt injection");
   await noHorizontalScroll(page);
   await shot(page, testInfo, "audit");
